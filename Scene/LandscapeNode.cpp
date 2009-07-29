@@ -9,7 +9,10 @@
 
 #include <Scene/LandscapeNode.h>
 #include <Math/Math.h>
+#include <Renderers/OpenGL/TextureLoader.h>
 #include <Logging/Logger.h>
+
+using namespace OpenEngine::Renderers::OpenGL;
 
 namespace OpenEngine {
     namespace Scene {
@@ -22,8 +25,8 @@ namespace OpenEngine {
          * @ heightScale Scales the height of the heightmap.
          * @ widthScale Scales the width and depth of the heightmap.
          */        
-        LandscapeNode::LandscapeNode(ITextureResourcePtr tex, float heightScale, float widthScale) 
-            : widthScale(widthScale) {
+        LandscapeNode::LandscapeNode(ITextureResourcePtr tex, IShaderResourcePtr shader, float heightScale, float widthScale) 
+            : widthScale(widthScale), landscapeShader(shader) {
             initialized = false;
             
             int texWidth = tex->GetWidth();
@@ -103,12 +106,7 @@ namespace OpenEngine {
 
             // Setup the terrain
             texDetail = 1;
-            grassTex = tex;
             SetupTerrainTexture();
-
-            // Setup the geomorphing shader
-            //geoMorphing = NULL;
-            geoMorphing = new GLSLResource("projects/Terrain/data/shaders/Terrain/Terrain.glsl");
 
             // Create patches
             int squares = LandscapePatchNode::PATCH_EDGE_SQUARES;
@@ -143,7 +141,10 @@ namespace OpenEngine {
         }
 
         void LandscapeNode::Initialize(){
-            if (geoMorphing) geoMorphing->Load();
+            if (landscapeShader) landscapeShader->Load();
+            for (ShaderTextureMap::iterator itr = landscapeShader->textures.begin(); 
+                 itr != landscapeShader->textures.end(); itr++)
+                TextureLoader::LoadTextureResource( (*itr).second );
             initialized = true;
         }
 

@@ -61,7 +61,7 @@ namespace OpenEngine {
             
         private:
             static const unsigned int WATERLEVEL = 20;
-            static const unsigned int SNOWLEVEL = 80;
+            static const unsigned int SNOWLEVEL = 70;
 
             unsigned int width;
             unsigned int breath;

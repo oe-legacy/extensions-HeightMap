@@ -67,17 +67,13 @@ namespace OpenEngine {
             float* sunPos;
 
             int texDetail;
-            ITextureResourcePtr sandTex;
-            ITextureResourcePtr grassTex;
-            ITextureResourcePtr rockTex;
-            ITextureResourcePtr snowTex;
 
             // Shader for geomorphing
-            GLSLResource* geoMorphing;
+            IShaderResourcePtr landscapeShader;
 
         public:
             LandscapeNode() {};
-            LandscapeNode(ITextureResourcePtr tex, float heightscale = 1.0, float widthScale = 1.0);
+            LandscapeNode(ITextureResourcePtr tex, IShaderResourcePtr shader, float heightscale = 1.0, float widthScale = 1.0);
             ~LandscapeNode();
 
             bool IsInitialized() const { return initialized; }
@@ -87,7 +83,7 @@ namespace OpenEngine {
             void RenderPatches();
             void RenderNormals();
 
-            void VisitSubNodes(ISceneNodeVisitor& visitor) {};
+            void VisitSubNodes(ISceneNodeVisitor& visitor) {}
 
             // *** Get/Set methods ***
 
@@ -95,7 +91,7 @@ namespace OpenEngine {
             GLubyte* GetColorArray() const { return colors; }
             GLfloat* GetNormalArray() const { return normals; }
             GLfloat* GetTextureCoordArray() const { return texCoords; }
-            GLSLResource* GetGeoMorphingShader() const { return geoMorphing; }
+            IShaderResourcePtr GetLandscapeShader() const { return landscapeShader; }
             int GetNumberOfVertices() const { return numberOfVertices; }
             int GetWidth() const { return width; }
             int GetDepth() const { return depth; }
@@ -107,14 +103,7 @@ namespace OpenEngine {
             void SetSunPos(float* sun) { sunPos = sun; }
             
             void SetTextureDetail(int pixelsPrEdge);
-            void SetSandTexture(ITextureResourcePtr tex) { sandTex = tex; }
-            void SetGrassTexture(ITextureResourcePtr tex) { grassTex = tex; }
-            void SetRockTexture(ITextureResourcePtr tex) { rockTex = tex; }
-            void SetSnowTexture(ITextureResourcePtr tex) { snowTex = tex; }
-            ITextureResourcePtr GetSandTexture() { return sandTex; }
-            ITextureResourcePtr GetGrassTexture() { return grassTex; }
-            ITextureResourcePtr GetRockTexture() { return rockTex; }
-            ITextureResourcePtr GetSnowTexture() { return snowTex; }
+            void SetLandscapeShader(IShaderResourcePtr shader) { landscapeShader = shader; }
 
         private:
             inline void CalcNormal(int x, int z);

@@ -36,12 +36,12 @@ namespace OpenEngine {
                     float y;
                     land->GetYCoord(z + x * landscapeWidth, y);
                     ymin = y < ymin ? y : ymin;
-                    ymax = y > ymax ? y : ymin;
+                    ymax = y > ymax ? y : ymax;
                 }
             }
 
             patchCenter = Vector<3, float>((xmax + xmin) / 2, (ymax + ymin) / 2, (zmax + zmin) / 2);
-            boundingBox = new Box(patchCenter, Vector<3, float>(xmax, ymax, zmax));
+            boundingBox = new Box(patchCenter, Vector<3, float>(xmax - patchCenter[0], ymax - patchCenter[1], zmax - patchCenter[2]));
         }
 
         LandscapePatchNode::~LandscapePatchNode(){
@@ -126,6 +126,25 @@ namespace OpenEngine {
                 glDrawElements(GL_TRIANGLE_STRIP, currentLOD->numberOfStichingHigherIndices, GL_UNSIGNED_INT, currentLOD->upperStitchingHigherIndices);
             }else //if (LOD > upper->GetLOD())
                 glDrawElements(GL_TRIANGLE_STRIP, currentLOD->numberOfStichingLowerIndices, GL_UNSIGNED_INT, currentLOD->upperStitchingLowerIndices);
+
+            // Render bounding box
+            /*
+            glBegin(GL_LINES);
+            
+            Vector<3, float> center = boundingBox->GetCenter();
+            glColor3f(center[0], center[1], center[2]);
+
+            for (int i = 0; i < 8; ++i){
+                Vector<3, float> ic = boundingBox->GetCorner(i);
+                for (int j = i+1; j < 8; ++j){
+                    Vector<3, float> jc = boundingBox->GetCorner(j);
+                    glVertex3f(ic[0], ic[1], ic[2]);
+                    glVertex3f(jc[0], jc[1], jc[2]);
+                }
+            }
+
+            glEnd();
+            */
         }
 
         void LandscapePatchNode::RenderNormals(){

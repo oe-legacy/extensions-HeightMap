@@ -35,7 +35,7 @@ namespace OpenEngine {
 
         void SunNode::Move(unsigned int dt){
             time += dt;
-            
+
             coords[0] = origo[0] + direction[0] * cos(time/timeModifier);
             coords[1] = origo[1] + direction[1] * sin(time/timeModifier);
             coords[2] = origo[2] + direction[2] * cos(time/timeModifier);

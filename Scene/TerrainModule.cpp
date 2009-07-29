@@ -23,12 +23,6 @@ namespace OpenEngine {
 
         void TerrainModule::Handle(ProcessEventArg arg){
             sun->Move(arg.approx);
-
-            /*
-            map->CalcSimpleShadow();
-            map->BoxBlurShadow(7,7);
-            map->ApplyShadow();
-            */
         }
 
         void TerrainModule::Handle(DeinitializeEventArg arg){

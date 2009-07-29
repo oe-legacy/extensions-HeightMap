@@ -34,14 +34,12 @@ namespace OpenEngine {
                 // Then do opengl stuff
 
                 glEnable(GL_CULL_FACE);
-
-                GLSLResource* shader = node->GetGeoMorphingShader();
-                if (shader){
-                    float* sunPos = node->GetSunPos();
-                    glLightfv(GL_LIGHT0, GL_POSITION, sunPos);
-                    // @TODO send a light normal along to the shader, instead of calculating it for each vertex?
-                    shader->ApplyShader();
-                }
+                
+                IShaderResourcePtr shader = node->GetLandscapeShader();
+                float* sunPos = node->GetSunPos();
+                glLightfv(GL_LIGHT0, GL_POSITION, sunPos);
+                // @TODO send a light normal along to the shader, instead of calculating it for each vertex?
+                shader->ApplyShader();
 
                 glEnableClientState(GL_VERTEX_ARRAY);
                 glVertexPointer(3, GL_FLOAT, 0, node->GetVerticeArray());
@@ -49,35 +47,16 @@ namespace OpenEngine {
                 glEnableClientState(GL_NORMAL_ARRAY);
                 glNormalPointer(GL_FLOAT, 0, node->GetNormalArray());
 
-                glEnable(GL_TEXTURE_2D);
-                ITextureResourcePtr grass = node->GetGrassTexture();
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, grass->GetID());
-                ITextureResourcePtr snow = node->GetSnowTexture();
-                glActiveTexture(GL_TEXTURE0 + 1);
-                glBindTexture(GL_TEXTURE_2D, snow->GetID());
-                /*
-                ITextureResourcePtr sand = node->GetSandTexture();
-                glActiveTexture(GL_TEXTURE0 + 2);
-                glBindTexture(GL_TEXTURE_2D, sand->GetID());
-                */
                 glEnableClientState(GL_TEXTURE_COORD_ARRAY);
                 glTexCoordPointer(2, GL_FLOAT, 0, node->GetTextureCoordArray());
-                glActiveTexture(GL_TEXTURE0);
 
                 node->RenderPatches();
 
                 glDisableClientState(GL_VERTEX_ARRAY);
-
                 glDisableClientState(GL_NORMAL_ARRAY);
-
-                glBindTexture(GL_TEXTURE_2D, 0);
                 glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-                glDisable(GL_TEXTURE_2D);
 
-                if (shader){
-                    shader->ReleaseShader();
-                }
+                shader->ReleaseShader();
                 
                 glDisable(GL_CULL_FACE);
             }
