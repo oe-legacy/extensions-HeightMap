@@ -24,10 +24,6 @@ namespace OpenEngine {
 
             right = upper = NULL;
 
-            baseDistance = 100;
-            incrementalDistance = 100;
-            CalcLODSwitchDistances();
-
             float xmin, ymin, zmin, xmax, ymax, zmax;
             land->GetCoords(zStart + xStart * landscapeWidth, xmin, ymin, zmin);
             land->GetCoords(zEnd-1 + (xEnd-1) * landscapeWidth, xmax, ymax, zmax);
@@ -63,18 +59,6 @@ namespace OpenEngine {
         }
 
         /**
-         * Set the distance at which the LOD should switch.
-         *
-         * @ base The base distance to the camera where the LOD is the highest.
-         * @ dec The distance between each decrement in LOD.
-         */
-        void LandscapePatchNode::SetLODSwitchDistance(float base, float dec){
-            baseDistance = base;
-            incrementalDistance = dec;
-            CalcLODSwitchDistances();
-        }
-
-        /**
          * Calculate the level of detail of the node based on the
          * distance to the camera.
          */
@@ -88,10 +72,12 @@ namespace OpenEngine {
             Vector<3, float> viewPos = view->GetPosition();
             float distanceSquared = (viewPos - patchCenter).GetLengthSquared();
 
+            float* lodSwitch = landscape->GetLODSwitchArray();
+            
             currentLOD = &LODs[MAX_LODS-1];
-            for (int i = 0; i < MAX_LODS-1; ++i){
-                if (distanceSquared < lodDistanceSquared[i]){
-                    currentLOD = &LODs[i];
+            for (int i = 1; i < MAX_LODS; ++i){
+                if (distanceSquared < lodSwitch[i]){
+                    currentLOD = &LODs[i-1];
                     break;
                 }
             }
@@ -274,14 +260,6 @@ namespace OpenEngine {
                     indices[i++] = z + (xEnd - 1 - LOD) * landscapeWidth;
                     indices[i++] = z + LOD + (xEnd - 1) * landscapeWidth;
                 }
-            }
-        }
-
-        void LandscapePatchNode::CalcLODSwitchDistances(){
-            lodDistanceSquared = new float[MAX_LODS];
-            
-            for (int i = 0; i < MAX_LODS; ++i){
-                lodDistanceSquared[i] = (baseDistance + i * incrementalDistance) * (baseDistance + i * incrementalDistance);
             }
         }
 

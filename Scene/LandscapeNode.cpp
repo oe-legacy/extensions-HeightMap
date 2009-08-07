@@ -131,6 +131,8 @@ namespace OpenEngine {
                         patchNodes[entry].SetRightNeighbor(&patchNodes[entry + 1]);
                 }
             }
+
+            SetLODSwitchDistance(100, 100);
         }
 
         LandscapeNode::~LandscapeNode(){
@@ -178,6 +180,18 @@ namespace OpenEngine {
         void LandscapeNode::SetTextureDetail(int pixelsPrEdge){
             texDetail = pixelsPrEdge;
             SetupTerrainTexture();
+        }
+
+        /**
+         * Set the distance at which the LOD should switch.
+         *
+         * @ base The base distance to the camera where the LOD is the highest.
+         * @ dec The distance between each decrement in LOD.
+         */
+        void LandscapeNode::SetLODSwitchDistance(float base, float dec){
+            baseDistance = base;
+            incrementalDistance = dec;
+            CalcLODSwitchDistances();
         }
 
         // **** inline functions ****
@@ -242,6 +256,18 @@ namespace OpenEngine {
             texCoords[entry] = (z * texDetail) / (float)width;
         }
 
+
+        void LandscapeNode::CalcLODSwitchDistances(){
+            int maxLods = LandscapePatchNode::MAX_LODS;
+            lodDistanceSquared = new float[maxLods + 1];
+            
+            lodDistanceSquared[0] = 0;
+            for (int i = 1; i < maxLods + 1; ++i){
+                float distance = baseDistance + (i-1) * incrementalDistance;
+                lodDistanceSquared[i] = distance * distance;
+            }
+        }
+
         void LandscapeNode::EntryToCoord(int entry, int &x, int &z) const{
             x = entry / width;
             z = entry % width;
@@ -261,6 +287,10 @@ namespace OpenEngine {
 
         GLfloat LandscapeNode::ZCoord(int x, int z) const{
             return vertices[CoordToEntry(x, z) * DIMENSIONS + 2];
+        }
+
+        void LandscapeNode::SetYCoord(const int x, const int z, float value){
+            vertices[CoordToEntry(x, z) * DIMENSIONS + 1] = value;
         }
     }
 }

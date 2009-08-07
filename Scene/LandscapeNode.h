@@ -67,6 +67,10 @@ namespace OpenEngine {
             float* sunPos;
 
             int texDetail;
+            // Distances for changing the LOD
+            float baseDistance;
+            float incrementalDistance;
+            float* lodDistanceSquared;
 
             // Shader for geomorphing
             IShaderResourcePtr landscapeShader;
@@ -103,17 +107,24 @@ namespace OpenEngine {
             void SetSunPos(float* sun) { sunPos = sun; }
             
             void SetTextureDetail(int pixelsPrEdge);
+            void SetLODSwitchDistance(const float base, const float inc);
+            float* GetLODSwitchArray() const { return lodDistanceSquared; }
+            float GetLODBaseDistance() const { return baseDistance; }
+            float GetLODBaseIncDistance() const { return incrementalDistance; }
+            
             void SetLandscapeShader(IShaderResourcePtr shader) { landscapeShader = shader; }
 
         private:
             inline void CalcNormal(int x, int z);
             inline void SetupTerrainTexture();
             inline void CalcTexCoords(int x, int z);
+            inline void CalcLODSwitchDistances();
             inline void EntryToCoord(int entry, int &x, int &z) const;
             inline int CoordToEntry(int x, int z) const;
             inline float XCoord(int x, int z) const;
             inline float YCoord(int x, int z) const;
             inline float ZCoord(int x, int z) const;
+            inline void SetYCoord(const int x, const int z, float value);
         };
         
     }

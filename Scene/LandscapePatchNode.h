@@ -50,7 +50,6 @@ namespace OpenEngine {
 
         private:
             int LOD; // a LOD of 0 means the patch is outside the frustum
-            float morphing;
             int xStart, xEnd, zStart, zEnd;
             Box* boundingBox;
             Vector<3, float> patchCenter;
@@ -59,10 +58,6 @@ namespace OpenEngine {
 
             LODstruct* LODs;
             LODstruct* currentLOD;
-
-            float baseDistance;
-            float incrementalDistance;
-            float* lodDistanceSquared;
 
             LandscapePatchNode* upper;
             int upperPatchLOD; 
@@ -74,10 +69,6 @@ namespace OpenEngine {
             LandscapePatchNode() {}
             LandscapePatchNode(int xOffset, int zOffset, LandscapeNode* land);
             ~LandscapePatchNode();
-
-            void SetLODSwitchDistance(float base, float inc);
-            float GetLODBaseDistance() { return baseDistance; }
-            float GetLODBaseWIncDistance() { return incrementalDistance; }
 
             // Render functions
             void CalcLOD(IViewingVolume* view);
@@ -98,8 +89,6 @@ namespace OpenEngine {
             inline void ComputeStitchingIndices(LODstruct* lods);
             inline void ComputeRightStichingIndices(GLuint* indices, int LOD, int rightLOD);
             inline void ComputeUpperStichingIndices(GLuint* indices, int LOD, int upperLOD);
-
-            inline void CalcLODSwitchDistances();
         };
 
     }
