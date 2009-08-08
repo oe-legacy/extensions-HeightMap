@@ -44,6 +44,7 @@ namespace OpenEngine {
             colors = new GLubyte[entries];
             normals = new GLfloat[entries];
             texCoords = new GLfloat[numberOfVertices * TEXCOORDS];
+            morphedHeight = new GLfloat[numberOfVertices * 3];
 
             int texColorDepth = tex->GetDepth();
             int numberOfCharsPrColor = texColorDepth / 8;
@@ -133,6 +134,8 @@ namespace OpenEngine {
             }
 
             SetLODSwitchDistance(100, 100);
+
+            SetupGeoMorphing();
         }
 
         LandscapeNode::~LandscapeNode(){
@@ -256,6 +259,37 @@ namespace OpenEngine {
             texCoords[entry] = (z * texDetail) / (float)width;
         }
 
+        void LandscapeNode::SetupGeoMorphing(){
+            for (int LOD = 2; LOD < 16; LOD *= 2){
+                for (int x = 0; x < depth - LOD; x += LOD){
+                    for (int z = 0; z < width - LOD; z += LOD){
+                        int entry = CoordToEntry(x, z);
+                        float y = YCoord(x, z);
+                        morphedHeight[entry * 3] = 0;
+                        morphedHeight[entry * 3 + 1] = LOD;
+                        morphedHeight[entry * 3 + 2] = y;
+                        
+                        float rightY = YCoord(x, z + LOD);
+                        int rightEntry = CoordToEntry(x, z + LOD/2);
+                        morphedHeight[rightEntry * 3] = (y + rightY) / 2 - YCoord(x, z + LOD/2);
+                        morphedHeight[rightEntry * 3 + 1] = LOD/2;
+                        morphedHeight[rightEntry * 3 + 2] = YCoord(x, z + LOD/2);
+                        
+                        float upperY = YCoord(x + LOD, z);
+                        int upperEntry = CoordToEntry(x + LOD/2, z);
+                        morphedHeight[upperEntry * 3] = (y + upperY) / 2 - YCoord(x + LOD/2, z);
+                        morphedHeight[upperEntry * 3 + 1] = LOD/2;
+                        morphedHeight[upperEntry * 3 + 2] = YCoord(x + LOD/2, z);
+                        
+                        float diagoY = YCoord(x + LOD, z + LOD);
+                        int diagoEntry = CoordToEntry(x + LOD/2, z + LOD/2);
+                        morphedHeight[diagoEntry * 3] = (y + diagoY) / 2 - YCoord(x + LOD/2, z + LOD/2);
+                        morphedHeight[diagoEntry * 3 + 1] = LOD/2;
+                        morphedHeight[diagoEntry * 3 + 2] = YCoord(x + LOD/2, z + LOD/2);
+                    }
+                }
+            }
+        }
 
         void LandscapeNode::CalcLODSwitchDistances(){
             int maxLods = LandscapePatchNode::MAX_LODS;

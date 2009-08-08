@@ -52,6 +52,7 @@ namespace OpenEngine {
             GLubyte* colors;
             GLfloat* normals;
             GLfloat* texCoords;
+            GLfloat* morphedHeight;
 
             LandscapePatchNode* patchNodes;
 
@@ -95,6 +96,7 @@ namespace OpenEngine {
             GLubyte* GetColorArray() const { return colors; }
             GLfloat* GetNormalArray() const { return normals; }
             GLfloat* GetTextureCoordArray() const { return texCoords; }
+            GLfloat* GetMorphedHeight() const { return morphedHeight; }
             IShaderResourcePtr GetLandscapeShader() const { return landscapeShader; }
             int GetNumberOfVertices() const { return numberOfVertices; }
             int GetWidth() const { return width; }
@@ -118,6 +120,7 @@ namespace OpenEngine {
             inline void CalcNormal(int x, int z);
             inline void SetupTerrainTexture();
             inline void CalcTexCoords(int x, int z);
+            inline void SetupGeoMorphing();
             inline void CalcLODSwitchDistances();
             inline void EntryToCoord(int entry, int &x, int &z) const;
             inline int CoordToEntry(int x, int z) const;

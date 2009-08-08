@@ -38,7 +38,6 @@ namespace OpenEngine {
                 IShaderResourcePtr shader = node->GetLandscapeShader();
                 float* sunPos = node->GetSunPos();
                 glLightfv(GL_LIGHT0, GL_POSITION, sunPos);
-                // @TODO send a light normal along to the shader, instead of calculating it for each vertex?
                 shader->ApplyShader();
 
                 glEnableClientState(GL_VERTEX_ARRAY);
