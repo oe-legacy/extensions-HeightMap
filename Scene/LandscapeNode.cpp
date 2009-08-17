@@ -44,7 +44,9 @@ namespace OpenEngine {
             colors = new GLubyte[entries];
             normals = new GLfloat[entries];
             texCoords = new GLfloat[numberOfVertices * TEXCOORDS];
-            morphedHeight = new GLfloat[numberOfVertices * 3];
+            verticeLOD = new int[numberOfVertices];
+            originalValues = new GLfloat[numberOfVertices * 4];
+            morphedValues = new GLfloat[numberOfVertices * 4];
 
             int texColorDepth = tex->GetDepth();
             int numberOfCharsPrColor = texColorDepth / 8;
@@ -180,6 +182,21 @@ namespace OpenEngine {
             y = vertices[i+1];
         }
 
+        void LandscapeNode::GeoMorphCoord(int x, int z, int LOD, float scale){
+            int entry = CoordToEntry(x, z);
+            float vertexLOD = verticeLOD[entry];
+            if (LOD >= vertexLOD){
+                float morphing = morphedValues[entry * 4 + 3];
+                float origY = originalValues[entry * 4 + 3];
+                float y = morphing * scale + origY;
+                vertices[entry * DIMENSIONS + 1] = y;
+
+                normals[entry * DIMENSIONS] = morphedValues[entry * 4] * scale + originalValues[entry * 4];
+                normals[entry * DIMENSIONS + 1] = morphedValues[entry * 4 + 1] * scale + originalValues[entry * 4 + 1];
+                normals[entry * DIMENSIONS + 2] = morphedValues[entry * 4 + 2] * scale + originalValues[entry * 4 + 2];
+            }
+        }
+
         void LandscapeNode::SetTextureDetail(int pixelsPrEdge){
             texDetail = pixelsPrEdge;
             SetupTerrainTexture();
@@ -260,34 +277,69 @@ namespace OpenEngine {
         }
 
         void LandscapeNode::SetupGeoMorphing(){
-            for (int LOD = 2; LOD < 16; LOD *= 2){
-                for (int x = 0; x < depth - LOD; x += LOD){
-                    for (int z = 0; z < width - LOD; z += LOD){
+            for (int LOD = 1; LOD < pow(2, LandscapePatchNode::MAX_LODS); LOD *= 2){
+                for (int x = 0; x < depth - 1; x += LOD){
+                    for (int z = 0; z < width - 1; z += LOD){
                         int entry = CoordToEntry(x, z);
-                        float y = YCoord(x, z);
-                        morphedHeight[entry * 3] = 0;
-                        morphedHeight[entry * 3 + 1] = LOD;
-                        morphedHeight[entry * 3 + 2] = y;
-                        
-                        float rightY = YCoord(x, z + LOD);
-                        int rightEntry = CoordToEntry(x, z + LOD/2);
-                        morphedHeight[rightEntry * 3] = (y + rightY) / 2 - YCoord(x, z + LOD/2);
-                        morphedHeight[rightEntry * 3 + 1] = LOD/2;
-                        morphedHeight[rightEntry * 3 + 2] = YCoord(x, z + LOD/2);
-                        
-                        float upperY = YCoord(x + LOD, z);
-                        int upperEntry = CoordToEntry(x + LOD/2, z);
-                        morphedHeight[upperEntry * 3] = (y + upperY) / 2 - YCoord(x + LOD/2, z);
-                        morphedHeight[upperEntry * 3 + 1] = LOD/2;
-                        morphedHeight[upperEntry * 3 + 2] = YCoord(x + LOD/2, z);
-                        
-                        float diagoY = YCoord(x + LOD, z + LOD);
-                        int diagoEntry = CoordToEntry(x + LOD/2, z + LOD/2);
-                        morphedHeight[diagoEntry * 3] = (y + diagoY) / 2 - YCoord(x + LOD/2, z + LOD/2);
-                        morphedHeight[diagoEntry * 3 + 1] = LOD/2;
-                        morphedHeight[diagoEntry * 3 + 2] = YCoord(x + LOD/2, z + LOD/2);
+                        verticeLOD[entry] = LOD;
                     }
                 }
+            }
+
+            for (int x = 0; x < depth-1; ++x){
+                for (int z = 0; z < width-1; ++z){
+                    int entry = CoordToEntry(x, z);
+                    originalValues[entry * 4] = normals[entry * DIMENSIONS];
+                    originalValues[entry * 4 + 1] = normals[entry * DIMENSIONS + 1];
+                    originalValues[entry * 4 + 2] = normals[entry * DIMENSIONS + 2];
+                    originalValues[entry * 4 + 3] = YCoord(x, z);
+                }
+            }
+
+            for (int x = 0; x < depth-1; ++x){
+                for (int z = 0; z < width-1; ++z){
+                    CalcGeoMorphing(x, z);
+                }
+            }
+        }
+
+        void LandscapeNode::CalcGeoMorphing(int x, int z){
+            int entry = CoordToEntry(x, z);
+            int LOD = verticeLOD[entry];
+            
+            int placementX = x % (LOD * 2);
+            int placementZ = z % (LOD * 2);
+
+            if (placementX == LOD && placementZ == 0){
+                // vertical line
+                int entryAbove = CoordToEntry(x + LOD, z);
+                int entryBelow = CoordToEntry(x - LOD, z);
+                
+                morphedValues[entry * 4] = (originalValues[entryAbove * 4] + originalValues[entryBelow * 4]) / 2 - originalValues[entry * 4];
+                morphedValues[entry * 4 + 1] = (originalValues[entryAbove * 4 + 1] + originalValues[entryBelow * 4 + 1]) / 2 - originalValues[entry * 4 + 1];
+                morphedValues[entry * 4 + 2] = (originalValues[entryAbove * 4 + 2] + originalValues[entryBelow * 4 + 2]) / 2 - originalValues[entry * 4 + 2];
+                morphedValues[entry * 4 + 3] = (originalValues[entryAbove * 4 + 3] + originalValues[entryBelow * 4 + 3]) / 2 - originalValues[entry * 4 + 3];
+            }else if(placementX == 0 && placementZ == LOD){
+                // horizontal line
+                int leftEntry = CoordToEntry(x, z - LOD);
+                int rightEntry = CoordToEntry(x, z + LOD);
+                
+                morphedValues[entry * 4] = (originalValues[leftEntry * 4] + originalValues[rightEntry * 4]) / 2 - originalValues[entry * 4];
+                morphedValues[entry * 4 + 1] = (originalValues[leftEntry * 4 + 1] + originalValues[rightEntry * 4 + 1]) / 2 - originalValues[entry * 4 + 1];
+                morphedValues[entry * 4 + 2] = (originalValues[leftEntry * 4 + 2] + originalValues[rightEntry * 4 + 2]) / 2 - originalValues[entry * 4 + 2];
+                morphedValues[entry * 4 + 3] = (originalValues[leftEntry * 4 + 3] + originalValues[rightEntry * 4 + 3]) / 2 - originalValues[entry * 4 + 3];
+            }else if(placementX == LOD && placementZ == LOD){
+                // diagonal line
+                int entryAbove = CoordToEntry(x + LOD, z + LOD);
+                int entryBelow = CoordToEntry(x - LOD, z - LOD);
+
+                morphedValues[entry * 4] = (originalValues[entryAbove * 4] + originalValues[entryBelow * 4]) / 2 - originalValues[entry * 4];                
+                morphedValues[entry * 4 + 1] = (originalValues[entryAbove * 4 + 1] + originalValues[entryBelow * 4 + 1]) / 2 - originalValues[entry * 4 + 1];                
+                morphedValues[entry * 4 + 2] = (originalValues[entryAbove * 4 + 2] + originalValues[entryBelow * 4 + 2]) / 2 - originalValues[entry * 4 + 2];                
+                morphedValues[entry * 4 + 3] = (originalValues[entryAbove * 4 + 3] + originalValues[entryBelow * 4 + 3]) / 2 - originalValues[entry * 4 + 3];                
+            }else{
+                // Highest LOD so no morphing
+                //logger.info << "LOD " << LOD << " with coords (" << x << ", " << z << ")" << logger.end;
             }
         }
 
@@ -321,6 +373,11 @@ namespace OpenEngine {
 
         GLfloat LandscapeNode::ZCoord(int x, int z) const{
             return vertices[CoordToEntry(x, z) * DIMENSIONS + 2];
+        }
+
+        int LandscapeNode::LODLevel(int x, int z) const {
+            int entry = CoordToEntry(x, z);
+            return verticeLOD[entry];
         }
 
         void LandscapeNode::SetYCoord(const int x, const int z, float value){

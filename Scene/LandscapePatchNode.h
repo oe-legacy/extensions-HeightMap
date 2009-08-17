@@ -50,6 +50,7 @@ namespace OpenEngine {
 
         private:
             int LOD; // a LOD of 0 means the patch is outside the frustum
+            float geoMorphingScale;
             int xStart, xEnd, zStart, zEnd;
             Box* boundingBox;
             Vector<3, float> patchCenter;
@@ -89,6 +90,8 @@ namespace OpenEngine {
             inline void ComputeStitchingIndices(LODstruct* lods);
             inline void ComputeRightStichingIndices(GLuint* indices, int LOD, int rightLOD);
             inline void ComputeUpperStichingIndices(GLuint* indices, int LOD, int upperLOD);
+
+            inline void GeoMorph();
         };
 
     }

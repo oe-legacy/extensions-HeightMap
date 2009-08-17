@@ -78,11 +78,19 @@ namespace OpenEngine {
             for (int i = 1; i < MAX_LODS; ++i){
                 if (distanceSquared < lodSwitch[i]){
                     currentLOD = &LODs[i-1];
+
+                    // calculate geoMorphingScale
+                    float l = distanceSquared - lodSwitch[i-1];
+                    float h = lodSwitch[i] - lodSwitch[i-1];
+                    geoMorphingScale = l / h;
+
                     break;
                 }
             }
 
             LOD = currentLOD->LOD;
+
+            GeoMorph();
         }
 
         /**
@@ -202,12 +210,11 @@ namespace OpenEngine {
         void LandscapePatchNode::ComputeRightStichingIndices(GLuint* indices, int LOD, int rightLOD){
             int i = 0;
             if (LOD == rightLOD){
-                // Draw the stitching with the patchs LOD
-                for (int x = xStart; x < xEnd - LOD; x += LOD){
+                indices[i++] = zEnd - 1 + (xEnd - 1) * landscapeWidth;
+                for (int x = xEnd - 1 - LOD; x >= xStart; x -= LOD){
                     indices[i++] = zEnd - 1 - LOD + x * landscapeWidth;
                     indices[i++] = zEnd - 1 + x * landscapeWidth;
                 }
-                indices[i++] = zEnd - 1 + (xEnd - 1) * landscapeWidth;
             }else if (LOD < rightLOD){
                 // Right patch is twice as detailed
                 for (int x = xStart; x < xEnd - LOD; x += LOD){
@@ -235,11 +242,11 @@ namespace OpenEngine {
             int i = 0;
             if (LOD == upperLOD){
                 // Draw the stitching with the patchs LOD
-                indices[i++] = zEnd - 1 + (xEnd - 1) * landscapeWidth;
-                for (int z = zEnd - 1 - LOD; z >= zStart; z -= LOD){
+                for (int z = zStart; z < zEnd - LOD; z += LOD){
                     indices[i++] = z + (xEnd - 1) * landscapeWidth;
                     indices[i++] = z + (xEnd - 1 - LOD) * landscapeWidth;
                 }
+                indices[i++] = zEnd - 1 + (xEnd - 1) * landscapeWidth;
             }else if (LOD < upperLOD){
                 // The upper patch is twice as detailed
                 for (int z = zEnd - 1 - LOD; z >= zStart; z -= LOD){
@@ -259,6 +266,16 @@ namespace OpenEngine {
                     indices[i++] = z + upperLOD + (xEnd - 1) * landscapeWidth;
                     indices[i++] = z + (xEnd - 1 - LOD) * landscapeWidth;
                     indices[i++] = z + LOD + (xEnd - 1) * landscapeWidth;
+                }
+            }
+        }
+
+        void LandscapePatchNode::GeoMorph(){
+            for (int x = xStart; x < xEnd-1; x += LOD){
+                for (int z = zStart; z < zEnd-1; z += LOD){
+                    //if (x == 228 && z == 156)
+                    //logger.info << "LOD is " << LOD << logger.end;
+                    landscape->GeoMorphCoord(x, z, LOD, geoMorphingScale);
                 }
             }
         }

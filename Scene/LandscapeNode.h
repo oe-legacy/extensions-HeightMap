@@ -52,7 +52,9 @@ namespace OpenEngine {
             GLubyte* colors;
             GLfloat* normals;
             GLfloat* texCoords;
-            GLfloat* morphedHeight;
+            int * verticeLOD;
+            GLfloat* originalValues; // {normal, height}
+            GLfloat* morphedValues;
 
             LandscapePatchNode* patchNodes;
 
@@ -96,7 +98,6 @@ namespace OpenEngine {
             GLubyte* GetColorArray() const { return colors; }
             GLfloat* GetNormalArray() const { return normals; }
             GLfloat* GetTextureCoordArray() const { return texCoords; }
-            GLfloat* GetMorphedHeight() const { return morphedHeight; }
             IShaderResourcePtr GetLandscapeShader() const { return landscapeShader; }
             int GetNumberOfVertices() const { return numberOfVertices; }
             int GetWidth() const { return width; }
@@ -104,6 +105,7 @@ namespace OpenEngine {
 
             void GetCoords(int index, float &x, float &y, float &z) const;
             void GetYCoord(int index, float &y) const;
+            void GeoMorphCoord(int x, int z, int LOD, float scale);
 
             float* GetSunPos() const { return sunPos; }
             void SetSunPos(float* sun) { sunPos = sun; }
@@ -121,12 +123,14 @@ namespace OpenEngine {
             inline void SetupTerrainTexture();
             inline void CalcTexCoords(int x, int z);
             inline void SetupGeoMorphing();
+            inline void CalcGeoMorphing(int x, int z);
             inline void CalcLODSwitchDistances();
             inline void EntryToCoord(int entry, int &x, int &z) const;
             inline int CoordToEntry(int x, int z) const;
             inline float XCoord(int x, int z) const;
             inline float YCoord(int x, int z) const;
             inline float ZCoord(int x, int z) const;
+            inline int LODLevel(int x, int z) const;
             inline void SetYCoord(const int x, const int z, float value);
         };
         
