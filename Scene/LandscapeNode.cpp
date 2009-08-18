@@ -186,14 +186,10 @@ namespace OpenEngine {
             int entry = CoordToEntry(x, z);
             float vertexLOD = verticeLOD[entry];
             if (LOD >= vertexLOD){
-                float morphing = morphedValues[entry * 4 + 3];
-                float origY = originalValues[entry * 4 + 3];
-                float y = morphing * scale + origY;
-                vertices[entry * DIMENSIONS + 1] = y;
-
                 normals[entry * DIMENSIONS] = morphedValues[entry * 4] * scale + originalValues[entry * 4];
                 normals[entry * DIMENSIONS + 1] = morphedValues[entry * 4 + 1] * scale + originalValues[entry * 4 + 1];
                 normals[entry * DIMENSIONS + 2] = morphedValues[entry * 4 + 2] * scale + originalValues[entry * 4 + 2];
+                vertices[entry * DIMENSIONS + 1] = morphedValues[entry * 4 + 3] * scale + originalValues[entry * 4 + 3];
             }
         }
 
@@ -277,17 +273,17 @@ namespace OpenEngine {
         }
 
         void LandscapeNode::SetupGeoMorphing(){
-            for (int LOD = 1; LOD < pow(2, LandscapePatchNode::MAX_LODS); LOD *= 2){
-                for (int x = 0; x < depth - 1; x += LOD){
-                    for (int z = 0; z < width - 1; z += LOD){
+            for (int LOD = 1; LOD < pow(2, LandscapePatchNode::MAX_LODS-1); LOD *= 2){
+                for (int x = 0; x < depth; x += LOD){
+                    for (int z = 0; z < width; z += LOD){
                         int entry = CoordToEntry(x, z);
                         verticeLOD[entry] = LOD;
                     }
                 }
             }
 
-            for (int x = 0; x < depth-1; ++x){
-                for (int z = 0; z < width-1; ++z){
+            for (int x = 0; x < depth; ++x){
+                for (int z = 0; z < width; ++z){
                     int entry = CoordToEntry(x, z);
                     originalValues[entry * 4] = normals[entry * DIMENSIONS];
                     originalValues[entry * 4 + 1] = normals[entry * DIMENSIONS + 1];
@@ -296,8 +292,8 @@ namespace OpenEngine {
                 }
             }
 
-            for (int x = 0; x < depth-1; ++x){
-                for (int z = 0; z < width-1; ++z){
+            for (int x = 0; x < depth; ++x){
+                for (int z = 0; z < width; ++z){
                     CalcGeoMorphing(x, z);
                 }
             }

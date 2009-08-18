@@ -153,7 +153,6 @@ namespace OpenEngine {
                 LODs[i].LOD = LOD;
                 
                 ComputeBodyIndices(&LODs[i]);
-
                 ComputeStitchingIndices(&LODs[i]);
 
                 LOD *= 2;
@@ -273,8 +272,6 @@ namespace OpenEngine {
         void LandscapePatchNode::GeoMorph(){
             for (int x = xStart; x < xEnd-1; x += LOD){
                 for (int z = zStart; z < zEnd-1; z += LOD){
-                    //if (x == 228 && z == 156)
-                    //logger.info << "LOD is " << LOD << logger.end;
                     landscape->GeoMorphCoord(x, z, LOD, geoMorphingScale);
                 }
             }
