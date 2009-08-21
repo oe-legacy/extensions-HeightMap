@@ -12,11 +12,15 @@
 
 #include <Display/IViewingVolume.h>
 #include <Scene/ISceneNode.h>
+#include <Core/IListener.h>
+#include <Renderers/IRenderer.h>
 #include <Scene/LandscapePatchNode.h>
 #include <Resources/GLSLResource.h>
 #include <Resources/ITextureResource.h>
 #include <Meta/OpenGL.h>
 
+using namespace OpenEngine::Core;
+using namespace OpenEngine::Renderers;
 using namespace OpenEngine::Resources;
 using namespace OpenEngine::Display;
 
@@ -39,15 +43,13 @@ namespace OpenEngine {
          *  -+----->Z
          *    WIDTH
          */
-        class LandscapeNode : public ISceneNode {
+        class LandscapeNode : public ISceneNode, public IListener<RenderingEventArg> {
             OE_SCENE_NODE(LandscapeNode, ISceneNode)
             
         private:
             static const int DIMENSIONS = 3;
             static const int TEXCOORDS = 2;
             static const int WATERLEVEL = 10;
-
-            bool initialized;
 
             GLfloat* vertices;
             GLubyte* colors;
@@ -84,14 +86,13 @@ namespace OpenEngine {
             LandscapeNode(ITextureResourcePtr tex, IShaderResourcePtr shader, float heightscale = 1.0, float widthScale = 1.0); //IShaderResourcePtr((IShaderResource*)NULL)
             ~LandscapeNode();
 
-            bool IsInitialized() const { return initialized; }
-            void Initialize();
-
             void CalcLOD(IViewingVolume* view);
             void RenderPatches();
             void RenderNormals();
 
             void VisitSubNodes(ISceneNodeVisitor& visitor);
+
+            void Handle(RenderingEventArg arg);
 
             // *** Get/Set methods ***
 

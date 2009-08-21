@@ -27,7 +27,6 @@ namespace OpenEngine {
          */        
         LandscapeNode::LandscapeNode(ITextureResourcePtr tex, IShaderResourcePtr shader, float heightScale, float widthScale) 
             : widthScale(widthScale), landscapeShader(shader) {
-            initialized = false;
             
             int texWidth = tex->GetWidth();
             int widthRest = (texWidth - 1) % 32;
@@ -156,14 +155,6 @@ namespace OpenEngine {
             if (patchNodes) delete[] patchNodes;
         }
 
-        void LandscapeNode::Initialize(){
-            if (landscapeShader) landscapeShader->Load();
-            for (ShaderTextureMap::iterator itr = landscapeShader->textures.begin(); 
-                 itr != landscapeShader->textures.end(); itr++)
-                TextureLoader::LoadTextureResource( (*itr).second );
-            initialized = true;
-        }
-
         void LandscapeNode::CalcLOD(IViewingVolume* view){
             for (int i = 0; i < numberOfPatches; ++i)
                 patchNodes[i].CalcLOD(view);
@@ -184,6 +175,13 @@ namespace OpenEngine {
                 patchNodes[i].Accept(visitor);
         }
         
+        void LandscapeNode::Handle(RenderingEventArg arg){
+            if (landscapeShader) landscapeShader->Load();
+            for (ShaderTextureMap::iterator itr = landscapeShader->textures.begin(); 
+                 itr != landscapeShader->textures.end(); itr++)
+                TextureLoader::LoadTextureResource( (*itr).second );
+        }
+
         void LandscapeNode::GetCoords(int index, float &x, float &y, float &z) const{
             int i = index * DIMENSIONS;
             x = vertices[i++];

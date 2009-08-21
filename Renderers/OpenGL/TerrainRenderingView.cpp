@@ -30,9 +30,6 @@ namespace OpenEngine {
 
                 node->CalcLOD(viewport.GetViewingVolume());
 
-                if (node->IsInitialized() == false)
-                    node->Initialize();
-
                 // Then do opengl stuff
                 glEnable(GL_CULL_FACE);
 

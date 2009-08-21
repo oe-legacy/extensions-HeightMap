@@ -56,7 +56,6 @@ namespace OpenEngine {
             memcpy(bottomVertices, waterVertices, entries * DIMENSIONS * sizeof(float));
             bottomVertices[1] = center[1] - 20;
 
-
             bottomColors = new float[entries * 4];
             e = 0;
             for (int i = 0; i < entries; ++i){
