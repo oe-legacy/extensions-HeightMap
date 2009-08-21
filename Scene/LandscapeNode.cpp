@@ -27,7 +27,8 @@ namespace OpenEngine {
          */        
         LandscapeNode::LandscapeNode(ITextureResourcePtr tex, IShaderResourcePtr shader, float heightScale, float widthScale) 
             : widthScale(widthScale), landscapeShader(shader) {
-            
+
+            tex->Load();
             int texWidth = tex->GetWidth();
             int widthRest = (texWidth - 1) % 32;
             width = widthRest ? texWidth + 32 - widthRest : texWidth;
@@ -108,6 +109,8 @@ namespace OpenEngine {
                     }
                 }
             }
+
+            tex->Unload();
 
             // Calculate the normals
             for (int x = 0; x < depth; ++x){
