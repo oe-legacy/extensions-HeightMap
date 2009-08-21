@@ -124,11 +124,18 @@ namespace OpenEngine {
                 glVertexPointer(3, GL_FLOAT, 0, node->GetWaterVerticeArray());
                 glColorPointer(4, GL_FLOAT, 0, node->GetWaterColorArray());
 
+                glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                glTexCoordPointer(2, GL_FLOAT, 0, node->GetTextureCoordArray());
+                glEnable(GL_TEXTURE_2D);
+                glBindTexture(GL_TEXTURE_2D, node->GetSurfaceTexture()->GetID() );
+
                 glDrawArrays(GL_TRIANGLE_FAN, 0, 26);
 
                 glDisable(GL_BLEND);
+                glDisable(GL_TEXTURE_2D);
                 glDisableClientState(GL_VERTEX_ARRAY);
                 glDisableClientState(GL_COLOR_ARRAY);
+                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
             }
         }
     }

@@ -11,12 +11,19 @@
 #define _WATER_NODE_H_
 
 #include <Scene/ISceneNode.h>
+#include <Core/IListener.h>
+#include <Renderers/IRenderer.h>
 #include <Scene/LandscapeNode.h>
+#include <Resources/ITextureResource.h>
+
+using namespace OpenEngine::Resources;
+using namespace OpenEngine::Core;
+using namespace OpenEngine::Renderers;
 
 namespace OpenEngine {
     namespace Scene {
 
-        class WaterNode : public ISceneNode {
+        class WaterNode : public ISceneNode, public IListener<RenderingEventArg> {
             OE_SCENE_NODE(WaterNode, ISceneNode)
 
         private:
@@ -30,6 +37,9 @@ namespace OpenEngine {
             float* bottomColors;
             float* texCoords;
 
+            int texDetail;
+            ITextureResourcePtr surface;
+
             Vector<3, float> center;
             float diameter;
             ISceneNode* reflection;
@@ -41,18 +51,24 @@ namespace OpenEngine {
 
             void VisitSubNode(ISceneNodeVisitor& visitor) {}
 
+            void Handle(RenderingEventArg arg);
+            
             float* GetWaterVerticeArray() { return waterVertices; }
             float* GetWaterColorArray() { return waterColors; }
             float* GetBottomVerticeArray() { return bottomVertices; }
             float* GetBottomColorArray() { return bottomColors; }
+            float* GetTextureCoordArray() const { return texCoords; }
             
             void SetReflectionsScene(ISceneNode* r) { reflection = r; }
+            void SetSurfaceTexture(ITextureResourcePtr tex, int pixelsPrEdge);
+            ITextureResourcePtr GetSurfaceTexture() { return surface; }
             Vector<3, float> GetCenter() const { return center; }
             float GetDiameter() const { return diameter; }
             ISceneNode* GetReflectionScene() const { return reflection; }
 
         private:
             inline void SetupArrays();
+            inline void SetupTexCoords();
         };
 
     }

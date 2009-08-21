@@ -8,7 +8,10 @@
 //--------------------------------------------------------------------
 
 #include "WaterNode.h"
+#include <Renderers/OpenGL/TextureLoader.h>
 #include <Logging/Logger.h>
+
+using namespace OpenEngine::Renderers::OpenGL;
 
 namespace OpenEngine {
     namespace Scene {
@@ -22,8 +25,18 @@ namespace OpenEngine {
             
         }
 
+        void WaterNode::Handle(RenderingEventArg arg){
+            TextureLoader::LoadTextureResource(surface);
+        }
+
+        void WaterNode::SetSurfaceTexture(ITextureResourcePtr tex, int pixelsPrEdge){
+            surface = tex; 
+            texDetail = pixelsPrEdge;
+            SetupTexCoords();
+        }
+
         void WaterNode::SetupArrays(){
-            int entries = SLICES + 2;
+            entries = SLICES + 2;
             waterVertices = new float[entries * DIMENSIONS];
 
             waterVertices[0] = center[0];
@@ -63,6 +76,19 @@ namespace OpenEngine {
                 bottomColors[e++] = 0.5;
                 bottomColors[e++] = 0;
                 bottomColors[e++] = 1;
+            }
+
+            texCoords = new float[entries * 2];
+        }
+
+        void WaterNode::SetupTexCoords(){
+            if (surface != NULL){
+                surface->Load();
+                for (int i = 0; i < entries; ++i){
+                    texCoords[i * 2] = waterVertices[i * DIMENSIONS] * texDetail / surface->GetWidth();
+                    texCoords[i * 2 + 1] = waterVertices[i * DIMENSIONS + 2] * texDetail / surface->GetHeight();
+                }
+                surface->Unload();
             }
         }
         
