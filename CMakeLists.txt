@@ -8,3 +8,7 @@ ADD_LIBRARY(Extensions_HeightMap
   Scene/TerrainModule.cpp
   Scene/WaterNode.cpp
 )
+
+TARGET_LINK_LIBRARIES(Extensions_HeightMap
+  OpenEngine_Scene
+)
