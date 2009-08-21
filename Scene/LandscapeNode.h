@@ -45,6 +45,7 @@ namespace OpenEngine {
         private:
             static const int DIMENSIONS = 3;
             static const int TEXCOORDS = 2;
+            static const int WATERLEVEL = 10;
 
             bool initialized;
 
@@ -80,7 +81,7 @@ namespace OpenEngine {
 
         public:
             LandscapeNode() {};
-            LandscapeNode(ITextureResourcePtr tex, IShaderResourcePtr shader, float heightscale = 1.0, float widthScale = 1.0);
+            LandscapeNode(ITextureResourcePtr tex, IShaderResourcePtr shader, float heightscale = 1.0, float widthScale = 1.0); //IShaderResourcePtr((IShaderResource*)NULL)
             ~LandscapeNode();
 
             bool IsInitialized() const { return initialized; }
@@ -90,7 +91,7 @@ namespace OpenEngine {
             void RenderPatches();
             void RenderNormals();
 
-            void VisitSubNodes(ISceneNodeVisitor& visitor) {}
+            void VisitSubNodes(ISceneNodeVisitor& visitor);
 
             // *** Get/Set methods ***
 

@@ -13,9 +13,6 @@
 #include <Renderers/OpenGL/RenderingView.h>
 
 namespace OpenEngine {
-    namespace Scene { 
-        class SunNode;
-    }
 namespace Renderers {
 namespace OpenGL {
 

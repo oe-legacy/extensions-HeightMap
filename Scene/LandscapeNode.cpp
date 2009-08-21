@@ -53,24 +53,35 @@ namespace OpenEngine {
             unsigned char* data = tex->GetData();
 
             // Fill the vertex and color arrays
-            int i = 0, v = 0, c = 0, e = 0;
+            int i = 0, v = 0, c = 0;
             for (int x = 0; x < depth; ++x){
                 if (x < texDepth){
                     for (int z = 0; z < width; ++z){
                         if (z < texWidth){
                             // Fill the color array form the texture
-                            unsigned int r = colors[c++] = data[i++];
-                            unsigned int g = colors[c++] = data[i++];
-                            unsigned int b = colors[c++] = data[i++];
-                            
-                            // Fill the vertex array
                             float height;
-                            if (numberOfCharsPrColor == 4)
+                            switch(numberOfCharsPrColor){
+                            case 1:
+                                colors[c++] = 0;
+                                colors[c++] = 0;
+                                colors[c++] = 0;
                                 height = (float)data[i++];
-                            else
-                                height = (r + g + b) / 3;                            
+                                break;
+                            case 3:
+                                unsigned int r = colors[c++] = data[i++];
+                                unsigned int g = colors[c++] = data[i++];
+                                unsigned int b = colors[c++] = data[i++];
+                                height = (r + g + b) / 3;
+                                break;
+                            case 4:
+                                colors[c++] = data[i++];
+                                colors[c++] = data[i++];
+                                colors[c++] = data[i++];
+                                height = (float)data[i++];
+                                break;
+                            }
                             vertices[v++] = widthScale * x;
-                            vertices[v++] = heightScale * height;
+                            vertices[v++] = heightScale * height - WATERLEVEL;
                             vertices[v++] = widthScale * z;
                         }else{
                             // Fill the color array with black
@@ -80,10 +91,9 @@ namespace OpenEngine {
 
                             // Place the vertex at the bottom.
                             vertices[v++] = widthScale * x;
-                            vertices[v++] = 0;
+                            vertices[v++] = -WATERLEVEL;
                             vertices[v++] = widthScale * z;
                         }
-                        e++; //increment the entry
                     }
                 }else{
                     for (int z = 0; z < width; ++z){
@@ -94,7 +104,7 @@ namespace OpenEngine {
                         
                         // Place the vertex at the bottom.
                         vertices[v++] = widthScale * x;
-                        vertices[v++] = 0;
+                        vertices[v++] = -WATERLEVEL;
                         vertices[v++] = widthScale * z;
                     }
                 }
@@ -107,7 +117,7 @@ namespace OpenEngine {
                 }
             }            
 
-            // Setup the terrain
+            // Setup the texture
             texDetail = 1;
             SetupTerrainTexture();
 
@@ -117,10 +127,10 @@ namespace OpenEngine {
             patchGridDepth = (depth-1) / squares;
             numberOfPatches = patchGridWidth * patchGridDepth;
             patchNodes = new LandscapePatchNode[numberOfPatches];
-            e = 0;
+            int entry = 0;
             for (int x = 0; x < depth - squares; x +=squares ){
                 for (int z = 0; z < width - squares; z += squares){
-                    patchNodes[e++] = LandscapePatchNode(x, z, this);
+                    patchNodes[entry++] = LandscapePatchNode(x, z, this);
                 }
             }
 
@@ -136,7 +146,6 @@ namespace OpenEngine {
             }
 
             SetLODSwitchDistance(100, 100);
-
             SetupGeoMorphing();
         }
 
@@ -170,6 +179,11 @@ namespace OpenEngine {
                 patchNodes[i].RenderNormals();
         }
 
+        void LandscapeNode::VisitSubNodes(ISceneNodeVisitor& visitor){
+            for (int i = 0; i < numberOfPatches; ++i)
+                patchNodes[i].Accept(visitor);
+        }
+        
         void LandscapeNode::GetCoords(int index, float &x, float &y, float &z) const{
             int i = index * DIMENSIONS;
             x = vertices[i++];
@@ -190,6 +204,11 @@ namespace OpenEngine {
                 normals[entry * DIMENSIONS + 1] = morphedValues[entry * 4 + 1] * scale + originalValues[entry * 4 + 1];
                 normals[entry * DIMENSIONS + 2] = morphedValues[entry * 4 + 2] * scale + originalValues[entry * 4 + 2];
                 vertices[entry * DIMENSIONS + 1] = morphedValues[entry * 4 + 3] * scale + originalValues[entry * 4 + 3];
+            }else{
+                normals[entry * DIMENSIONS] = originalValues[entry * 4];
+                normals[entry * DIMENSIONS + 1] = originalValues[entry * 4 + 1];
+                normals[entry * DIMENSIONS + 2] = originalValues[entry * 4 + 2];
+                vertices[entry * DIMENSIONS + 1] = originalValues[entry * 4 + 3];
             }
         }
 

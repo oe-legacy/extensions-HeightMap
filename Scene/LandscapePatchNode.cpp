@@ -124,7 +124,6 @@ namespace OpenEngine {
             // Render bounding box
             /*
             glBegin(GL_LINES);
-            
             Vector<3, float> center = boundingBox->GetCenter();
             glColor3f(center[0], center[1], center[2]);
 
@@ -136,7 +135,6 @@ namespace OpenEngine {
                     glVertex3f(jc[0], jc[1], jc[2]);
                 }
             }
-
             glEnd();
             */
         }
