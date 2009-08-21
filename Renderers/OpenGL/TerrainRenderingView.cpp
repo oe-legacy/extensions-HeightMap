@@ -10,6 +10,7 @@
 #include "TerrainRenderingView.h"
 #include <Scene/LandscapeNode.h>
 #include <Scene/SunNode.h>
+#include <Scene/WaterNode.h>
 #include <Math/Vector.h>
 #include <Logging/Logger.h>
 
@@ -95,7 +96,43 @@ namespace OpenEngine {
                 if (t) glEnable(GL_TEXTURE_2D);
                 if (l) glEnable(GL_LIGHTING);
             }
-            
+
+            void TerrainRenderingView::VisitWaterNode(WaterNode* node) {
+                ISceneNode* reflection = node->GetReflectionScene();
+                if (reflection){
+                    // Render reflection
+                    glCullFace(GL_FRONT);
+                    double plane[4] = {0.0, -1.0, 0.0, 0.0}; //water at y=0
+                    glEnable(GL_CLIP_PLANE0);
+                    glClipPlane(GL_CLIP_PLANE0, plane);
+                    
+                    glScalef(1, -1, 1);
+                    node->GetReflectionScene()->Accept(*this);
+                    
+                    glDisable(GL_CLIP_PLANE0);
+                    
+                    glCullFace(GL_BACK);
+                }
+
+                glEnableClientState(GL_VERTEX_ARRAY);
+                glEnableClientState(GL_COLOR_ARRAY);
+                glVertexPointer(3, GL_FLOAT, 0, node->GetBottomVerticeArray());
+                glColorPointer(4, GL_FLOAT, 0, node->GetBottomColorArray());
+
+                glDrawArrays(GL_TRIANGLE_FAN, 0, 26);
+
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+                glVertexPointer(3, GL_FLOAT, 0, node->GetWaterVerticeArray());
+                glColorPointer(4, GL_FLOAT, 0, node->GetWaterColorArray());
+
+                glDrawArrays(GL_TRIANGLE_FAN, 0, 26);
+
+                glDisable(GL_BLEND);
+                glDisableClientState(GL_VERTEX_ARRAY);
+                glDisableClientState(GL_COLOR_ARRAY);
+            }
         }
     }
 }

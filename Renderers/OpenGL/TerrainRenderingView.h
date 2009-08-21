@@ -29,10 +29,13 @@ using namespace OpenEngine::Display;
      bool loadShader;
    
  public:
-    TerrainRenderingView(Viewport& viewport);
-    
-    void VisitLandscapeNode(LandscapeNode* node);
-    void VisitSunNode(SunNode* node);
+     TerrainRenderingView(Viewport& viewport);
+     
+     void VisitLandscapeNode(LandscapeNode* node);
+     void VisitLandscapePatchNode(LandscapePatchNode* node);
+     void VisitSunNode(SunNode* node);
+     void VisitWaterNode(WaterNode* node);
+
  };
 
 }

@@ -6,4 +6,5 @@ ADD_LIBRARY(Extensions_HeightMap
   Scene/LandscapePatchNode.cpp
   Scene/SunNode.cpp
   Scene/TerrainModule.cpp
+  Scene/WaterNode.cpp
 )
