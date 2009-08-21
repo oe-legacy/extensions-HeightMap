@@ -83,7 +83,7 @@ namespace OpenEngine {
 
         public:
             LandscapeNode() {};
-            LandscapeNode(ITextureResourcePtr tex, IShaderResourcePtr shader, float heightscale = 1.0, float widthScale = 1.0); //IShaderResourcePtr((IShaderResource*)NULL)
+            LandscapeNode(ITextureResourcePtr tex, IShaderResourcePtr shader = IShaderResourcePtr(), float heightscale = 1.0, float widthScale = 1.0);
             ~LandscapeNode();
 
             void CalcLOD(IViewingVolume* view);

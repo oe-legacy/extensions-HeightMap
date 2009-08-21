@@ -179,10 +179,12 @@ namespace OpenEngine {
         }
         
         void LandscapeNode::Handle(RenderingEventArg arg){
-            if (landscapeShader) landscapeShader->Load();
-            for (ShaderTextureMap::iterator itr = landscapeShader->textures.begin(); 
-                 itr != landscapeShader->textures.end(); itr++)
-                TextureLoader::LoadTextureResource( (*itr).second );
+            if (landscapeShader != NULL) {
+                landscapeShader->Load();
+                for (ShaderTextureMap::iterator itr = landscapeShader->textures.begin(); 
+                     itr != landscapeShader->textures.end(); itr++)
+                    TextureLoader::LoadTextureResource( (*itr).second );
+            }
         }
 
         void LandscapeNode::GetCoords(int index, float &x, float &y, float &z) const{
