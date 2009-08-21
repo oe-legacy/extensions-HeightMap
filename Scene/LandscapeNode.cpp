@@ -68,11 +68,13 @@ namespace OpenEngine {
                                 height = (float)data[i++];
                                 break;
                             case 3:
-                                unsigned int r = colors[c++] = data[i++];
-                                unsigned int g = colors[c++] = data[i++];
-                                unsigned int b = colors[c++] = data[i++];
-                                height = (r + g + b) / 3;
-                                break;
+                                {
+                                    unsigned int r = colors[c++] = data[i++];
+                                    unsigned int g = colors[c++] = data[i++];
+                                    unsigned int b = colors[c++] = data[i++];
+                                    height = (r + g + b) / 3;
+                                    break;
+                                }
                             case 4:
                                 colors[c++] = data[i++];
                                 colors[c++] = data[i++];

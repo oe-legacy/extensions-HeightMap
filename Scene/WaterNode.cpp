@@ -10,7 +10,9 @@
 #include "WaterNode.h"
 #include <Renderers/OpenGL/TextureLoader.h>
 #include <Logging/Logger.h>
+#include <string.h>
 
+using namespace std;
 using namespace OpenEngine::Renderers::OpenGL;
 
 namespace OpenEngine {

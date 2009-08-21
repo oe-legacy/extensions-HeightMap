@@ -50,4 +50,4 @@ namespace OpenEngine {
     }
 }
 
-#endif _SUN_NODE_H_
+#endif //_SUN_NODE_H_

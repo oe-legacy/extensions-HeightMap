@@ -12,7 +12,7 @@
 
 #include <Display/IViewingVolume.h>
 #include <Math/Vector.h>
-#include <Meta/OpenGl.h>
+#include <Meta/OpenGL.h>
 #include <Scene/LandscapeNode.h>
 #include <Scene/ISceneNode.h>
 

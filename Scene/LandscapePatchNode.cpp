@@ -7,7 +7,7 @@
 // See the GNU General Public License for more details (see LICENSE). 
 //--------------------------------------------------------------------
 
-#include "LandscapePatchNode.h"
+#include <Scene/LandscapePatchNode.h>
 #include <Meta/OpenGL.h>
 #include <Logging/Logger.h>
 
