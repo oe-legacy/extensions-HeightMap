@@ -9,7 +9,7 @@
 
 #include <Scene/LandscapeNode.h>
 #include <Math/Math.h>
-#include <Renderers/OpenGL/TextureLoader.h>
+#include <Renderers/OpenGL/TerrainTextureLoader.h>
 #include <Logging/Logger.h>
 
 using namespace OpenEngine::Renderers::OpenGL;
@@ -185,7 +185,7 @@ namespace OpenEngine {
                 landscapeShader->Load();
                 for (ShaderTextureMap::iterator itr = landscapeShader->textures.begin(); 
                      itr != landscapeShader->textures.end(); itr++)
-                    TextureLoader::LoadTextureResource( (*itr).second );
+                    TerrainTextureLoader::LoadTextureWithMipmapping( (*itr).second );
             }
         }
 

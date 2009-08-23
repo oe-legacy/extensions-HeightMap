@@ -8,7 +8,7 @@
 //--------------------------------------------------------------------
 
 #include "WaterNode.h"
-#include <Renderers/OpenGL/TextureLoader.h>
+#include <Renderers/OpenGL/TerrainTextureLoader.h>
 #include <Logging/Logger.h>
 #include <string.h>
 
@@ -28,7 +28,7 @@ namespace OpenEngine {
         }
 
         void WaterNode::Handle(RenderingEventArg arg){
-            TextureLoader::LoadTextureResource(surface);
+            TerrainTextureLoader::LoadTextureWithMipmapping(surface);
         }
 
         void WaterNode::SetSurfaceTexture(ITextureResourcePtr tex, int pixelsPrEdge){

@@ -2,6 +2,7 @@
 # Create the extension library
 ADD_LIBRARY(Extensions_HeightMap
   Renderers/OpenGL/TerrainRenderingView.cpp
+  Renderers/OpenGL/TerrainTextureLoader.cpp
   Scene/LandscapeNode.cpp
   Scene/LandscapePatchNode.cpp
   Scene/SunNode.cpp
