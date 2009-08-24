@@ -118,8 +118,12 @@ namespace OpenEngine {
             for (int x = 0; x < depth; ++x){
                 for (int z = 0; z < width; ++z){
                     CalcNormal(x, z);
+                    int entry = CoordToEntry(x, z);
+                    normals[entry * DIMENSIONS] = originalValues[entry * 4];
+                    normals[entry * DIMENSIONS + 1] = originalValues[entry * 4 + 1];
+                    normals[entry * DIMENSIONS + 2] = originalValues[entry * 4 + 2];
                 }
-            }            
+            }
 
             // Setup the texture
             texDetail = 1;
@@ -275,10 +279,10 @@ namespace OpenEngine {
                               + normal[1] * normal[1]
                               + normal[2] * normal[2]);
 
-            int vertice = CoordToEntry(x, z) * DIMENSIONS;
-            normals[vertice++] = normal[0] / norm;
-            normals[vertice++] = normal[1] / norm;
-            normals[vertice] = normal[2] / norm;
+            int vertice = CoordToEntry(x, z) * 4;
+            originalValues[vertice++] = normal[0] / norm;
+            originalValues[vertice++] = normal[1] / norm;
+            originalValues[vertice] = normal[2] / norm;
         }
 
         void LandscapeNode::SetupTerrainTexture(){
@@ -308,11 +312,7 @@ namespace OpenEngine {
 
             for (int x = 0; x < depth; ++x){
                 for (int z = 0; z < width; ++z){
-                    int entry = CoordToEntry(x, z);
-                    originalValues[entry * 4] = normals[entry * DIMENSIONS];
-                    originalValues[entry * 4 + 1] = normals[entry * DIMENSIONS + 1];
-                    originalValues[entry * 4 + 2] = normals[entry * DIMENSIONS + 2];
-                    originalValues[entry * 4 + 3] = YCoord(x, z);
+                    originalValues[CoordToEntry(x, z) * 4 + 3] = YCoord(x, z);
                 }
             }
 
@@ -401,7 +401,20 @@ namespace OpenEngine {
         }
 
         void LandscapeNode::SetYCoord(const int x, const int z, float value){
-            vertices[CoordToEntry(x, z) * DIMENSIONS + 1] = value;
+            originalValues[CoordToEntry(x, z) * 4 + 3] = value;
+            CalcNormal(x, z);
+            CalcGeoMorphing(x, z);
+
+            // Setup geomorphing for the surrounding affected vertices
+            int affectOffset = LODLevel(x, z) / 2;
+            if (x - affectOffset > 0)
+                CalcGeoMorphing(x - affectOffset, z);
+            if (x + affectOffset < depth)
+                CalcGeoMorphing(x + affectOffset, z);
+            if (z - affectOffset > 0)
+                CalcGeoMorphing(x, z - affectOffset);
+            if (z + affectOffset < width)
+                CalcGeoMorphing(x, z + affectOffset);
         }
     }
 }
