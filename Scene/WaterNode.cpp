@@ -20,6 +20,7 @@ namespace OpenEngine {
 
         WaterNode::WaterNode(Vector<3, float> c, float d)
             : center(c), diameter(d), reflection(NULL){
+            waterShader = IShaderResourcePtr();
             SetupArrays();
         }
 
@@ -28,7 +29,13 @@ namespace OpenEngine {
         }
 
         void WaterNode::Handle(RenderingEventArg arg){
-            TerrainTextureLoader::LoadTextureWithMipmapping(surface);
+            if (waterShader != NULL){
+                waterShader->Load();
+                for (ShaderTextureMap::iterator itr = waterShader->textures.begin(); 
+                     itr != waterShader->textures.end(); itr++)
+                    TerrainTextureLoader::LoadTextureWithMipmapping( (*itr).second );
+            }else if (surface != NULL)
+                TerrainTextureLoader::LoadTextureWithMipmapping(surface);
         }
 
         void WaterNode::SetSurfaceTexture(ITextureResourcePtr tex, int pixelsPrEdge){

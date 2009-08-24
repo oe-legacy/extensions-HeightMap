@@ -14,6 +14,7 @@
 #include <Core/IListener.h>
 #include <Renderers/IRenderer.h>
 #include <Scene/LandscapeNode.h>
+#include <Resources/IShaderResource.h>
 #include <Resources/ITextureResource.h>
 
 using namespace OpenEngine::Resources;
@@ -44,6 +45,8 @@ namespace OpenEngine {
             float diameter;
             ISceneNode* reflection;
 
+            IShaderResourcePtr waterShader;
+
         public:
             WaterNode() {}
             WaterNode(Vector<3, float> c, float d);
@@ -61,6 +64,8 @@ namespace OpenEngine {
             
             void SetReflectionsScene(ISceneNode* r) { reflection = r; }
             void SetSurfaceTexture(ITextureResourcePtr tex, int pixelsPrEdge);
+            void SetWaterShader(IShaderResourcePtr water) { waterShader = water; }
+            IShaderResourcePtr GetWaterShader() { return waterShader; }
             ITextureResourcePtr GetSurfaceTexture() { return surface; }
             Vector<3, float> GetCenter() const { return center; }
             float GetDiameter() const { return diameter; }

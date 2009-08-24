@@ -95,47 +95,65 @@ namespace OpenEngine {
             }
 
             void TerrainRenderingView::VisitWaterNode(WaterNode* node) {
-                ISceneNode* reflection = node->GetReflectionScene();
-                if (reflection){
-                    // Render reflection
-                    glCullFace(GL_FRONT);
-                    double plane[4] = {0.0, -1.0, 0.0, 0.0}; //water at y=0
-                    glEnable(GL_CLIP_PLANE0);
-                    glClipPlane(GL_CLIP_PLANE0, plane);
+                IShaderResourcePtr shader = node->GetWaterShader();
+                if (shader != NULL){
+                    ISceneNode* reflection = node->GetReflectionScene();
+                    if (reflection){
+                        // Render reflection
+                        glCullFace(GL_FRONT);
+                        double plane[4] = {0.0, -1.0, 0.0, 0.0}; //water at y=0
+                        glEnable(GL_CLIP_PLANE0);
+                        glClipPlane(GL_CLIP_PLANE0, plane);
+                        
+                        glScalef(1, -1, 1);
+                        node->GetReflectionScene()->Accept(*this);
+                        
+                        glDisable(GL_CLIP_PLANE0);
+                        
+                        glCullFace(GL_BACK);
+                    }
+
+                    shader->ApplyShader();
+
+                    glEnableClientState(GL_VERTEX_ARRAY);
+                    glVertexPointer(3, GL_FLOAT, 0, node->GetWaterVerticeArray());
+                    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                    glTexCoordPointer(2, GL_FLOAT, 0, node->GetTextureCoordArray());
+
+                    glDrawArrays(GL_TRIANGLE_FAN, 0, 26);
+
+                    glDisableClientState(GL_VERTEX_ARRAY);
+                    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+                    shader->ReleaseShader();
                     
-                    glScalef(1, -1, 1);
-                    node->GetReflectionScene()->Accept(*this);
+                }else{
+                    glEnableClientState(GL_VERTEX_ARRAY);
+                    glEnableClientState(GL_COLOR_ARRAY);
+                    glVertexPointer(3, GL_FLOAT, 0, node->GetBottomVerticeArray());
+                    glColorPointer(4, GL_FLOAT, 0, node->GetBottomColorArray());
                     
-                    glDisable(GL_CLIP_PLANE0);
+                    glDrawArrays(GL_TRIANGLE_FAN, 0, 26);
                     
-                    glCullFace(GL_BACK);
+                    glEnable(GL_BLEND);
+                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                    
+                    glVertexPointer(3, GL_FLOAT, 0, node->GetWaterVerticeArray());
+                    glColorPointer(4, GL_FLOAT, 0, node->GetWaterColorArray());
+                    
+                    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                    glTexCoordPointer(2, GL_FLOAT, 0, node->GetTextureCoordArray());
+                    glEnable(GL_TEXTURE_2D);
+                    glBindTexture(GL_TEXTURE_2D, node->GetSurfaceTexture()->GetID() );
+                    
+                    glDrawArrays(GL_TRIANGLE_FAN, 0, 26);
+                    
+                    glDisable(GL_BLEND);
+                    glDisable(GL_TEXTURE_2D);
+                    glDisableClientState(GL_VERTEX_ARRAY);
+                    glDisableClientState(GL_COLOR_ARRAY);
+                    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
                 }
-
-                glEnableClientState(GL_VERTEX_ARRAY);
-                glEnableClientState(GL_COLOR_ARRAY);
-                glVertexPointer(3, GL_FLOAT, 0, node->GetBottomVerticeArray());
-                glColorPointer(4, GL_FLOAT, 0, node->GetBottomColorArray());
-
-                glDrawArrays(GL_TRIANGLE_FAN, 0, 26);
-
-                glEnable(GL_BLEND);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-                glVertexPointer(3, GL_FLOAT, 0, node->GetWaterVerticeArray());
-                glColorPointer(4, GL_FLOAT, 0, node->GetWaterColorArray());
-
-                glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                glTexCoordPointer(2, GL_FLOAT, 0, node->GetTextureCoordArray());
-                glEnable(GL_TEXTURE_2D);
-                glBindTexture(GL_TEXTURE_2D, node->GetSurfaceTexture()->GetID() );
-
-                glDrawArrays(GL_TRIANGLE_FAN, 0, 26);
-
-                glDisable(GL_BLEND);
-                glDisable(GL_TEXTURE_2D);
-                glDisableClientState(GL_VERTEX_ARRAY);
-                glDisableClientState(GL_COLOR_ARRAY);
-                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
             }
         }
     }
