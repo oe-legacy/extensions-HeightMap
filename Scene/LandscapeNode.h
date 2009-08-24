@@ -15,7 +15,7 @@
 #include <Core/IListener.h>
 #include <Renderers/IRenderer.h>
 #include <Scene/LandscapePatchNode.h>
-#include <Resources/GLSLResource.h>
+#include <Resources/IShaderResource.h>
 #include <Resources/ITextureResource.h>
 #include <Meta/OpenGL.h>
 
@@ -78,7 +78,6 @@ namespace OpenEngine {
             float incrementalDistance;
             float* lodDistanceSquared;
 
-            // Shader for geomorphing
             IShaderResourcePtr landscapeShader;
 
         public:

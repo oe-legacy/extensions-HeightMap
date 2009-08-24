@@ -59,6 +59,7 @@ namespace OpenGL {
             glTexImage2D(GL_TEXTURE_2D, 0, depth, tex->GetWidth(), tex->GetHeight(), 0,
                          depth, GL_UNSIGNED_BYTE, tex->GetData());
 
+            glBindTexture(GL_TEXTURE_2D, 0);
             tex->Unload();
         }
     }
