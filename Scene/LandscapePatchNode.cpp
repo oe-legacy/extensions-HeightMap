@@ -29,8 +29,7 @@ namespace OpenEngine {
             land->GetCoords(zEnd-1 + (xEnd-1) * landscapeWidth, xmax, ymax, zmax);
             for (int x = xStart; x < xEnd; ++x){
                 for (int z = zStart; z < zEnd; ++z){
-                    float y;
-                    land->GetYCoord(z + x * landscapeWidth, y);
+                    float y = land->GetYCoord(x, z);;
                     ymin = y < ymin ? y : ymin;
                     ymax = y > ymax ? y : ymax;
                 }

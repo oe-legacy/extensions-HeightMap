@@ -85,6 +85,8 @@ namespace OpenEngine {
             LandscapeNode(ITextureResourcePtr tex, IShaderResourcePtr shader = IShaderResourcePtr(), float heightscale = 1.0, float widthScale = 1.0);
             ~LandscapeNode();
 
+            void CloseBorder();
+
             void CalcLOD(IViewingVolume* view);
             void RenderPatches();
             void RenderNormals();
@@ -105,7 +107,9 @@ namespace OpenEngine {
             int GetDepth() const { return depth; }
 
             void GetCoords(int index, float &x, float &y, float &z) const;
-            void GetYCoord(int index, float &y) const;
+            float GetYCoord(const int index) const;
+            float GetYCoord(const int x, const int z) const;
+            void SetYCoord(const int x, const int z, float value);
             void GeoMorphCoord(int x, int z, int LOD, float scale);
 
             float* GetSunPos() const { return sunPos; }
@@ -132,7 +136,6 @@ namespace OpenEngine {
             inline float YCoord(int x, int z) const;
             inline float ZCoord(int x, int z) const;
             inline int LODLevel(int x, int z) const;
-            inline void SetYCoord(const int x, const int z, float value);
         };
         
     }

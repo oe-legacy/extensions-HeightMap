@@ -53,12 +53,12 @@ namespace OpenEngine {
             unsigned char* data = tex->GetData();
 
             // Fill the vertex and color arrays
-            int i = 0, v = 0, c = 0;
+            int i = 0, v = 0, c = 0, e = 0;
             for (int x = 0; x < depth; ++x){
                 if (x < texDepth){
                     for (int z = 0; z < width; ++z){
                         if (z < texWidth){
-                            // Fill the color array form the texture
+                            // Fill the color array from the texture
                             float height;
                             switch(numberOfCharsPrColor){
                             case 1:
@@ -83,7 +83,7 @@ namespace OpenEngine {
                                 break;
                             }
                             vertices[v++] = widthScale * x;
-                            vertices[v++] = heightScale * height - WATERLEVEL;
+                            originalValues[e++ * 4 + 3] = vertices[v++] = heightScale * height - WATERLEVEL;
                             vertices[v++] = widthScale * z;
                         }else{
                             // Fill the color array with black
@@ -93,7 +93,7 @@ namespace OpenEngine {
 
                             // Place the vertex at the bottom.
                             vertices[v++] = widthScale * x;
-                            vertices[v++] = -WATERLEVEL;
+                            originalValues[e++ * 4 + 3] = vertices[v++] = -WATERLEVEL;
                             vertices[v++] = widthScale * z;
                         }
                     }
@@ -106,7 +106,7 @@ namespace OpenEngine {
                         
                         // Place the vertex at the bottom.
                         vertices[v++] = widthScale * x;
-                        vertices[v++] = -WATERLEVEL;
+                        originalValues[e++ * 4 + 3] = vertices[v++] = -WATERLEVEL;
                         vertices[v++] = widthScale * z;
                     }
                 }
@@ -164,6 +164,17 @@ namespace OpenEngine {
             if (patchNodes) delete[] patchNodes;
         }
 
+        void LandscapeNode::CloseBorder(){
+            for (int x = 0; x < depth; ++x){
+                SetYCoord(x, 0, -WATERLEVEL);
+                SetYCoord(x, width-1, -WATERLEVEL);
+            }
+            for (int z = 1; z < width - 1; ++z){
+                SetYCoord(0, z, -WATERLEVEL);
+                SetYCoord(depth - 1, z, -WATERLEVEL);
+            }
+        }
+
         void LandscapeNode::CalcLOD(IViewingVolume* view){
             for (int i = 0; i < numberOfPatches; ++i)
                 patchNodes[i].CalcLOD(view);
@@ -200,9 +211,32 @@ namespace OpenEngine {
             z = vertices[i];
         }
 
-        void LandscapeNode::GetYCoord(int index, float &y) const{
-            int i = index * DIMENSIONS;
-            y = vertices[i+1];
+        float LandscapeNode::GetYCoord(const int index) const{
+            int e = index;
+            return originalValues[e * 4 + 3];
+        }
+
+        float LandscapeNode::GetYCoord(const int x, const int z) const{
+            int e = CoordToEntry(x, z);
+            return originalValues[e * 4 + 3];
+        }
+
+        void LandscapeNode::SetYCoord(const int x, const int z, float value){
+            originalValues[CoordToEntry(x, z) * 4 + 3] = value;
+            CalcNormal(x, z);
+            CalcGeoMorphing(x, z);
+
+            // Setup geomorphing for the surrounding affected vertices
+            for (int affectOffset = LODLevel(x, z); affectOffset >= 1; affectOffset /= 2){
+                if (x - affectOffset > 0)
+                    CalcGeoMorphing(x - affectOffset, z);
+                if (x + affectOffset < depth)
+                    CalcGeoMorphing(x + affectOffset, z);
+                if (z - affectOffset > 0)
+                    CalcGeoMorphing(x, z - affectOffset);
+                if (z + affectOffset < width)
+                    CalcGeoMorphing(x, z + affectOffset);
+            }
         }
 
         void LandscapeNode::GeoMorphCoord(int x, int z, int LOD, float scale){
@@ -312,12 +346,6 @@ namespace OpenEngine {
 
             for (int x = 0; x < depth; ++x){
                 for (int z = 0; z < width; ++z){
-                    originalValues[CoordToEntry(x, z) * 4 + 3] = YCoord(x, z);
-                }
-            }
-
-            for (int x = 0; x < depth; ++x){
-                for (int z = 0; z < width; ++z){
                     CalcGeoMorphing(x, z);
                 }
             }
@@ -388,7 +416,7 @@ namespace OpenEngine {
         }
 
         GLfloat LandscapeNode::YCoord(int x, int z) const{
-            return vertices[CoordToEntry(x, z) * DIMENSIONS + 1];
+            return originalValues[CoordToEntry(x, z) * 4 + 3];
         }
 
         GLfloat LandscapeNode::ZCoord(int x, int z) const{
@@ -398,23 +426,6 @@ namespace OpenEngine {
         int LandscapeNode::LODLevel(int x, int z) const {
             int entry = CoordToEntry(x, z);
             return verticeLOD[entry];
-        }
-
-        void LandscapeNode::SetYCoord(const int x, const int z, float value){
-            originalValues[CoordToEntry(x, z) * 4 + 3] = value;
-            CalcNormal(x, z);
-            CalcGeoMorphing(x, z);
-
-            // Setup geomorphing for the surrounding affected vertices
-            int affectOffset = LODLevel(x, z) / 2;
-            if (x - affectOffset > 0)
-                CalcGeoMorphing(x - affectOffset, z);
-            if (x + affectOffset < depth)
-                CalcGeoMorphing(x + affectOffset, z);
-            if (z - affectOffset > 0)
-                CalcGeoMorphing(x, z - affectOffset);
-            if (z + affectOffset < width)
-                CalcGeoMorphing(x, z + affectOffset);
         }
     }
 }
