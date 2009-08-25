@@ -10,6 +10,7 @@
 #include <Scene/LandscapeNode.h>
 #include <Math/Math.h>
 #include <Renderers/OpenGL/TerrainTextureLoader.h>
+#include <algorithm>
 #include <Logging/Logger.h>
 
 using namespace OpenEngine::Renderers::OpenGL;
@@ -164,15 +165,34 @@ namespace OpenEngine {
             if (patchNodes) delete[] patchNodes;
         }
 
-        void LandscapeNode::CloseBorder(){
+        void LandscapeNode::CloseBorder(float margin){
             for (int x = 0; x < depth; ++x){
-                SetYCoord(x, 0, -WATERLEVEL);
-                SetYCoord(x, width-1, -WATERLEVEL);
+                for (int z = 0; z < margin && z < width; ++z){
+                    float scale = std::min(x / margin, z / margin);
+                    float y = YCoord(x, z) + WATERLEVEL;
+                    SetYCoord(x, z, y * scale - WATERLEVEL);
+
+                    int newZ = width - z - 1;
+                    y = YCoord(x, newZ) + WATERLEVEL;
+                    SetYCoord(x, newZ, y * scale - WATERLEVEL);
+                }
             }
-            for (int z = 1; z < width - 1; ++z){
-                SetYCoord(0, z, -WATERLEVEL);
-                SetYCoord(depth - 1, z, -WATERLEVEL);
+
+            for (int z = 0; z < width; ++z){
+                for (int x = 0; x < margin && x < depth; ++x){
+                    float scale = std::min(x / margin, z / margin);
+                    float y = YCoord(x, z) + WATERLEVEL;
+                    SetYCoord(x, z, y * scale - WATERLEVEL);
+
+                    int newX = depth - x - 1;
+                    y = YCoord(newX, z) + WATERLEVEL;
+                    SetYCoord(newX, z, y * scale - WATERLEVEL);
+                }
             }
+        }
+
+        void LandscapeNode::SetCenter(Vector<3, float> center){
+            
         }
 
         void LandscapeNode::CalcLOD(IViewingVolume* view){

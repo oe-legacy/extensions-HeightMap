@@ -58,6 +58,7 @@ namespace OpenEngine {
             int * verticeLOD;
             GLfloat* originalValues; // {normal, height}
             GLfloat* morphedValues;
+            float* renderedNormals;
 
             LandscapePatchNode* patchNodes;
 
@@ -85,7 +86,8 @@ namespace OpenEngine {
             LandscapeNode(ITextureResourcePtr tex, IShaderResourcePtr shader = IShaderResourcePtr(), float heightscale = 1.0, float widthScale = 1.0);
             ~LandscapeNode();
 
-            void CloseBorder();
+            void CloseBorder(float margin);
+            void SetCenter(Vector<3, float> center);
 
             void CalcLOD(IViewingVolume* view);
             void RenderPatches();
