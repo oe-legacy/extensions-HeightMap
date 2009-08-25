@@ -138,6 +138,7 @@ namespace OpenEngine {
             inline float YCoord(int x, int z) const;
             inline float ZCoord(int x, int z) const;
             inline int LODLevel(int x, int z) const;
+            inline void CalcSurroundingGeoMorphing(const int x, const int z);
         };
         
     }

@@ -242,24 +242,31 @@ namespace OpenEngine {
 
         void LandscapeNode::SetYCoord(const int x, const int z, float value){
             originalValues[CoordToEntry(x, z) * 4 + 3] = value;
+
+            // Calculate the new normals
             CalcNormal(x, z);
-            CalcGeoMorphing(x, z);
+
+            if (x > 0)
+                CalcNormal(x - 1, z);
+            if (x + 1 < depth)
+                CalcNormal(x + 1, z);
+            if (z > 0)
+                CalcNormal(x, z - 1);
+            if (z + 1 < width)
+                CalcNormal(x, z + 1);
 
             // Setup geomorphing for the surrounding affected vertices
-            for (int affectOffset = LODLevel(x, z); affectOffset >= 1; affectOffset /= 2){
-                if (x - affectOffset > 0)
-                    CalcGeoMorphing(x - affectOffset, z);
-                if (x + affectOffset < depth)
-                    CalcGeoMorphing(x + affectOffset, z);
-                if (z - affectOffset > 0)
-                    CalcGeoMorphing(x, z - affectOffset);
-                if (z + affectOffset < width)
-                    CalcGeoMorphing(x, z + affectOffset);
-                if (x - affectOffset > 0 && z - affectOffset > 0)
-                    CalcGeoMorphing(x - affectOffset, z - affectOffset);
-                if (x + affectOffset < depth && z + affectOffset < width)
-                    CalcGeoMorphing(x + affectOffset, z + affectOffset);
-            }
+            CalcGeoMorphing(x, z);
+            CalcSurroundingGeoMorphing(x, z);
+
+            if (x > 0)
+                CalcSurroundingGeoMorphing(x - 1, z);
+            if (x + 1 < depth)
+                CalcSurroundingGeoMorphing(x + 1, z);
+            if (z > 0)
+                CalcSurroundingGeoMorphing(x, z - 1);
+            if (z + 1 < width)
+                CalcSurroundingGeoMorphing(x, z + 1);
         }
 
         void LandscapeNode::GeoMorphCoord(int x, int z, int LOD, float scale){
@@ -449,6 +456,24 @@ namespace OpenEngine {
         int LandscapeNode::LODLevel(int x, int z) const {
             int entry = CoordToEntry(x, z);
             return verticeLOD[entry];
+        }
+
+        void LandscapeNode::CalcSurroundingGeoMorphing(const int x, const int z){
+            for (int affectOffset = LODLevel(x, z); affectOffset >= 1; affectOffset /= 2){
+                if (x - affectOffset >= 0)
+                    CalcGeoMorphing(x - affectOffset, z);
+                if (x + affectOffset < depth)
+                    CalcGeoMorphing(x + affectOffset, z);
+                if (z - affectOffset >= 0)
+                    CalcGeoMorphing(x, z - affectOffset);
+                if (z + affectOffset < width)
+                    CalcGeoMorphing(x, z + affectOffset);
+                if (x - affectOffset >= 0 && z - affectOffset >= 0)
+                    CalcGeoMorphing(x - affectOffset, z - affectOffset);
+                if (x + affectOffset < depth && z + affectOffset < width)
+                    CalcGeoMorphing(x + affectOffset, z + affectOffset);
+            }
+            
         }
     }
 }
