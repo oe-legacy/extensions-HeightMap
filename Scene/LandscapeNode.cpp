@@ -217,8 +217,7 @@ namespace OpenEngine {
         }
 
         float LandscapeNode::GetYCoord(const int x, const int z) const{
-            int e = CoordToEntry(x, z);
-            return originalValues[e * 4 + 3];
+            return YCoord(x, z);
         }
 
         void LandscapeNode::SetYCoord(const int x, const int z, float value){
@@ -236,6 +235,10 @@ namespace OpenEngine {
                     CalcGeoMorphing(x, z - affectOffset);
                 if (z + affectOffset < width)
                     CalcGeoMorphing(x, z + affectOffset);
+                if (x - affectOffset > 0 && z - affectOffset > 0)
+                    CalcGeoMorphing(x - affectOffset, z - affectOffset);
+                if (x + affectOffset < depth && z + affectOffset < width)
+                    CalcGeoMorphing(x + affectOffset, z + affectOffset);
             }
         }
 

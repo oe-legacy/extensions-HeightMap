@@ -103,8 +103,8 @@ namespace OpenEngine {
             GLfloat* GetTextureCoordArray() const { return texCoords; }
             IShaderResourcePtr GetLandscapeShader() const { return landscapeShader; }
             int GetNumberOfVertices() const { return numberOfVertices; }
-            int GetWidth() const { return width; }
-            int GetDepth() const { return depth; }
+            int GetWidth() const { return width * widthScale; }
+            int GetDepth() const { return depth * widthScale; }
 
             void GetCoords(int index, float &x, float &y, float &z) const;
             float GetYCoord(const int index) const;
