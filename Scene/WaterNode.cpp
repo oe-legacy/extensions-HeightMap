@@ -22,6 +22,7 @@ namespace OpenEngine {
             : center(c), diameter(d), reflection(NULL){
             waterShader = IShaderResourcePtr();
             SetupArrays();
+            reflectionTexID = 0;
         }
 
         WaterNode::~WaterNode(){
@@ -34,6 +35,30 @@ namespace OpenEngine {
                 for (ShaderTextureMap::iterator itr = waterShader->textures.begin(); 
                      itr != waterShader->textures.end(); itr++)
                     TerrainTextureLoader::LoadTextureWithMipmapping( (*itr).second );
+
+                // Check if framebuffering is supported
+                const std::string fboExt = "GL_EXT_framebuffer_object";
+                if (glewGetExtension(fboExt.c_str()) != GL_TRUE )
+                    throw Exception(fboExt + " not supported");
+                
+                if (reflection){
+                    FBOwidth = 400;
+                    FBOheight = 300;
+                    
+                    // setup a depth buffer for reflection/refraction
+                    glGenRenderbuffersEXT(1, &depthBuffer);
+                    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depthBuffer);
+                    glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT32, FBOwidth, FBOheight);
+                    
+                    SetupReflectionFBO();                
+                    SetupRefractionFBO();                
+                    
+                    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+
+                    //ITextureResourcePtr refracTex = ITextureResourcePtr();
+
+                    //waterShader->textures["refractionTex"] = ;
+                }
             }else if (surface != NULL)
                 TerrainTextureLoader::LoadTextureWithMipmapping(surface);
         }
@@ -99,6 +124,66 @@ namespace OpenEngine {
                 }
                 surface->Unload();
             }
+        }
+
+        void WaterNode::SetupReflectionFBO(){
+            // setup frame buffer object for reflection
+            glGenFramebuffersEXT(1, &reflectionFboID);
+            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, reflectionFboID);
+            
+            // attach the depth buffer to the frame buffer
+            glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
+                                         GL_RENDERBUFFER_EXT, depthBuffer);
+                        
+            // Setup texture to render reflection to
+            glGenTextures(1, &reflectionTexID);
+            glBindTexture(GL_TEXTURE_2D, reflectionTexID);
+            
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S, GL_CLAMP);
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T, GL_CLAMP);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+            
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, FBOwidth, FBOheight, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, NULL);
+
+            // attach the texture to FBO color attachment point
+            glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, 
+                                      GL_COLOR_ATTACHMENT0_EXT,
+                                      GL_TEXTURE_2D, reflectionTexID, 0);
+            
+            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
+
+        void WaterNode::SetupRefractionFBO(){
+            // setup frame buffer object for refraction
+            glGenFramebuffersEXT(1, &refractionFboID);
+            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, refractionFboID);
+            
+            // attach the depth buffer to the frame buffer
+            glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
+                                         GL_RENDERBUFFER_EXT, depthBuffer);
+                        
+            // Setup texture to render refraction to
+            glGenTextures(1, &refractionTexID);
+            glBindTexture(GL_TEXTURE_2D, refractionTexID);
+            
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S, GL_CLAMP);
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T, GL_CLAMP);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+            
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, FBOwidth, FBOheight, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, NULL);
+
+            // attach the texture to FBO color attachment point
+            glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, 
+                                      GL_COLOR_ATTACHMENT0_EXT,
+                                      GL_TEXTURE_2D, refractionTexID, 0);
+
+            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+            glBindTexture(GL_TEXTURE_2D, 0);
         }
         
     }

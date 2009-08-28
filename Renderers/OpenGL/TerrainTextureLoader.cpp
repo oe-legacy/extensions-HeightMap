@@ -60,6 +60,7 @@ namespace OpenGL {
                          depth, GL_UNSIGNED_BYTE, tex->GetData());
 
             glBindTexture(GL_TEXTURE_2D, 0);
+            glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
             tex->Unload();
         }
     }

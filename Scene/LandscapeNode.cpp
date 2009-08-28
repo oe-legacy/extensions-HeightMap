@@ -213,6 +213,11 @@ namespace OpenEngine {
         void LandscapeNode::VisitSubNodes(ISceneNodeVisitor& visitor){
             for (int i = 0; i < numberOfPatches; ++i)
                 patchNodes[i].Accept(visitor);
+            list<ISceneNode*>::iterator itr;
+            for (itr = subNodes.begin(); itr != subNodes.end(); ++itr){
+                logger.info << "Hey subnode " << logger.end;
+                (*itr)->Accept(visitor);
+            }
         }
         
         void LandscapeNode::Handle(RenderingEventArg arg){

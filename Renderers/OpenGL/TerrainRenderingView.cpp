@@ -63,6 +63,8 @@ namespace OpenEngine {
                     glDisableClientState(GL_COLOR_ARRAY);
                 }
                 glDisable(GL_CULL_FACE);
+
+                //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             }
 
             void TerrainRenderingView::VisitLandscapePatchNode(LandscapePatchNode* node) {
@@ -99,20 +101,90 @@ namespace OpenEngine {
                 if (shader != NULL){
                     ISceneNode* reflection = node->GetReflectionScene();
                     if (reflection){
-                        // Render reflection
-                        glCullFace(GL_FRONT);
+                        
+                        // setup water clipping plane
                         double plane[4] = {0.0, -1.0, 0.0, 0.0}; //water at y=0
                         glEnable(GL_CLIP_PLANE0);
                         glClipPlane(GL_CLIP_PLANE0, plane);
+
+                        glViewport(0, 0, node->GetFBOWidth(), node->GetFBOHeight());
+
+                        // Render reflection
+
+                        // Enable frame buffer
+                        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, node->GetReflectionFboID());
+                        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                         
+                        glCullFace(GL_FRONT);
+
+                        glPushMatrix();
                         glScalef(1, -1, 1);
+                        
+                        // Render scene
                         node->GetReflectionScene()->Accept(*this);
                         
-                        glDisable(GL_CLIP_PLANE0);
-                        
+                        glPopMatrix();
                         glCullFace(GL_BACK);
-                    }
 
+
+                        // Render refraction
+
+                        // Enable frame buffer
+                        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, node->GetRefractionFboID());
+                        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                       
+                        node->GetReflectionScene()->Accept(*this);                        
+                       
+                        // Disable frame buffer
+                        glViewport(0, 0, 800, 600);
+                        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+                        glDisable(GL_CLIP_PLANE0);
+
+                        bool render = false;
+                        if (render){
+                            glEnable(GL_TEXTURE_2D);
+                            glBindTexture(GL_TEXTURE_2D, node->GetReflectionTexID());
+                            
+                            glBegin(GL_QUADS);
+                            {
+                                glTexCoord2f(1, 0);
+                                glVertex3f(256, 0, 256);
+                                
+                                glTexCoord2f(0, 0);
+                                glVertex3f(256, 0, 0);
+                                
+                                glTexCoord2f(0, 1);
+                                glVertex3f(256, 192, 0);
+                                
+                                glTexCoord2f(1, 1);
+                                glVertex3f(256, 192, 256);
+                            }
+                            glEnd();
+                            
+                            glEnable(GL_TEXTURE_2D);
+                            glBindTexture(GL_TEXTURE_2D, node->GetRefractionTexID());
+                            
+                            glBegin(GL_QUADS);
+                            {
+                                glTexCoord2f(1, 0);
+                                glVertex3f(0, 0, 256);
+                                
+                                glTexCoord2f(0, 0);
+                                glVertex3f(256, 0, 256);
+                                
+                                glTexCoord2f(0, 1);
+                                glVertex3f(256, 192, 256);
+                                
+                                glTexCoord2f(1, 1);
+                                glVertex3f(0, 192, 256);
+                            }
+                            glEnd();
+                            
+                            glDisable(GL_TEXTURE_2D);
+                            glBindTexture(GL_TEXTURE_2D, 0);
+                        }
+                    }
+                    
                     shader->ApplyShader();
 
                     glEnableClientState(GL_VERTEX_ARRAY);
@@ -144,7 +216,7 @@ namespace OpenEngine {
                     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
                     glTexCoordPointer(2, GL_FLOAT, 0, node->GetTextureCoordArray());
                     glEnable(GL_TEXTURE_2D);
-                    glBindTexture(GL_TEXTURE_2D, node->GetSurfaceTexture()->GetID() );
+                    glBindTexture(GL_TEXTURE_2D, node->GetSurfaceTexture()->GetID());
                     
                     glDrawArrays(GL_TRIANGLE_FAN, 0, 26);
                     

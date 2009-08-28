@@ -44,6 +44,13 @@ namespace OpenEngine {
             Vector<3, float> center;
             float diameter;
             ISceneNode* reflection;
+            GLuint depthBuffer;
+            GLuint reflectionTexID;
+            GLuint reflectionFboID;
+            GLuint refractionTexID;
+            GLuint refractionFboID;
+            int FBOheight;
+            int FBOwidth;
 
             IShaderResourcePtr waterShader;
 
@@ -55,25 +62,35 @@ namespace OpenEngine {
             void VisitSubNode(ISceneNodeVisitor& visitor) {}
 
             void Handle(RenderingEventArg arg);
+
+            Vector<3, float> GetCenter() const { return center; }
+            float GetDiameter() const { return diameter; }
             
             float* GetWaterVerticeArray() { return waterVertices; }
             float* GetWaterColorArray() { return waterColors; }
             float* GetBottomVerticeArray() { return bottomVertices; }
             float* GetBottomColorArray() { return bottomColors; }
             float* GetTextureCoordArray() const { return texCoords; }
-            
-            void SetReflectionsScene(ISceneNode* r) { reflection = r; }
+
+            int GetFBOHeight() const { return FBOheight; }
+            int GetFBOWidth() const { return FBOwidth; }
+            GLuint GetReflectionFboID() const { return reflectionFboID; }
+            GLuint GetReflectionTexID() const { return reflectionTexID; }
+            GLuint GetRefractionFboID() const { return refractionFboID; }
+            GLuint GetRefractionTexID() const { return refractionTexID; }
+
+            void SetReflectionScene(ISceneNode* r) { reflection = r; }
+            ISceneNode* GetReflectionScene() const { return reflection; }
             void SetSurfaceTexture(ITextureResourcePtr tex, int pixelsPrEdge);
+            ITextureResourcePtr GetSurfaceTexture() { return surface; }
             void SetWaterShader(IShaderResourcePtr water) { waterShader = water; }
             IShaderResourcePtr GetWaterShader() { return waterShader; }
-            ITextureResourcePtr GetSurfaceTexture() { return surface; }
-            Vector<3, float> GetCenter() const { return center; }
-            float GetDiameter() const { return diameter; }
-            ISceneNode* GetReflectionScene() const { return reflection; }
 
         private:
             inline void SetupArrays();
             inline void SetupTexCoords();
+            inline void SetupReflectionFBO();
+            inline void SetupRefractionFBO();
         };
 
     }

@@ -16,18 +16,10 @@ namespace OpenEngine {
 namespace Renderers {
 namespace OpenGL {
 
-    class RenderingView;
-
 using namespace OpenEngine::Renderers;
-using namespace OpenEngine::Scene;
-using namespace OpenEngine::Geometry;
-using namespace OpenEngine::Display;
     
  class TerrainRenderingView : public RenderingView {
 
- private:
-     bool loadShader;
-   
  public:
      TerrainRenderingView(Viewport& viewport);
      
