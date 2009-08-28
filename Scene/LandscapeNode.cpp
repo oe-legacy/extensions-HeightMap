@@ -215,7 +215,6 @@ namespace OpenEngine {
                 patchNodes[i].Accept(visitor);
             list<ISceneNode*>::iterator itr;
             for (itr = subNodes.begin(); itr != subNodes.end(); ++itr){
-                logger.info << "Hey subnode " << logger.end;
                 (*itr)->Accept(visitor);
             }
         }
