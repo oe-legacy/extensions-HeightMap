@@ -60,7 +60,7 @@ namespace OpenEngine {
                     for (int z = 0; z < width; ++z){
                         if (z < texWidth){
                             // Fill the color array from the texture
-                            float height;
+                            float height = 0;
                             switch(numberOfCharsPrColor){
                             case 1:
                                 colors[c++] = 0;
@@ -169,6 +169,7 @@ namespace OpenEngine {
             for (int x = 0; x < depth; ++x){
                 for (int z = 0; z < margin && z < width; ++z){
                     float scale = std::min(x / margin, z / margin);
+                    scale = std::min(scale, (depth - x) / margin);
                     float y = YCoord(x, z) + WATERLEVEL;
                     SetYCoord(x, z, y * scale - WATERLEVEL);
 
@@ -178,9 +179,10 @@ namespace OpenEngine {
                 }
             }
 
-            for (int z = 0; z < width; ++z){
+            for (int z = margin; z < width-margin; ++z){
                 for (int x = 0; x < margin && x < depth; ++x){
                     float scale = std::min(x / margin, z / margin);
+                    scale = std::min(scale, (width - z) / margin);
                     float y = YCoord(x, z) + WATERLEVEL;
                     SetYCoord(x, z, y * scale - WATERLEVEL);
 
