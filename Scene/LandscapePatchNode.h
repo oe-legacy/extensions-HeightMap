@@ -52,7 +52,7 @@ namespace OpenEngine {
             int LOD; // a LOD of 0 means the patch is outside the frustum
             float geoMorphingScale;
             int xStart, xEnd, zStart, zEnd;
-            Box* boundingBox;
+            Box boundingBox;
             Vector<3, float> patchCenter;
             LandscapeNode* landscape;
             int landscapeWidth;
@@ -63,26 +63,38 @@ namespace OpenEngine {
             LandscapePatchNode* upper;
             int upperPatchLOD; 
 
+            LandscapePatchNode* lower;
+            int lowerPatchLOD; 
+
             LandscapePatchNode* right;
             int rightPatchLOD;
+
+            LandscapePatchNode* left;
+            int leftPatchLOD;
 
         public:
             LandscapePatchNode() {}
             LandscapePatchNode(int xOffset, int zOffset, LandscapeNode* land);
             ~LandscapePatchNode();
 
+            void RecalcBoundingBox();
+            
             // Render functions
             void CalcLOD(IViewingVolume* view);
             void Render();
             void RenderNormals();
+            void RenderBoundingBoxes();
 
             void VisitSubNodes(ISceneNodeVisitor& visitor) {};
 
             // *** Get/Set methods ***
 
             void SetUpperNeighbor(LandscapePatchNode* u) {upper = u; }
+            void SetLowerNeighbor(LandscapePatchNode* l) {lower = l; }
             void SetRightNeighbor(LandscapePatchNode* r) {right = r; }
+            void SetLeftNeighbor(LandscapePatchNode* l) {left = l; }
             float GetLOD() const { return LOD; }
+            float GetGeomorphingScale() const { return geoMorphingScale; }
             
         private:
             inline void ComputeIndices();
@@ -90,6 +102,7 @@ namespace OpenEngine {
             inline void ComputeStitchingIndices(LODstruct* lods);
             inline void ComputeRightStichingIndices(GLuint* indices, int LOD, int rightLOD);
             inline void ComputeUpperStichingIndices(GLuint* indices, int LOD, int upperLOD);
+            inline void SetupBoundingBox();
 
             inline void GeoMorph();
         };

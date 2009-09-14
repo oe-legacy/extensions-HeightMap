@@ -24,19 +24,7 @@ namespace OpenEngine {
 
             right = upper = NULL;
 
-            float xmin, ymin, zmin, xmax, ymax, zmax;
-            land->GetCoords(zStart + xStart * landscapeWidth, xmin, ymin, zmin);
-            land->GetCoords(zEnd-1 + (xEnd-1) * landscapeWidth, xmax, ymax, zmax);
-            for (int x = xStart; x < xEnd; ++x){
-                for (int z = zStart; z < zEnd; ++z){
-                    float y = land->GetYCoord(x, z);;
-                    ymin = y < ymin ? y : ymin;
-                    ymax = y > ymax ? y : ymax;
-                }
-            }
-
-            patchCenter = Vector<3, float>((xmax + xmin) / 2, (ymax + ymin) / 2, (zmax + zmin) / 2);
-            boundingBox = new Box(patchCenter, Vector<3, float>(xmax - patchCenter[0], ymax - patchCenter[1], zmax - patchCenter[2]));
+            SetupBoundingBox();
         }
 
         LandscapePatchNode::~LandscapePatchNode(){
@@ -57,12 +45,16 @@ namespace OpenEngine {
             */
         }
 
+        void LandscapePatchNode::RecalcBoundingBox(){
+            SetupBoundingBox(); 
+        }
+
         /**
          * Calculate the level of detail of the node based on the
          * distance to the camera.
          */
         void LandscapePatchNode::CalcLOD(IViewingVolume* view){
-            if (!view->IsVisible(*boundingBox)){
+            if (!view->IsVisible(boundingBox)){
                 currentLOD = NULL;
                 LOD = 0;
                 return;
@@ -120,26 +112,26 @@ namespace OpenEngine {
             }else //if (LOD > upper->GetLOD())
                 glDrawElements(GL_TRIANGLE_STRIP, currentLOD->numberOfStichingLowerIndices, GL_UNSIGNED_INT, currentLOD->upperStitchingLowerIndices);
 
-            // Render bounding box
-            /*
+        }
+
+        void LandscapePatchNode::RenderNormals(){
+            
+        }
+
+        void LandscapePatchNode::RenderBoundingBoxes(){
             glBegin(GL_LINES);
-            Vector<3, float> center = boundingBox->GetCenter();
+            Vector<3, float> center = boundingBox.GetCenter();
             glColor3f(center[0], center[1], center[2]);
 
             for (int i = 0; i < 8; ++i){
-                Vector<3, float> ic = boundingBox->GetCorner(i);
+                Vector<3, float> ic = boundingBox.GetCorner(i);
                 for (int j = i+1; j < 8; ++j){
-                    Vector<3, float> jc = boundingBox->GetCorner(j);
+                    Vector<3, float> jc = boundingBox.GetCorner(j);
                     glVertex3f(ic[0], ic[1], ic[2]);
                     glVertex3f(jc[0], jc[1], jc[2]);
                 }
             }
             glEnd();
-            */
-        }
-
-        void LandscapePatchNode::RenderNormals(){
-            
         }
 
         void LandscapePatchNode::ComputeIndices(){
@@ -178,7 +170,7 @@ namespace OpenEngine {
             int LOD = lods->LOD;
             lods->numberOfStichingLowerIndices = 4 * (PATCH_EDGE_VERTICES - 1)/LOD + 1;
             lods->numberOfStichingEqualIndices = 2 * (PATCH_EDGE_VERTICES - 1)/LOD + 1;
-            lods->numberOfStichingHigherIndices = 2 * (PATCH_EDGE_VERTICES - 1)/LOD;
+            lods->numberOfStichingHigherIndices = 2 * (PATCH_EDGE_VERTICES - 1)/LOD + 1;
 
             lods->rightStitchingHigherIndices = new GLuint[lods->numberOfStichingHigherIndices];
             ComputeRightStichingIndices(lods->rightStitchingHigherIndices, lods->LOD, lods->LOD * 2);
@@ -213,6 +205,22 @@ namespace OpenEngine {
                 }
             }else if (LOD < rightLOD){
                 // Right patch is twice as detailed
+                for (int x = xEnd - 1 - 2*LOD; x >= xStart; x -= 2*LOD){
+                    indices[i++] = zEnd - 1 + (x+2*LOD) * landscapeWidth;
+                    indices[i++] = zEnd - 1 - LOD + (x+LOD) * landscapeWidth;
+                    indices[i++] = zEnd - 1 + (x + 2*LOD) * landscapeWidth;
+                    indices[i++] = zEnd - 1 - LOD + x * landscapeWidth;
+                }
+                indices[i++] = zEnd - 1 + xStart * landscapeWidth;
+                /*
+                for (int x = xStart; x < xEnd - LOD; x += 2*LOD){
+                    indices[i++] = zEnd - 1 - LOD + x * landscapeWidth;
+                    indices[i++] = zEnd - 1 + x * landscapeWidth;
+                    indices[i++] = zEnd - 1 - LOD + (x+LOD) * landscapeWidth;
+                    indices[i++] = zEnd - 1 + (x + 2*LOD) * landscapeWidth;
+                }
+                */
+                /*
                 for (int x = xStart; x < xEnd - LOD; x += LOD){
                     if ((x/LOD) % 2 == 0){
                         indices[i++] = zEnd - 1 - LOD + x * landscapeWidth;
@@ -222,6 +230,7 @@ namespace OpenEngine {
                         indices[i++] = zEnd - 1 + (x + LOD) * landscapeWidth;
                     }
                 }
+                */
             }else if (rightLOD < LOD){
                 // Right patch is half as detailed
                 for (int x = xEnd - 1 - LOD; x >= xStart; x -= LOD){
@@ -245,6 +254,7 @@ namespace OpenEngine {
                 indices[i++] = zEnd - 1 + (xEnd - 1) * landscapeWidth;
             }else if (LOD < upperLOD){
                 // The upper patch is twice as detailed
+                /*
                 for (int z = zEnd - 1 - LOD; z >= zStart; z -= LOD){
                     if ((z/LOD) % 2 == 0){
                         indices[i++] = z + (xEnd - 1 - LOD) * landscapeWidth;
@@ -253,6 +263,22 @@ namespace OpenEngine {
                         indices[i++] = z + (xEnd - 1 - LOD) * landscapeWidth;
                         indices[i++] = z + LOD + (xEnd - 1) * landscapeWidth;
                     }
+                }
+                */
+                indices[i++] = zStart + (xEnd - 1) * landscapeWidth;
+                // The upper patch is half as detailed
+                for (int z = zStart; z < zEnd - LOD; z += 2*LOD){
+                    //indices[i++] = zEnd - 1 - LOD + x * landscapeWidth;
+                    indices[i++] = z + (xEnd-1-LOD) * landscapeWidth;
+
+                    //indices[i++] = zEnd - 1 + (x + 2*LOD) * landscapeWidth;
+                    indices[i++] = z + 2 * LOD + (xEnd - 1) * landscapeWidth;
+
+                    //indices[i++] = zEnd - 1 - LOD + (x+LOD) * landscapeWidth;
+                    indices[i++] = z + LOD + (xEnd - 1 - LOD) * landscapeWidth;
+
+                    //indices[i++] = zEnd - 1 + (x+2*LOD) * landscapeWidth;
+                    indices[i++] = z + 2 * LOD + (xEnd - 1) * landscapeWidth;
                 }
             }else if (upperLOD < LOD){
                 indices[i++] = zStart + (xEnd - 1) * landscapeWidth;
@@ -264,6 +290,22 @@ namespace OpenEngine {
                     indices[i++] = z + LOD + (xEnd - 1) * landscapeWidth;
                 }
             }
+        }
+
+        void LandscapePatchNode::SetupBoundingBox(){
+            float xmin, ymin, zmin, xmax, ymax, zmax;
+            landscape->GetCoords(zStart + xStart * landscapeWidth, xmin, ymin, zmin);
+            landscape->GetCoords(zEnd-1 + (xEnd-1) * landscapeWidth, xmax, ymax, zmax);
+            for (int x = xStart; x < xEnd; ++x){
+                for (int z = zStart; z < zEnd; ++z){
+                    float y = landscape->GetYCoord(x, z);;
+                    ymin = y < ymin ? y : ymin;
+                    ymax = y > ymax ? y : ymax;
+                }
+            }
+
+            patchCenter = Vector<3, float>((xmax + xmin) / 2, (ymax + ymin) / 2, (zmax + zmin) / 2);
+            boundingBox = Box(patchCenter, Vector<3, float>(xmax - patchCenter[0], ymax - patchCenter[1], zmax - patchCenter[2]));
         }
 
         void LandscapePatchNode::GeoMorph(){
