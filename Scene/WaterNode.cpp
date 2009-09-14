@@ -20,8 +20,8 @@ namespace OpenEngine {
     namespace Scene {
 
         WaterNode::WaterNode(Vector<3, float> c, float d)
-            : center(c), diameter(d), reflection(NULL){
-            waterShader = IShaderResourcePtr();
+            : center(c), diameter(d), reflection(NULL), 
+              waterShader(IShaderResourcePtr()), elapsedTime(0) {
             SetupArrays();
         }
 
@@ -56,12 +56,22 @@ namespace OpenEngine {
                 TerrainTextureLoader::LoadTextureWithMipmapping(surface);
         }
 
-        void WaterNode::SetSurfaceTexture(ITextureResourcePtr tex, int pixelsPrEdge){
+        void WaterNode::Handle(ProcessEventArg arg){
+            elapsedTime += arg.approx;
+        }
+
+        void WaterNode::SetSurfaceTexture(ITextureResourcePtr tex, float pixelsPrEdge){
             surface = tex; 
             texDetail = pixelsPrEdge;
             SetupTexCoords();
         }
 
+        void WaterNode::SetWaterShader(IShaderResourcePtr water, float pixelsPrEdge){
+            waterShader = water;
+            texDetail = pixelsPrEdge;
+            SetupTexCoords();
+        }
+        
         void WaterNode::SetupArrays(){
             entries = SLICES + 2;
             waterVertices = new float[entries * DIMENSIONS];
@@ -109,13 +119,9 @@ namespace OpenEngine {
         }
 
         void WaterNode::SetupTexCoords(){
-            if (surface != NULL){
-                surface->Load();
-                for (int i = 0; i < entries; ++i){
-                    texCoords[i * 2] = waterVertices[i * DIMENSIONS] * texDetail / surface->GetWidth();
-                    texCoords[i * 2 + 1] = waterVertices[i * DIMENSIONS + 2] * texDetail / surface->GetHeight();
-                }
-                surface->Unload();
+            for (int i = 0; i < entries; ++i){
+                texCoords[i * 2] = waterVertices[i * DIMENSIONS] * texDetail;
+                texCoords[i * 2 + 1] = waterVertices[i * DIMENSIONS + 2] * texDetail;
             }
         }
 

@@ -24,7 +24,9 @@ using namespace OpenEngine::Renderers;
 namespace OpenEngine {
     namespace Scene {
 
-        class WaterNode : public ISceneNode, public IListener<RenderingEventArg> {
+        class SunNode;
+
+        class WaterNode : public ISceneNode, public IListener<RenderingEventArg>, public IListener<ProcessEventArg> {
             OE_SCENE_NODE(WaterNode, ISceneNode)
 
         private:
@@ -38,7 +40,7 @@ namespace OpenEngine {
             float* bottomColors;
             float* texCoords;
 
-            int texDetail;
+            float texDetail;
             ITextureResourcePtr surface;
 
             Vector<3, float> center;
@@ -55,6 +57,8 @@ namespace OpenEngine {
             ITextureResourcePtr refractionTex;
 
             IShaderResourcePtr waterShader;
+            unsigned int elapsedTime;
+            SunNode* sun;
 
         public:
             WaterNode() {}
@@ -64,10 +68,14 @@ namespace OpenEngine {
             void VisitSubNode(ISceneNodeVisitor& visitor) {}
 
             void Handle(RenderingEventArg arg);
+            void Handle(ProcessEventArg arg);
 
             Vector<3, float> GetCenter() const { return center; }
             float GetDiameter() const { return diameter; }
             
+            SunNode* GetSun() const { return sun; }
+            void SetSun(SunNode* s) { sun = s; }
+
             float* GetWaterVerticeArray() { return waterVertices; }
             float* GetWaterColorArray() { return waterColors; }
             float* GetBottomVerticeArray() { return bottomVertices; }
@@ -79,13 +87,15 @@ namespace OpenEngine {
             GLuint GetReflectionFboID() const { return reflectionFboID; }
             ITextureResourcePtr GetReflectionTex() const { return reflectionTex; }
             GLuint GetRefractionFboID() const { return refractionFboID; }
-            GLuint GetRefractionTexID() const { return refractionTexID; }
+            ITextureResourcePtr GetRefractionTex() const { return refractionTex; }
+            ITextureResourcePtr GetRefractionDepthMap() const { return depthbufferTex; }
+            unsigned int GetElapsedTime() { return elapsedTime; }
 
             void SetReflectionScene(ISceneNode* r) { reflection = r; }
             ISceneNode* GetReflectionScene() const { return reflection; }
-            void SetSurfaceTexture(ITextureResourcePtr tex, int pixelsPrEdge);
+            void SetSurfaceTexture(ITextureResourcePtr tex, float pixelsPrEdge);
             ITextureResourcePtr GetSurfaceTexture() { return surface; }
-            void SetWaterShader(IShaderResourcePtr water) { waterShader = water; }
+            void SetWaterShader(IShaderResourcePtr water, float pixelsPrEdge);
             IShaderResourcePtr GetWaterShader() { return waterShader; }
 
         private:
