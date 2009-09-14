@@ -212,25 +212,6 @@ namespace OpenEngine {
                     indices[i++] = zEnd - 1 - LOD + x * landscapeWidth;
                 }
                 indices[i++] = zEnd - 1 + xStart * landscapeWidth;
-                /*
-                for (int x = xStart; x < xEnd - LOD; x += 2*LOD){
-                    indices[i++] = zEnd - 1 - LOD + x * landscapeWidth;
-                    indices[i++] = zEnd - 1 + x * landscapeWidth;
-                    indices[i++] = zEnd - 1 - LOD + (x+LOD) * landscapeWidth;
-                    indices[i++] = zEnd - 1 + (x + 2*LOD) * landscapeWidth;
-                }
-                */
-                /*
-                for (int x = xStart; x < xEnd - LOD; x += LOD){
-                    if ((x/LOD) % 2 == 0){
-                        indices[i++] = zEnd - 1 - LOD + x * landscapeWidth;
-                        indices[i++] = zEnd - 1 + x * landscapeWidth;
-                    }else{
-                        indices[i++] = zEnd - 1 - LOD + x * landscapeWidth;
-                        indices[i++] = zEnd - 1 + (x + LOD) * landscapeWidth;
-                    }
-                }
-                */
             }else if (rightLOD < LOD){
                 // Right patch is half as detailed
                 for (int x = xEnd - 1 - LOD; x >= xStart; x -= LOD){
@@ -254,30 +235,12 @@ namespace OpenEngine {
                 indices[i++] = zEnd - 1 + (xEnd - 1) * landscapeWidth;
             }else if (LOD < upperLOD){
                 // The upper patch is twice as detailed
-                /*
-                for (int z = zEnd - 1 - LOD; z >= zStart; z -= LOD){
-                    if ((z/LOD) % 2 == 0){
-                        indices[i++] = z + (xEnd - 1 - LOD) * landscapeWidth;
-                        indices[i++] = z + (xEnd - 1) * landscapeWidth;
-                    }else{
-                        indices[i++] = z + (xEnd - 1 - LOD) * landscapeWidth;
-                        indices[i++] = z + LOD + (xEnd - 1) * landscapeWidth;
-                    }
-                }
-                */
                 indices[i++] = zStart + (xEnd - 1) * landscapeWidth;
                 // The upper patch is half as detailed
                 for (int z = zStart; z < zEnd - LOD; z += 2*LOD){
-                    //indices[i++] = zEnd - 1 - LOD + x * landscapeWidth;
                     indices[i++] = z + (xEnd-1-LOD) * landscapeWidth;
-
-                    //indices[i++] = zEnd - 1 + (x + 2*LOD) * landscapeWidth;
                     indices[i++] = z + 2 * LOD + (xEnd - 1) * landscapeWidth;
-
-                    //indices[i++] = zEnd - 1 - LOD + (x+LOD) * landscapeWidth;
                     indices[i++] = z + LOD + (xEnd - 1 - LOD) * landscapeWidth;
-
-                    //indices[i++] = zEnd - 1 + (x+2*LOD) * landscapeWidth;
                     indices[i++] = z + 2 * LOD + (xEnd - 1) * landscapeWidth;
                 }
             }else if (upperLOD < LOD){
