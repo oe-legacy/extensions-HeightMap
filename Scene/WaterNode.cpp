@@ -9,6 +9,7 @@
 
 #include "WaterNode.h"
 #include <Renderers/OpenGL/TerrainTextureLoader.h>
+#include <Resources/OpenGLTextureResource.h>
 #include <Logging/Logger.h>
 #include <string.h>
 
@@ -22,7 +23,6 @@ namespace OpenEngine {
             : center(c), diameter(d), reflection(NULL){
             waterShader = IShaderResourcePtr();
             SetupArrays();
-            reflectionTexID = 0;
         }
 
         WaterNode::~WaterNode(){
@@ -45,15 +45,8 @@ namespace OpenEngine {
                     FBOwidth = 400;
                     FBOheight = 300;
                     
-                    // setup a depth buffer for reflection/refraction
-                    glGenRenderbuffersEXT(1, &depthBuffer);
-                    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depthBuffer);
-                    glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT32, FBOwidth, FBOheight);
-                    
                     SetupReflectionFBO();                
-                    SetupRefractionFBO();                
-                    
-                    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+                    //SetupRefractionFBO();                                   
 
                     //ITextureResourcePtr refracTex = ITextureResourcePtr();
 
@@ -132,10 +125,16 @@ namespace OpenEngine {
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, reflectionFboID);
             
             // attach the depth buffer to the frame buffer
+            GLuint depth;
+            glGenRenderbuffersEXT(1, &depth);
+            glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depth);
+            glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT32, FBOwidth, FBOheight);
+            
             glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
-                                         GL_RENDERBUFFER_EXT, depthBuffer);
+                                         GL_RENDERBUFFER_EXT, depth);
                         
             // Setup texture to render reflection to
+            GLuint reflectionTexID;
             glGenTextures(1, &reflectionTexID);
             glBindTexture(GL_TEXTURE_2D, reflectionTexID);
             
@@ -143,15 +142,17 @@ namespace OpenEngine {
             glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T, GL_CLAMP);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
             
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, FBOwidth, FBOheight, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, NULL);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, FBOwidth, FBOheight, 0, GL_RGBA, GL_UNSIGNED_INT, NULL);
 
+            reflectionTex = ITextureResourcePtr(new OpenGLTextureResource(reflectionTexID));
+            
             // attach the texture to FBO color attachment point
             glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, 
                                       GL_COLOR_ATTACHMENT0_EXT,
                                       GL_TEXTURE_2D, reflectionTexID, 0);
             
+            glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
             glBindTexture(GL_TEXTURE_2D, 0);
         }
@@ -159,13 +160,10 @@ namespace OpenEngine {
         void WaterNode::SetupRefractionFBO(){
             // setup frame buffer object for refraction
             glGenFramebuffersEXT(1, &refractionFboID);
-            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, refractionFboID);
-            
-            // attach the depth buffer to the frame buffer
-            glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
-                                         GL_RENDERBUFFER_EXT, depthBuffer);
+            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, refractionFboID);                        
                         
             // Setup texture to render refraction to
+            GLuint refractionTexID;
             glGenTextures(1, &refractionTexID);
             glBindTexture(GL_TEXTURE_2D, refractionTexID);
             
@@ -173,14 +171,33 @@ namespace OpenEngine {
             glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T, GL_CLAMP);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
             
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, FBOwidth, FBOheight, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, NULL);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, FBOwidth, FBOheight, 0, GL_RGBA, GL_UNSIGNED_INT, NULL);
 
             // attach the texture to FBO color attachment point
             glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, 
                                       GL_COLOR_ATTACHMENT0_EXT,
                                       GL_TEXTURE_2D, refractionTexID, 0);
+
+            // attach the depth buffer to the frame buffer
+            GLuint depthBuffer;
+            glGenTextures(1, &depthBuffer);
+            glBindTexture(GL_TEXTURE_2D, depthBuffer);
+
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S, GL_CLAMP);
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T, GL_CLAMP);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
+
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, FBOwidth, FBOheight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+
+            glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, 
+                                      GL_DEPTH_ATTACHMENT_EXT,
+                                      GL_TEXTURE_2D, depthBuffer, 0);
+
+            refractionTex = ITextureResourcePtr(new OpenGLTextureResource(refractionTexID));
+            depthbufferTex = ITextureResourcePtr(new OpenGLTextureResource(depthBuffer));
 
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
             glBindTexture(GL_TEXTURE_2D, 0);

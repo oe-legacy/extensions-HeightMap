@@ -43,14 +43,16 @@ namespace OpenEngine {
 
             Vector<3, float> center;
             float diameter;
+
             ISceneNode* reflection;
-            GLuint depthBuffer;
-            GLuint reflectionTexID;
-            GLuint reflectionFboID;
-            GLuint refractionTexID;
-            GLuint refractionFboID;
+
             int FBOheight;
             int FBOwidth;
+            GLuint reflectionFboID;
+            GLuint refractionFboID;
+            ITextureResourcePtr depthbufferTex;
+            ITextureResourcePtr reflectionTex;
+            ITextureResourcePtr refractionTex;
 
             IShaderResourcePtr waterShader;
 
@@ -75,7 +77,7 @@ namespace OpenEngine {
             int GetFBOHeight() const { return FBOheight; }
             int GetFBOWidth() const { return FBOwidth; }
             GLuint GetReflectionFboID() const { return reflectionFboID; }
-            GLuint GetReflectionTexID() const { return reflectionTexID; }
+            ITextureResourcePtr GetReflectionTex() const { return reflectionTex; }
             GLuint GetRefractionFboID() const { return refractionFboID; }
             GLuint GetRefractionTexID() const { return refractionTexID; }
 
