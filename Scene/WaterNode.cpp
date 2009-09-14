@@ -93,27 +93,21 @@ namespace OpenEngine {
             waterVertices[e++] = center[1];
             waterVertices[e++] = center[2];
 
-            waterColors = new float[entries * 4];
-            e = 0;
-            for (int i = 0; i < entries; ++i){
-                waterColors[e++] = 0;
-                waterColors[e++] = 0.1;
-                waterColors[e++] = 0.7;
-                waterColors[e++] = .7;
-            }
+            waterColor = new float[4];
+            waterColor[0] = 0;
+            waterColor[1] = 0.1;
+            waterColor[2] = 0.7;
+            waterColor[3] = .7;
 
             bottomVertices = new float[entries * DIMENSIONS];
             memcpy(bottomVertices, waterVertices, entries * DIMENSIONS * sizeof(float));
             bottomVertices[1] = center[1] - 20;
 
-            bottomColors = new float[entries * 4];
-            e = 0;
-            for (int i = 0; i < entries; ++i){
-                bottomColors[e++] = 0;
-                bottomColors[e++] = 0.5;
-                bottomColors[e++] = 0;
-                bottomColors[e++] = 1;
-            }
+            floorColor = new float[4];
+            floorColor[0] = 0;
+            floorColor[1] = 0.5;
+            floorColor[2] = 0;
+            floorColor[3] = 1;
 
             texCoords = new float[entries * 2];
         }

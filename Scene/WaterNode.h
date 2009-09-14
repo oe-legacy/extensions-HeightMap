@@ -35,9 +35,9 @@ namespace OpenEngine {
 
             int entries;
             float* waterVertices;
-            float* waterColors;
+            float* waterColor;
             float* bottomVertices;
-            float* bottomColors;
+            float* floorColor;
             float* texCoords;
 
             float texDetail;
@@ -77,9 +77,9 @@ namespace OpenEngine {
             void SetSun(SunNode* s) { sun = s; }
 
             float* GetWaterVerticeArray() { return waterVertices; }
-            float* GetWaterColorArray() { return waterColors; }
+            float* GetWaterColor() { return waterColor; }
             float* GetBottomVerticeArray() { return bottomVertices; }
-            float* GetBottomColorArray() { return bottomColors; }
+            float* GetFloorColor() { return floorColor; }
             float* GetTextureCoordArray() const { return texCoords; }
 
             int GetFBOHeight() const { return FBOheight; }
