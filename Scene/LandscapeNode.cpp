@@ -84,7 +84,7 @@ namespace OpenEngine {
                                 break;
                             }
                             vertices[v++] = widthScale * x;
-                            originalValues[e++ * 4 + 3] = vertices[v++] = heightScale * height - WATERLEVEL;
+                            originalValues[e++ * 4 + 3] = vertices[v++] = heightScale * height - WATERLEVEL - heightScale/2;
                             vertices[v++] = widthScale * z;
                         }else{
                             // Fill the color array with black
@@ -94,7 +94,7 @@ namespace OpenEngine {
 
                             // Place the vertex at the bottom.
                             vertices[v++] = widthScale * x;
-                            originalValues[e++ * 4 + 3] = vertices[v++] = -WATERLEVEL;
+                            originalValues[e++ * 4 + 3] = vertices[v++] = -WATERLEVEL - heightScale/2;
                             vertices[v++] = widthScale * z;
                         }
                     }
@@ -107,7 +107,7 @@ namespace OpenEngine {
                         
                         // Place the vertex at the bottom.
                         vertices[v++] = widthScale * x;
-                        originalValues[e++ * 4 + 3] = vertices[v++] = -WATERLEVEL;
+                        originalValues[e++ * 4 + 3] = vertices[v++] = -WATERLEVEL - heightScale/2;
                         vertices[v++] = widthScale * z;
                     }
                 }
