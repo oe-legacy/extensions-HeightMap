@@ -74,7 +74,7 @@ namespace OpenEngine {
 
         public:
             LandscapePatchNode() {}
-            LandscapePatchNode(int xOffset, int zOffset, LandscapeNode* land);
+            LandscapePatchNode(int xOffset, int zOffset, int verticeWidth, LandscapeNode* land);
             ~LandscapePatchNode();
 
             void RecalcBoundingBox();

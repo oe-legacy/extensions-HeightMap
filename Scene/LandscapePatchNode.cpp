@@ -14,8 +14,8 @@
 namespace OpenEngine {
     namespace Scene {
 
-        LandscapePatchNode::LandscapePatchNode(int xOffset, int zOffset, LandscapeNode* land) 
-            : xStart(xOffset), zStart(zOffset), landscape(land), landscapeWidth(land->GetWidth())
+        LandscapePatchNode::LandscapePatchNode(int xOffset, int zOffset, int verticeWidth, LandscapeNode* land) 
+            : xStart(xOffset), zStart(zOffset), landscape(land), landscapeWidth(verticeWidth)
         {
             xEnd = xStart + PATCH_EDGE_VERTICES;
             zEnd = zStart + PATCH_EDGE_VERTICES;

@@ -139,7 +139,7 @@ namespace OpenEngine {
             int entry = 0;
             for (int x = 0; x < depth - squares; x +=squares ){
                 for (int z = 0; z < width - squares; z += squares){
-                    patchNodes[entry++] = LandscapePatchNode(x, z, this);
+                    patchNodes[entry++] = LandscapePatchNode(x, z, width, this);
                 }
             }
 
@@ -147,10 +147,14 @@ namespace OpenEngine {
             for (int x = 0; x < patchGridDepth; ++x){
                 for (int z = 0; z < patchGridWidth; ++z){
                     int entry = z + x * patchGridWidth;
+                    if (0 < x)
+                        patchNodes[entry].SetLowerNeighbor(&patchNodes[entry - patchGridWidth]);
                     if (x + 1 < patchGridDepth) 
                         patchNodes[entry].SetUpperNeighbor(&patchNodes[entry + patchGridWidth]);
                     if (z + 1 < patchGridWidth) 
                         patchNodes[entry].SetRightNeighbor(&patchNodes[entry + 1]);
+                    if (0 < z) 
+                        patchNodes[entry].SetLeftNeighbor(&patchNodes[entry - 1]);
                 }
             }
 
