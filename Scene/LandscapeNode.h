@@ -26,6 +26,8 @@ using namespace OpenEngine::Display;
 
 namespace OpenEngine {
     namespace Scene {
+
+        class SunNode;
         
         /**
          * A class for creating landscapes through heightmaps
@@ -71,7 +73,7 @@ namespace OpenEngine {
             int entries;
             float widthScale;
 
-            float* sunPos;
+            SunNode* sun;
 
             int texDetail;
             // Distances for changing the LOD
@@ -105,8 +107,8 @@ namespace OpenEngine {
             GLfloat* GetTextureCoordArray() const { return texCoords; }
             IShaderResourcePtr GetLandscapeShader() const { return landscapeShader; }
             int GetNumberOfVertices() const { return numberOfVertices; }
-            int GetWidth() const { return width * widthScale; }
-            int GetDepth() const { return depth * widthScale; }
+            int GetWidth() const { return width/* * widthScale*/; }
+            int GetDepth() const { return depth/* * widthScale*/; }
 
             void GetCoords(int index, float &x, float &y, float &z) const;
             float GetYCoord(const int index) const;
@@ -114,8 +116,8 @@ namespace OpenEngine {
             void SetYCoord(const int x, const int z, float value);
             void GeoMorphCoord(int x, int z, int LOD, float scale);
 
-            float* GetSunPos() const { return sunPos; }
-            void SetSunPos(float* sun) { sunPos = sun; }
+            SunNode* GetSun() const { return sun; }
+            void SetSun(SunNode* s) { sun = s; }
             
             void SetTextureDetail(int pixelsPrEdge);
             void SetLODSwitchDistance(const float base, const float inc);

@@ -245,9 +245,20 @@ namespace OpenEngine {
         void LandscapeNode::Handle(RenderingEventArg arg){
             if (landscapeShader != NULL) {
                 landscapeShader->Load();
-                for (ShaderTextureMap::iterator itr = landscapeShader->textures.begin(); 
-                     itr != landscapeShader->textures.end(); itr++)
-                    TerrainTextureLoader::LoadTextureWithMipmapping( (*itr).second );
+                TextureList texs = landscapeShader->GetTextures();
+                for (unsigned int i = 0; i < texs.size(); ++i)
+                    TerrainTextureLoader::LoadTextureWithMipmapping(texs[i]);
+
+                landscapeShader->ApplyShader();
+
+                landscapeShader->SetUniform("snowStartHeight", (float)50);
+                landscapeShader->SetUniform("snowBlend", (float)20);
+                landscapeShader->SetUniform("grassStartHeight", (float)5);
+                landscapeShader->SetUniform("grassBlend", (float)5);
+                landscapeShader->SetUniform("sandStartHeight", (float)-10);
+                landscapeShader->SetUniform("sandBlend", (float)10);
+
+                landscapeShader->ReleaseShader();
             }
         }
 
@@ -459,7 +470,7 @@ namespace OpenEngine {
             int maxLods = LandscapePatchNode::MAX_LODS;
             lodDistanceSquared = new float[maxLods + 1];
             
-            lodDistanceSquared[0] = 0;
+            //lodDistanceSquared[0] = 0;
             for (int i = 1; i < maxLods + 1; ++i){
                 float distance = baseDistance + (i-1) * incrementalDistance;
                 lodDistanceSquared[i] = distance * distance;

@@ -25,21 +25,46 @@ namespace OpenEngine {
         }
 
         void SunNode::Init(float* dir, float* o){
+            baseDiffuse = Vector<4, float>(1.0);
             direction = dir;
             origo = o;
             coords = new float[3];
             time = 0;
-            timeModifier = 5000000;
+            timeModifier = 10000000;
             Move(time);
         }
 
         void SunNode::Move(unsigned int dt){
             time += dt;
 
-            coords[0] = origo[0] + direction[0] * cos(time/timeModifier);
-            coords[1] = origo[1] + direction[1] * sin(time/timeModifier);
-            coords[2] = origo[2] + direction[2] * cos(time/timeModifier);
+            float cosine = cos(time/timeModifier);
+            float sinus = sin(time/timeModifier);
+
+            // move the sun
+            coords[0] = origo[0] + direction[0] * cosine;
+            coords[1] = origo[1] + direction[1] * sinus;
+            coords[2] = origo[2] + direction[2] * cosine;
+
+            // set the diffuse strength
+            if (sinus <= -0.1)
+                diffuse = Vector<4, float>((float)0);
+            else if (sinus < 0.15)
+                diffuse = baseDiffuse * (sinus + 0.1) * 4;
+            else 
+                diffuse = baseDiffuse;
+
+            // set the specular strength
+            if (sinus <= -0.05)
+                specular = Vector<4, float>((float)0);
+            else if (sinus < 0.05)
+                specular = baseSpecular * (sinus + 0.05) * 10;
+            else 
+                specular = baseSpecular;
         }
 
+        void SunNode::Handle(ProcessEventArg arg){
+            Move(arg.approx);
+        }
+        
     }
 }

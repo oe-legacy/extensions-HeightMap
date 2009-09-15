@@ -41,7 +41,10 @@ namespace OpenEngine {
                 
                 IShaderResourcePtr shader = node->GetLandscapeShader();
                 if (shader){
-                    glLightfv(GL_LIGHT0, GL_POSITION, node->GetSunPos());
+                    glLightfv(GL_LIGHT0, GL_POSITION, node->GetSun()->GetPos());
+                    float color[4];
+                    node->GetSun()->GetDiffuse().ToArray(color);
+                    glLightfv(GL_LIGHT0, GL_DIFFUSE, color);
                     shader->ApplyShader();
                     
                     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -51,7 +54,6 @@ namespace OpenEngine {
                     glColorPointer(3, GL_UNSIGNED_BYTE, 0, node->GetColorArray());
                 }
 
-                //node->RenderPatches();
                 node->VisitSubNodes(*this);
 
                 glDisableClientState(GL_VERTEX_ARRAY);
@@ -103,7 +105,7 @@ namespace OpenEngine {
                     if (reflection){
                         
                         // setup water clipping plane
-                        double plane[4] = {0.0, -1.0, 0.0, 0.0}; //water at y=0
+                        double plane[4] = {0.0, -1.0, 0.0, 0.0}; //water at y~~0
                         glEnable(GL_CLIP_PLANE0);
                         glClipPlane(GL_CLIP_PLANE0, plane);
 
@@ -118,7 +120,9 @@ namespace OpenEngine {
                         glCullFace(GL_FRONT);
 
                         glPushMatrix();
+
                         glScalef(1, -1, 1);
+                        glTranslatef(0, -2, 0);
                         
                         // Render scene
                         node->GetReflectionScene()->Accept(*this);
@@ -126,104 +130,71 @@ namespace OpenEngine {
                         glPopMatrix();
                         glCullFace(GL_BACK);
 
-
-                        // Render refraction
-
-                        // Enable frame buffer
-                        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, node->GetRefractionFboID());
-                        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                       
-                        node->GetReflectionScene()->Accept(*this);                        
-                       
                         // Disable frame buffer
                         glViewport(0, 0, 800, 600);
                         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
                         glDisable(GL_CLIP_PLANE0);
 
-                        bool render = false;
-                        if (render){
-                            glEnable(GL_TEXTURE_2D);
-                            glBindTexture(GL_TEXTURE_2D, node->GetReflectionTexID());
-                            
-                            glBegin(GL_QUADS);
-                            {
-                                glTexCoord2f(1, 0);
-                                glVertex3f(256, 0, 256);
-                                
-                                glTexCoord2f(0, 0);
-                                glVertex3f(256, 0, 0);
-                                
-                                glTexCoord2f(0, 1);
-                                glVertex3f(256, 192, 0);
-                                
-                                glTexCoord2f(1, 1);
-                                glVertex3f(256, 192, 256);
-                            }
-                            glEnd();
-                            
-                            glEnable(GL_TEXTURE_2D);
-                            glBindTexture(GL_TEXTURE_2D, node->GetRefractionTexID());
-                            
-                            glBegin(GL_QUADS);
-                            {
-                                glTexCoord2f(1, 0);
-                                glVertex3f(0, 0, 256);
-                                
-                                glTexCoord2f(0, 0);
-                                glVertex3f(256, 0, 256);
-                                
-                                glTexCoord2f(0, 1);
-                                glVertex3f(256, 192, 256);
-                                
-                                glTexCoord2f(1, 1);
-                                glVertex3f(0, 192, 256);
-                            }
-                            glEnd();
-                            
-                            glDisable(GL_TEXTURE_2D);
-                            glBindTexture(GL_TEXTURE_2D, 0);
-                        }
+                        // Render refraction
+                        node->GetReflectionScene()->Accept(*this);
                     }
-                    
-                    shader->ApplyShader();
+
+                    glLightfv(GL_LIGHT0, GL_POSITION, node->GetSun()->GetPos());
 
                     glEnableClientState(GL_VERTEX_ARRAY);
-                    glVertexPointer(3, GL_FLOAT, 0, node->GetWaterVerticeArray());
+                    glVertexPointer(3, GL_FLOAT, 0, node->GetBottomVerticeArray());
+                    
+                    glColor4fv(node->GetFloorColor());
+                    glDrawArrays(GL_TRIANGLE_FAN, 0, 26);
+
+                    glEnable(GL_BLEND);
+                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);                    
+
+                    shader->ApplyShader();
+
+                    // set shader uniforms
+                    Vector<3, float> viewPos = viewport.GetViewingVolume()->GetPosition();
+                    shader->SetUniform("viewpos", Vector<4, float>(viewPos[0], viewPos[1], viewPos[2], 0));
+                    float time = (float)node->GetElapsedTime();
+                    shader->SetUniform("time2", time / 4000000);
+
                     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                    glVertexPointer(3, GL_FLOAT, 0, node->GetWaterVerticeArray());
                     glTexCoordPointer(2, GL_FLOAT, 0, node->GetTextureCoordArray());
 
+                    glNormal3f(0, 1, 0);
                     glDrawArrays(GL_TRIANGLE_FAN, 0, 26);
 
                     glDisableClientState(GL_VERTEX_ARRAY);
                     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
                     shader->ReleaseShader();
+
+                    glDisable(GL_BLEND);
                     
                 }else{
                     glEnableClientState(GL_VERTEX_ARRAY);
-                    glEnableClientState(GL_COLOR_ARRAY);
                     glVertexPointer(3, GL_FLOAT, 0, node->GetBottomVerticeArray());
-                    glColorPointer(4, GL_FLOAT, 0, node->GetBottomColorArray());
                     
+                    glColor4fv(node->GetFloorColor());
                     glDrawArrays(GL_TRIANGLE_FAN, 0, 26);
                     
                     glEnable(GL_BLEND);
                     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                     
                     glVertexPointer(3, GL_FLOAT, 0, node->GetWaterVerticeArray());
-                    glColorPointer(4, GL_FLOAT, 0, node->GetWaterColorArray());
                     
                     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
                     glTexCoordPointer(2, GL_FLOAT, 0, node->GetTextureCoordArray());
                     glEnable(GL_TEXTURE_2D);
                     glBindTexture(GL_TEXTURE_2D, node->GetSurfaceTexture()->GetID());
-                    
+
+                    glColor4fv(node->GetWaterColor());
                     glDrawArrays(GL_TRIANGLE_FAN, 0, 26);
                     
                     glDisable(GL_BLEND);
                     glDisable(GL_TEXTURE_2D);
                     glDisableClientState(GL_VERTEX_ARRAY);
-                    glDisableClientState(GL_COLOR_ARRAY);
                     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
                 }
             }

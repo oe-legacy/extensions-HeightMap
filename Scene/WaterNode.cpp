@@ -32,10 +32,10 @@ namespace OpenEngine {
         void WaterNode::Handle(RenderingEventArg arg){
             if (waterShader != NULL){
                 waterShader->Load();
-                for (ShaderTextureMap::iterator itr = waterShader->textures.begin(); 
-                     itr != waterShader->textures.end(); itr++)
-                    TerrainTextureLoader::LoadTextureWithMipmapping( (*itr).second );
-
+                TextureList texs = waterShader->GetTextures();
+                for (unsigned int i = 0; i < texs.size(); ++i)
+                    TerrainTextureLoader::LoadTextureWithMipmapping(texs[i]);
+                
                 // Check if framebuffering is supported
                 const std::string fboExt = "GL_EXT_framebuffer_object";
                 if (glewGetExtension(fboExt.c_str()) != GL_TRUE )
@@ -48,9 +48,7 @@ namespace OpenEngine {
                     SetupReflectionFBO();                
                     //SetupRefractionFBO();                                   
 
-                    //ITextureResourcePtr refracTex = ITextureResourcePtr();
-
-                    //waterShader->textures["refractionTex"] = ;
+                    waterShader->SetTexture("reflection", reflectionTex);
                 }
             }else if (surface != NULL)
                 TerrainTextureLoader::LoadTextureWithMipmapping(surface);
