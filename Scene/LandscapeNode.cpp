@@ -154,7 +154,7 @@ namespace OpenEngine {
                 }
             }
 
-            SetLODSwitchDistance(100, 100);
+            SetLODSwitchDistance(100, widthScale * 100);
             SetupGeoMorphing();
         }
 
@@ -194,7 +194,24 @@ namespace OpenEngine {
         }
 
         void LandscapeNode::SetCenter(Vector<3, float> center){
-            
+            // Move vertices
+            float deltaX = center[0] - (depth * widthScale) / 2;
+            float deltaZ = center[2] - (width * widthScale) / 2;
+            for (int x = 0; x < depth; ++x){
+                for (int z = 0; z < width; ++z){
+                    int coord = CoordToEntry(x, z);
+                    vertices[coord * 3] = x * widthScale + deltaX;
+                    vertices[coord * 3 + 2] = z * widthScale + deltaZ;
+                }
+            }
+
+            // Adjust boxes for culling
+            for (int x = 0; x < patchGridDepth; ++x){
+                for (int z = 0; z < patchGridWidth; ++z){
+                    int entry = z + x * patchGridWidth;
+                    patchNodes[entry].RecalcBoundingBox();
+                }
+            }
         }
 
         void LandscapeNode::CalcLOD(IViewingVolume* view){
@@ -305,6 +322,13 @@ namespace OpenEngine {
         void LandscapeNode::SetLODSwitchDistance(float base, float dec){
             baseDistance = base;
             incrementalDistance = dec;
+            
+            float edgeLength = LandscapePatchNode::PATCH_EDGE_SQUARES * widthScale;
+            if (dec * dec < edgeLength * edgeLength * 2){
+                dec = sqrt(edgeLength * edgeLength * 2);
+                logger.error << "Incremental LOD distance is too low, setting it to lowest value: " << dec << logger.end;
+            }
+
             CalcLODSwitchDistances();
         }
 
