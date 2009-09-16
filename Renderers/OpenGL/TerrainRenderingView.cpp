@@ -100,8 +100,8 @@ namespace OpenEngine {
 
             void TerrainRenderingView::VisitWaterNode(WaterNode* node) {
                 IShaderResourcePtr shader = node->GetWaterShader();
+                ISceneNode* reflection = node->GetReflectionScene();
                 if (shader != NULL){
-                    ISceneNode* reflection = node->GetReflectionScene();
                     if (reflection){
                         
                         // setup water clipping plane
@@ -125,7 +125,7 @@ namespace OpenEngine {
                         glTranslatef(0, -2, 0);
                         
                         // Render scene
-                        node->GetReflectionScene()->Accept(*this);
+                        reflection->Accept(*this);
                         
                         glPopMatrix();
                         glCullFace(GL_BACK);
@@ -136,7 +136,7 @@ namespace OpenEngine {
                         glDisable(GL_CLIP_PLANE0);
 
                         // Render refraction
-                        node->GetReflectionScene()->Accept(*this);
+                        reflection->Accept(*this);
                     }
 
                     glLightfv(GL_LIGHT0, GL_POSITION, node->GetSun()->GetPos());
@@ -173,6 +173,11 @@ namespace OpenEngine {
                     glDisable(GL_BLEND);
                     
                 }else{
+                    if (reflection){
+                        // Render refraction
+                        reflection->Accept(*this);
+                    }
+                    
                     glEnableClientState(GL_VERTEX_ARRAY);
                     glVertexPointer(3, GL_FLOAT, 0, node->GetBottomVerticeArray());
                     
