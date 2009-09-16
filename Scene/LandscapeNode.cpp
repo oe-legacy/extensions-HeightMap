@@ -470,7 +470,7 @@ namespace OpenEngine {
             int maxLods = LandscapePatchNode::MAX_LODS;
             lodDistanceSquared = new float[maxLods + 1];
             
-            //lodDistanceSquared[0] = 0;
+            lodDistanceSquared[0] = 0;
             for (int i = 1; i < maxLods + 1; ++i){
                 float distance = baseDistance + (i-1) * incrementalDistance;
                 lodDistanceSquared[i] = distance * distance;
