@@ -158,7 +158,7 @@ namespace OpenEngine {
                 }
             }
 
-            SetLODSwitchDistance(100, widthScale * 100);
+            SetLODSwitchDistance(100, 0);
             SetupGeoMorphing();
         }
 
@@ -336,13 +336,14 @@ namespace OpenEngine {
          */
         void LandscapeNode::SetLODSwitchDistance(float base, float dec){
             baseDistance = base;
-            incrementalDistance = dec;
             
             float edgeLength = LandscapePatchNode::PATCH_EDGE_SQUARES * widthScale;
             if (dec * dec < edgeLength * edgeLength * 2){
-                dec = sqrt(edgeLength * edgeLength * 2);
-                logger.error << "Incremental LOD distance is too low, setting it to lowest value: " << dec << logger.end;
-            }
+                incrementalDistance = sqrt(edgeLength * edgeLength * 2);
+                logger.info << "Incremental LOD distance is too low, setting it to lowest value: " << dec << logger.end;
+            }else
+                incrementalDistance = dec;
+            
 
             CalcLODSwitchDistances();
         }
