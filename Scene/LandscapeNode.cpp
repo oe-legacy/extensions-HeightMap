@@ -158,7 +158,7 @@ namespace OpenEngine {
                 }
             }
 
-            SetLODSwitchDistance(100, 0);
+            SetLODSwitchDistance(100, widthScale * 100);
             SetupGeoMorphing();
         }
 
