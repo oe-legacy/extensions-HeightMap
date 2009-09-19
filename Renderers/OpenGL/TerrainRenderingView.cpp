@@ -66,6 +66,9 @@ namespace OpenEngine {
                 }
                 glDisable(GL_CULL_FACE);
 
+                if (renderSoftNormal)
+                    node->RenderNormals();
+
                 //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             }
 
@@ -154,12 +157,16 @@ namespace OpenEngine {
 
                     // set shader uniforms
                     Vector<3, float> viewPos = viewport.GetViewingVolume()->GetPosition();
-                    shader->SetUniform("viewpos", Vector<4, float>(viewPos[0], viewPos[1], viewPos[2], 0));
+                    shader->SetUniform("viewpos", viewPos);
                     float time = (float)node->GetElapsedTime();
                     shader->SetUniform("time2", time / 4000000);
+                    float* pos = node->GetSun()->GetPos();
+                    shader->SetUniform("lightPos", Vector<3, float>(pos));
 
                     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                    glEnableClientState(GL_NORMAL_ARRAY);
                     glVertexPointer(3, GL_FLOAT, 0, node->GetWaterVerticeArray());
+                    glNormalPointer(GL_FLOAT, 0, node->GetWaterNormalArray());
                     glTexCoordPointer(2, GL_FLOAT, 0, node->GetTextureCoordArray());
 
                     glNormal3f(0, 1, 0);
@@ -167,6 +174,7 @@ namespace OpenEngine {
 
                     glDisableClientState(GL_VERTEX_ARRAY);
                     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                    glDisableClientState(GL_NORMAL_ARRAY);
 
                     shader->ReleaseShader();
 
@@ -195,12 +203,25 @@ namespace OpenEngine {
                     glBindTexture(GL_TEXTURE_2D, node->GetSurfaceTexture()->GetID());
 
                     glColor4fv(node->GetWaterColor());
-                    glDrawArrays(GL_TRIANGLE_FAN, 0, 26);
+                    glDrawArrays(GL_TRIANGLE_FAN, 0, node->GetNumberOfVertices());
                     
                     glDisable(GL_BLEND);
                     glDisable(GL_TEXTURE_2D);
                     glDisableClientState(GL_VERTEX_ARRAY);
                     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                }
+
+                if (renderSoftNormal){
+                    float* vert = node->GetWaterVerticeArray();
+                    float* norm = node->GetWaterNormalArray();
+                    glColor3f(1, 0, 0);
+                    glBegin(GL_LINES);
+                    for (int i = 0; i < node->GetNumberOfVertices();++i){
+                        int j = i * 3;
+                        glVertex3f(vert[j], vert[j+1], vert[j+2]);
+                        glVertex3f(vert[j] + norm[j], vert[j+1] + norm[j+1], vert[j+2] + norm[j+2]);
+                    }
+                    glEnd();
                 }
             }
         }
