@@ -39,14 +39,19 @@ namespace OpenEngine {
                 glEnableClientState(GL_NORMAL_ARRAY);
                 glNormalPointer(GL_FLOAT, 0, node->GetNormalArray());
                 
+                SunNode* sun = node->GetSun();
+                if (sun){
+                    glLightfv(GL_LIGHT0, GL_POSITION, sun->GetPos());
+                    float color[4];
+                    sun->GetAmbient().ToArray(color);
+                    glLightfv(GL_LIGHT0, GL_AMBIENT, color);
+                    sun->GetDiffuse().ToArray(color);
+                    glLightfv(GL_LIGHT0, GL_DIFFUSE, color);
+                }
+
                 IShaderResourcePtr shader = node->GetLandscapeShader();
                 if (shader){
-                    glLightfv(GL_LIGHT0, GL_POSITION, node->GetSun()->GetPos());
-                    float color[4];
-                    node->GetSun()->GetDiffuse().ToArray(color);
-                    glLightfv(GL_LIGHT0, GL_DIFFUSE, color);
                     shader->ApplyShader();
-                    
                     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
                     glTexCoordPointer(2, GL_FLOAT, 0, node->GetTextureCoordArray());
                 }else{
