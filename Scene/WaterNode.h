@@ -35,6 +35,7 @@ namespace OpenEngine {
 
             int entries;
             float* waterVertices;
+            float* waterNormals;
             float* waterColor;
             float* bottomVertices;
             float* floorColor;
@@ -45,6 +46,7 @@ namespace OpenEngine {
 
             Vector<3, float> center;
             float diameter;
+            float planetDiameter;
 
             ISceneNode* reflection;
 
@@ -76,7 +78,9 @@ namespace OpenEngine {
             SunNode* GetSun() const { return sun; }
             void SetSun(SunNode* s) { sun = s; }
 
+            int GetNumberOfVertices() { return SLICES+2; }
             float* GetWaterVerticeArray() { return waterVertices; }
+            float* GetWaterNormalArray() { return waterNormals; }
             float* GetWaterColor() { return waterColor; }
             float* GetBottomVerticeArray() { return bottomVertices; }
             float* GetFloorColor() { return floorColor; }

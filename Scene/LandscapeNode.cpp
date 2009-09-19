@@ -229,8 +229,13 @@ namespace OpenEngine {
         }
 
         void LandscapeNode::RenderNormals(){
-            for (int i = 0; i < numberOfPatches; ++i)
-                patchNodes[i].RenderNormals();
+            glBegin(GL_LINES);
+            glColor3f(1, 0, 0);
+            for (int i = 0; i < numberOfVertices; ++i){
+                glVertex3f(vertices[i*3], originalValues[i * 4 + 3], vertices[i*3+2]);
+                glVertex3f(vertices[i*3]+originalValues[i*4], originalValues[i * 4 + 3]+originalValues[i*4+1], vertices[i*3+2]+originalValues[i*4+2]);
+            }
+            glEnd();
         }
 
         void LandscapeNode::VisitSubNodes(ISceneNodeVisitor& visitor){

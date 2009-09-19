@@ -20,7 +20,7 @@ namespace OpenEngine {
     namespace Scene {
 
         WaterNode::WaterNode(Vector<3, float> c, float d)
-            : center(c), diameter(d), reflection(NULL), 
+            : center(c), diameter(d), planetDiameter(1000), reflection(NULL), 
               waterShader(IShaderResourcePtr()), elapsedTime(0) {
             SetupArrays();
         }
@@ -46,7 +46,7 @@ namespace OpenEngine {
                     FBOheight = 300;
                     
                     SetupReflectionFBO();                
-                    //SetupRefractionFBO();                                   
+                    //SetupRefractionFBO();
 
                     waterShader->SetTexture("reflection", reflectionTex);
                 }
@@ -58,38 +58,52 @@ namespace OpenEngine {
             elapsedTime += arg.approx;
         }
 
-        void WaterNode::SetSurfaceTexture(ITextureResourcePtr tex, float pixelsPrEdge){
+        void WaterNode::SetSurfaceTexture(ITextureResourcePtr tex, float pixelsPrUnit){
             surface = tex; 
-            texDetail = pixelsPrEdge;
+            texDetail = pixelsPrUnit;
             SetupTexCoords();
         }
 
-        void WaterNode::SetWaterShader(IShaderResourcePtr water, float pixelsPrEdge){
+        void WaterNode::SetWaterShader(IShaderResourcePtr water, float pixelsPrUnit){
             waterShader = water;
-            texDetail = pixelsPrEdge;
+            texDetail = pixelsPrUnit;
             SetupTexCoords();
         }
         
         void WaterNode::SetupArrays(){
             entries = SLICES + 2;
-            waterVertices = new float[entries * DIMENSIONS];
-
-            waterVertices[0] = center[0];
-            waterVertices[1] = center[1];
-            waterVertices[2] = center[2];
-
+            
             float radsPrSlice = 2 * 3.14 / SLICES;
 
-            int e = 3;
+            int e = 0;
+            waterVertices = new float[entries * DIMENSIONS];
+            // Set center
+            waterVertices[e++] = center[0];
+            waterVertices[e++] = center[1];
+            waterVertices[e++] = center[2];
             for (int i = 0; i < SLICES; ++i){
                 waterVertices[e++] = center[0] + diameter * cos(i * radsPrSlice);
                 waterVertices[e++] = center[1];
                 waterVertices[e++] = center[2] + diameter * sin(i * radsPrSlice);
             }
-
+            // Set end vertex
             waterVertices[e++] = center[0] + diameter;
             waterVertices[e++] = center[1];
             waterVertices[e++] = center[2];
+
+            waterNormals = new float[entries * DIMENSIONS];
+            
+            Vector<3, float> planetCenter = Vector<3, float>(center[0], center[1] - planetDiameter, center[2]);
+
+            e = 0;
+            for (int i = 0; i < SLICES+2; ++i){
+                // Find the vector from the center of the planet to the vertex
+                Vector<3, float> normal = Vector<3, float>(waterVertices + e) -planetCenter;
+                normal.Normalize();
+                waterNormals[e++] = normal[0];
+                waterNormals[e++] = normal[1];
+                waterNormals[e++] = normal[2];
+            }
 
             waterColor = new float[4];
             waterColor[0] = 0;
@@ -112,8 +126,8 @@ namespace OpenEngine {
 
         void WaterNode::SetupTexCoords(){
             for (int i = 0; i < entries; ++i){
-                texCoords[i * 2] = waterVertices[i * DIMENSIONS] * texDetail;
-                texCoords[i * 2 + 1] = waterVertices[i * DIMENSIONS + 2] * texDetail;
+                texCoords[i * 2] = waterVertices[i * DIMENSIONS] / texDetail;
+                texCoords[i * 2 + 1] = waterVertices[i * DIMENSIONS + 2] / texDetail;
             }
         }
 
