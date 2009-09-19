@@ -26,6 +26,8 @@ namespace OpenEngine {
 
         void SunNode::Init(float* dir, float* o){
             baseDiffuse = Vector<4, float>(1.0);
+            baseSpecular = Vector<4, float>(0.5, 0, 0, 1);
+            ambient = Vector<4, float>(0.2, 0.2, 0.2, 0.0);
             direction = dir;
             origo = o;
             coords = new float[3];
@@ -55,10 +57,8 @@ namespace OpenEngine {
 
             // set the specular strength
             if (sinus <= -0.05)
-                specular = Vector<4, float>((float)0);
-            else if (sinus < 0.05)
-                specular = baseSpecular * (sinus + 0.05) * 10;
-            else 
+                specular = Vector<4, float>(0.0);
+            else
                 specular = baseSpecular;
         }
 

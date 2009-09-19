@@ -28,6 +28,7 @@ namespace OpenEngine {
             float* origo;
             float* direction;
 
+            Vector<4, float> ambient;
             Vector<4, float> diffuse;
             Vector<4, float> baseDiffuse;
             Vector<4, float> specular;
@@ -42,13 +43,16 @@ namespace OpenEngine {
             SunNode(float* coords, float* origo);
 
             float* GetPos() { return coords; }
-            Vector<4, float> GetDiffuse() { return diffuse; }
-            Vector<4, float> GetSpecular() { return specular; }
 
             void SetTime(unsigned int time) { this->time = time; }
             void SetTimeModifier(float timeMod) { timeModifier = timeMod; }
+            
+            void SetAmbient(Vector<4, float> a) { ambient = a; }
             void SetDiffuse(Vector<4, float> d) { baseDiffuse = d; }
             void SetSpecular(Vector<4, float> s) { baseSpecular = s; }
+            Vector<4, float> GetAmbient() { return ambient; }
+            Vector<4, float> GetDiffuse() { return diffuse; }
+            Vector<4, float> GetSpecular() { return specular; }
 
             void Move(unsigned int dt);
 
