@@ -269,14 +269,13 @@ namespace OpenEngine {
 
         void LandscapeNode::GetCoords(int index, float &x, float &y, float &z) const{
             int i = index * DIMENSIONS;
-            x = vertices[i++];
-            y = vertices[i++];
-            z = vertices[i];
+            x = vertices[i];
+            y = GetYCoord(index);
+            z = vertices[i+2];
         }
 
         float LandscapeNode::GetYCoord(const int index) const{
-            int e = index;
-            return originalValues[e * 4 + 3];
+            return originalValues[index * 4 + 3];
         }
 
         float LandscapeNode::GetYCoord(const int x, const int z) const{

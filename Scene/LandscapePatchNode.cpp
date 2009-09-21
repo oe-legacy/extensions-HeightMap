@@ -116,7 +116,7 @@ namespace OpenEngine {
             
         }
 
-        void LandscapePatchNode::RenderBoundingBoxes(){
+        void LandscapePatchNode::RenderBoundingGeometry(){
             glBegin(GL_LINES);
             Vector<3, float> center = boundingBox.GetCenter();
             glColor3f(center[0], center[1], center[2]);

@@ -83,7 +83,7 @@ namespace OpenEngine {
             void CalcLOD(IViewingVolume* view);
             void Render();
             void RenderNormals();
-            void RenderBoundingBoxes();
+            void RenderBoundingGeometry();
 
             void VisitSubNodes(ISceneNodeVisitor& visitor) {};
 

@@ -79,6 +79,8 @@ namespace OpenEngine {
 
             void TerrainRenderingView::VisitLandscapePatchNode(LandscapePatchNode* node) {
                 node->Render();
+
+                //node->RenderBoundingGeometry();
             }
 
             void TerrainRenderingView::VisitSunNode(SunNode* node) {
