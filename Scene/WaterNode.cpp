@@ -8,7 +8,7 @@
 //--------------------------------------------------------------------
 
 #include "WaterNode.h"
-#include <Renderers/OpenGL/TerrainTextureLoader.h>
+#include <Renderers/OpenGL/TextureLoader.h>
 #include <Resources/OpenGLTextureResource.h>
 #include <Logging/Logger.h>
 #include <string.h>
@@ -34,7 +34,7 @@ namespace OpenEngine {
                 waterShader->Load();
                 TextureList texs = waterShader->GetTextures();
                 for (unsigned int i = 0; i < texs.size(); ++i)
-                    TerrainTextureLoader::LoadTextureWithMipmapping(texs[i]);
+                    TextureLoader::LoadTextureResource(texs[i]);
                 
                 // Check if framebuffering is supported
                 const std::string fboExt = "GL_EXT_framebuffer_object";
@@ -51,7 +51,7 @@ namespace OpenEngine {
                     waterShader->SetTexture("reflection", reflectionTex);
                 }
             }else if (surface != NULL)
-                TerrainTextureLoader::LoadTextureWithMipmapping(surface);
+                TextureLoader::LoadTextureResource(surface);
         }
 
         void WaterNode::Handle(ProcessEventArg arg){
@@ -113,7 +113,7 @@ namespace OpenEngine {
 
             bottomVertices = new float[entries * DIMENSIONS];
             memcpy(bottomVertices, waterVertices, entries * DIMENSIONS * sizeof(float));
-            bottomVertices[1] = center[1] - 20;
+            bottomVertices[1] = center[1] - 100;
 
             floorColor = new float[4];
             floorColor[0] = 0;

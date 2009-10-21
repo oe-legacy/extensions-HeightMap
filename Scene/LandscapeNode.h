@@ -48,7 +48,7 @@ namespace OpenEngine {
         class LandscapeNode : public ISceneNode, public IListener<RenderingEventArg> {
             OE_SCENE_NODE(LandscapeNode, ISceneNode)
             
-        private:
+        protected:
             static const int DIMENSIONS = 3;
             static const int TEXCOORDS = 2;
             static const int WATERLEVEL = 10;
@@ -62,7 +62,10 @@ namespace OpenEngine {
             GLfloat* morphedValues;
             float* renderedNormals;
 
-            LandscapePatchNode* patchNodes;
+            int numberOfIndices;
+            unsigned int* indices;
+
+            LandscapePatchNode** patchNodes;
 
             int width;
             int depth;
@@ -75,7 +78,7 @@ namespace OpenEngine {
 
             SunNode* sun;
 
-            int texDetail;
+            float texDetail;
             // Distances for changing the LOD
             float baseDistance;
             float incrementalDistance;
@@ -92,6 +95,7 @@ namespace OpenEngine {
             void SetCenter(Vector<3, float> center);
 
             void CalcLOD(IViewingVolume* view);
+            void Render();
             void RenderPatches();
             void RenderNormals();
 
@@ -112,14 +116,16 @@ namespace OpenEngine {
 
             void GetCoords(int index, float &x, float &y, float &z) const;
             float GetYCoord(const int index) const;
+            float GetXCoord(const int x, const int z) const;
             float GetYCoord(const int x, const int z) const;
+            float GetZCoord(const int x, const int z) const;
             void SetYCoord(const int x, const int z, float value);
             void GeoMorphCoord(int x, int z, int LOD, float scale);
 
             SunNode* GetSun() const { return sun; }
             void SetSun(SunNode* s) { sun = s; }
             
-            void SetTextureDetail(int pixelsPrEdge);
+            void SetTextureDetail(float detail);
             void SetLODSwitchDistance(const float base, const float inc);
             float* GetLODSwitchArray() const { return lodDistanceSquared; }
             float GetLODBaseDistance() const { return baseDistance; }
@@ -127,7 +133,8 @@ namespace OpenEngine {
             
             void SetLandscapeShader(IShaderResourcePtr shader) { landscapeShader = shader; }
 
-        private:
+        private: // can't inherit inlined methods apparently. WTF?!?!?
+            inline void ComputeIndices();
             inline void CalcNormal(int x, int z);
             inline void SetupTerrainTexture();
             inline void CalcTexCoords(int x, int z);

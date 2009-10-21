@@ -9,9 +9,10 @@
 
 #include <Scene/LandscapeNode.h>
 #include <Math/Math.h>
-#include <Renderers/OpenGL/TerrainTextureLoader.h>
-#include <algorithm>
+#include <Renderers/OpenGL/TextureLoader.h>
 #include <Logging/Logger.h>
+
+#include <algorithm>
 
 using namespace OpenEngine::Renderers::OpenGL;
 
@@ -135,11 +136,11 @@ namespace OpenEngine {
             patchGridWidth = (width-1) / squares;
             patchGridDepth = (depth-1) / squares;
             numberOfPatches = patchGridWidth * patchGridDepth;
-            patchNodes = new LandscapePatchNode[numberOfPatches];
+            patchNodes = new LandscapePatchNode*[numberOfPatches];
             int entry = 0;
             for (int x = 0; x < depth - squares; x +=squares ){
                 for (int z = 0; z < width - squares; z += squares){
-                    patchNodes[entry++] = LandscapePatchNode(x, z, width, this);
+                    patchNodes[entry++] = new LandscapePatchNode(x, z, width, this);
                 }
             }
 
@@ -148,13 +149,13 @@ namespace OpenEngine {
                 for (int z = 0; z < patchGridWidth; ++z){
                     int entry = z + x * patchGridWidth;
                     if (0 < x)
-                        patchNodes[entry].SetLowerNeighbor(&patchNodes[entry - patchGridWidth]);
+                        patchNodes[entry]->SetLowerNeighbor(patchNodes[entry - patchGridWidth]);
                     if (x + 1 < patchGridDepth) 
-                        patchNodes[entry].SetUpperNeighbor(&patchNodes[entry + patchGridWidth]);
+                        patchNodes[entry]->SetUpperNeighbor(patchNodes[entry + patchGridWidth]);
                     if (z + 1 < patchGridWidth) 
-                        patchNodes[entry].SetRightNeighbor(&patchNodes[entry + 1]);
+                        patchNodes[entry]->SetRightNeighbor(patchNodes[entry + 1]);
                     if (0 < z) 
-                        patchNodes[entry].SetLeftNeighbor(&patchNodes[entry - 1]);
+                        patchNodes[entry]->SetLeftNeighbor(patchNodes[entry - 1]);
                 }
             }
 
@@ -213,19 +214,23 @@ namespace OpenEngine {
             for (int x = 0; x < patchGridDepth; ++x){
                 for (int z = 0; z < patchGridWidth; ++z){
                     int entry = z + x * patchGridWidth;
-                    patchNodes[entry].RecalcBoundingBox();
+                    patchNodes[entry]->RecalcBoundingBox();
                 }
             }
         }
 
         void LandscapeNode::CalcLOD(IViewingVolume* view){
             for (int i = 0; i < numberOfPatches; ++i)
-                patchNodes[i].CalcLOD(view);
+                patchNodes[i]->CalcLOD(view);
+        }
+
+        void LandscapeNode::Render(){
+            glDrawElements(GL_TRIANGLE_STRIP, numberOfIndices, GL_UNSIGNED_INT, indices);
         }
 
         void LandscapeNode::RenderPatches(){
             for (int i = 0; i < numberOfPatches; ++i)
-                patchNodes[i].Render();
+                patchNodes[i]->Render();
         }
 
         void LandscapeNode::RenderNormals(){
@@ -240,7 +245,7 @@ namespace OpenEngine {
 
         void LandscapeNode::VisitSubNodes(ISceneNodeVisitor& visitor){
             for (int i = 0; i < numberOfPatches; ++i)
-                patchNodes[i].Accept(visitor);
+                patchNodes[i]->Accept(visitor);
             list<ISceneNode*>::iterator itr;
             for (itr = subNodes.begin(); itr != subNodes.end(); ++itr){
                 (*itr)->Accept(visitor);
@@ -252,7 +257,7 @@ namespace OpenEngine {
                 landscapeShader->Load();
                 TextureList texs = landscapeShader->GetTextures();
                 for (unsigned int i = 0; i < texs.size(); ++i)
-                    TerrainTextureLoader::LoadTextureWithMipmapping(texs[i]);
+                    TextureLoader::LoadTextureResource(texs[i]);
 
                 landscapeShader->ApplyShader();
 
@@ -327,8 +332,8 @@ namespace OpenEngine {
             }
         }
 
-        void LandscapeNode::SetTextureDetail(int pixelsPrEdge){
-            texDetail = pixelsPrEdge;
+        void LandscapeNode::SetTextureDetail(float detail){
+            texDetail = detail;
             SetupTerrainTexture();
         }
 
@@ -353,6 +358,30 @@ namespace OpenEngine {
         }
 
         // **** inline functions ****
+
+        void LandscapeNode::ComputeIndices(){
+            numberOfIndices = 2 * depth * width + 2 * depth - 2;
+            indices = new unsigned int[numberOfIndices];
+
+            int i = 0;
+            for (int x = 0; x < depth - 2; ++x){
+                for (int z = width - 1; z >= 0; --z){
+                    indices[i++] = CoordToEntry(x, z);
+                    indices[i++] = CoordToEntry(x+1, z);
+                }
+                if (x < depth - 2){
+                    indices[i++] = indices[i-1];
+                    indices[i++] = CoordToEntry(x+1, width - 1);
+                }
+            }
+
+            if (i < numberOfIndices){
+                logger.info << "Allocated to much memory, lets get lower" << logger.end;
+                numberOfIndices = i;
+            }else if (i > numberOfIndices){
+                logger.info << "You're about to crash monsiour" << logger.end;
+            }
+        }
 
         void LandscapeNode::CalcNormal(int x, int z){
             int ns = 0;
@@ -410,8 +439,12 @@ namespace OpenEngine {
         void LandscapeNode::CalcTexCoords(int x, int z){
             int entry = CoordToEntry(x, z) * TEXCOORDS;
 
+            texCoords[entry+1] = x * texDetail;
+            texCoords[entry] = z * texDetail;
+            /*
             texCoords[entry+1] = (x * texDetail) / (float)depth;
             texCoords[entry] = (z * texDetail) / (float)width;
+            */
         }
 
         void LandscapeNode::SetupGeoMorphing(){

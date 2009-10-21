@@ -28,7 +28,6 @@ namespace OpenEngine {
         }
 
         LandscapePatchNode::~LandscapePatchNode(){
-            /*
             if (LODs){ 
                 for (int i = 0; i < MAX_LODS; ++i){
                     delete[] LODs[i].rightStitchingHigherIndices;
@@ -40,7 +39,6 @@ namespace OpenEngine {
                 }
                 delete[] LODs;
             }
-            */
         }
 
         void LandscapePatchNode::RecalcBoundingBox(){
