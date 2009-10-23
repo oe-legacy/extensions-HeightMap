@@ -283,8 +283,16 @@ namespace OpenEngine {
             return originalValues[index * 4 + 3];
         }
 
+        float LandscapeNode::GetXCoord(const int x, const int z) const{
+            return XCoord(x, z);
+        }
+        
         float LandscapeNode::GetYCoord(const int x, const int z) const{
             return YCoord(x, z);
+        }
+
+        float LandscapeNode::GetZCoord(const int x, const int z) const{
+            return ZCoord(x, z);
         }
 
         void LandscapeNode::SetYCoord(const int x, const int z, float value){

@@ -4,11 +4,12 @@ SET ( EXTENSION_NAME "Extensions_HeightMap")
 # Create the extension library
 ADD_LIBRARY( ${EXTENSION_NAME}
   Renderers/OpenGL/TerrainRenderingView.cpp
-  Renderers/OpenGL/TerrainTextureLoader.cpp
+  Scene/HeightFieldNode.cpp
   Scene/LandscapeNode.cpp
   Scene/LandscapePatchNode.cpp
   Scene/SunNode.cpp
   Scene/WaterNode.cpp
+  Utils/TerrainUtils.cpp
 )
 
 TARGET_LINK_LIBRARIES( ${EXTENSION_NAME}

@@ -9,6 +9,7 @@
 
 #include "TerrainRenderingView.h"
 #include <Scene/LandscapeNode.h>
+#include <Scene/HeightFieldNode.h>
 #include <Scene/SunNode.h>
 #include <Scene/WaterNode.h>
 #include <Math/Vector.h>
@@ -81,6 +82,58 @@ namespace OpenEngine {
                 node->Render();
 
                 //node->RenderBoundingGeometry();
+            }
+
+            void TerrainRenderingView::VisitHeightFieldNode(HeightFieldNode* node) {
+                glEnable(GL_CULL_FACE);
+
+                SunNode* sun = node->GetSun();
+                if (sun){
+                    glLightfv(GL_LIGHT0, GL_POSITION, sun->GetPos());
+                    float color[4];
+                    sun->GetAmbient().ToArray(color);
+                    glLightfv(GL_LIGHT0, GL_AMBIENT, color);
+                    sun->GetDiffuse().ToArray(color);
+                    glLightfv(GL_LIGHT0, GL_DIFFUSE, color);
+                }
+
+                glBindBuffer(GL_ARRAY_BUFFER, node->GetBufferID());
+                glEnableClientState(GL_VERTEX_ARRAY);
+                glVertexPointer(3, GL_FLOAT, 0, 0);
+
+                IShaderResourcePtr shader = node->GetLandscapeShader();
+                if (shader){
+                    shader->ApplyShader();
+
+                    // Setup Texture coords
+                    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                    glTexCoordPointer(2, GL_FLOAT, 0, node->GetTexCoordOffset());
+                    glClientActiveTexture(GL_TEXTURE1);
+                    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                    glTexCoordPointer(2, GL_FLOAT, 0, node->GetNormalMapCoordOffset());
+
+                    float* dir = sun->GetPos();
+                    shader->SetUniform("lightDir", Vector<3, float>(dir[0], dir[1], dir[2]));
+                }
+
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, node->GetIndiceID());
+                glDrawElements(GL_TRIANGLE_STRIP, node->GetNumberOfIndices(), GL_UNSIGNED_INT, 0);
+
+                //node->VisitSubNodes(*this);
+
+                glDisableClientState(GL_VERTEX_ARRAY);
+                glDisableClientState(GL_NORMAL_ARRAY);
+                if (shader){
+                    shader->ReleaseShader();
+                    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                    glClientActiveTexture(GL_TEXTURE0);
+                    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                }
+
+                glBindBuffer(GL_ARRAY_BUFFER, 0);
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+                glDisable(GL_CULL_FACE);
             }
 
             void TerrainRenderingView::VisitSunNode(SunNode* node) {
@@ -168,7 +221,7 @@ namespace OpenEngine {
                     float time = (float)node->GetElapsedTime();
                     shader->SetUniform("time2", time / 4000000);
                     float* pos = node->GetSun()->GetPos();
-                    shader->SetUniform("lightPos", Vector<3, float>(pos));
+                    shader->SetUniform("lightDir", Vector<3, float>(pos[0], pos[2], pos[1]).GetNormalize());
 
                     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
                     glEnableClientState(GL_NORMAL_ARRAY);

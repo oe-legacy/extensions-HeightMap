@@ -25,6 +25,7 @@ using namespace OpenEngine::Renderers;
      
      void VisitLandscapeNode(LandscapeNode* node);
      void VisitLandscapePatchNode(LandscapePatchNode* node);
+     void VisitHeightFieldNode(HeightFieldNode* node);
      void VisitSunNode(SunNode* node);
      void VisitWaterNode(WaterNode* node);
 
