@@ -43,27 +43,22 @@ namespace OpenEngine {
         class HeightFieldNode : public ISceneNode, public IListener<RenderingEventArg> {
             OE_SCENE_NODE(HeightFieldNode, ISceneNode)
 
-        private:
-            int* map; // mapping (x, z) coords to the index where the information is located
-
+        public:
             static const int DIMENSIONS = 4;
             static const int TEXCOORDS = 2;
+
+        private:
+            int* map; // mapping (x, z) coords to the index where the information is located
             
             int numberOfVertices;
-            unsigned int bufferId;
-
-            float* buffer;
 
             float* vertices;
-            unsigned int verticeOffset;
             unsigned int verticeBOID;
 
             float* texCoords;
-            unsigned int texCoordOffset;
             unsigned int texCoordBOID;
 
             float* normalMapCoords;
-            unsigned int normalMapCoordOffset;
             unsigned int normalMapCoordBOID;
 
             float* geoMorphScaleCoords;
@@ -72,9 +67,6 @@ namespace OpenEngine {
             float* verticeLOD;
             unsigned int verticeLODOffset;
             
-            // entries pr vertices + all texcoords + LOD + morphedHeight
-            static const short bufferEntrySize = DIMENSIONS + 3 * TEXCOORDS + 1;
-
             unsigned int numberOfIndices;
             unsigned int indiceId;
             unsigned int* indices;
@@ -114,14 +106,9 @@ namespace OpenEngine {
 
             // *** Get/Set methods ***
 
-            float* GetBufferArray() const { return buffer; }
-            unsigned int GetBufferID() const { return bufferId; }
-            unsigned int GetVerticeBOID() const { return verticeBOID; }
-            unsigned int GetTexCoordBOID() const { return texCoordBOID; }
-            unsigned int GetNormalMapCoordBOID() const { return normalMapCoordBOID; }
-            void* GetVerticeOffset() const { return (void*)verticeOffset; }
-            void* GetTexCoordOffset() const { return (void*)texCoordOffset; }
-            void* GetNormalMapCoordOffset() const { return (void*)normalMapCoordOffset; }
+            unsigned int GetVerticeBufferID() const { return verticeBOID; }
+            unsigned int GetTexCoordBufferID() const { return texCoordBOID; }
+            unsigned int GetNormalMapCoordBufferID() const { return normalMapCoordBOID; }
             unsigned int GetIndiceID() const { return indiceId; }
             unsigned int GetNumberOfIndices() const { return numberOfIndices; }
             int GetNumberOfVertices() const { return numberOfVertices; }

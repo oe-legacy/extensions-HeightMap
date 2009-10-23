@@ -76,12 +76,28 @@ namespace OpenEngine {
                 landscapeShader->ReleaseShader();
             }
             
-            // Create vbo
-            glGenBuffers(1, &bufferId);
-            glBindBuffer(GL_ARRAY_BUFFER, bufferId);
+            // Create vbos
+
+            // Vertice buffer object
+            glGenBuffers(1, &verticeBOID);
+            glBindBuffer(GL_ARRAY_BUFFER, verticeBOID);
             glBufferData(GL_ARRAY_BUFFER, 
-                         sizeof(GLfloat) * numberOfVertices * bufferEntrySize,
-                         buffer, GL_STATIC_DRAW);
+                         sizeof(GLfloat) * numberOfVertices * DIMENSIONS,
+                         vertices, GL_DYNAMIC_DRAW);
+            
+            // Tex Coord buffer object
+            glGenBuffers(1, &texCoordBOID);
+            glBindBuffer(GL_ARRAY_BUFFER, texCoordBOID);
+            glBufferData(GL_ARRAY_BUFFER, 
+                         sizeof(GLfloat) * numberOfVertices * TEXCOORDS,
+                         texCoords, GL_STATIC_DRAW);
+
+            // Tex Coord buffer object
+            glGenBuffers(1, &normalMapCoordBOID);
+            glBindBuffer(GL_ARRAY_BUFFER, normalMapCoordBOID);
+            glBufferData(GL_ARRAY_BUFFER, 
+                         sizeof(GLfloat) * numberOfVertices * TEXCOORDS,
+                         normalMapCoords, GL_STATIC_DRAW);
 
             glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -91,7 +107,7 @@ namespace OpenEngine {
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indiceId);
             glBufferData(GL_ELEMENT_ARRAY_BUFFER,
                          sizeof(GLfloat) * numberOfIndices,
-                         indices, GL_DYNAMIC_DRAW);
+                         indices, GL_STATIC_DRAW);
 
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -121,14 +137,9 @@ namespace OpenEngine {
 
             numberOfVertices = width * depth;
 
-            buffer = new float[numberOfVertices * bufferEntrySize];
-            verticeOffset = 0;
-            texCoordOffset = verticeOffset + numberOfVertices * DIMENSIONS * sizeof(GLfloat);
-            normalMapCoordOffset = texCoordOffset + numberOfVertices * TEXCOORDS * sizeof(GLfloat);
-            
-            vertices = buffer;
-            texCoords = vertices + numberOfVertices * DIMENSIONS;
-            normalMapCoords = texCoords + numberOfVertices * TEXCOORDS;
+            vertices = new float[numberOfVertices * DIMENSIONS];
+            texCoords = new float[numberOfVertices * TEXCOORDS];
+            normalMapCoords = new float[numberOfVertices * TEXCOORDS];
 
             int numberOfCharsPrColor = tex->GetDepth() / 8;
             unsigned char* data = tex->GetData();
