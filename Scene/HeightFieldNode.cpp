@@ -83,7 +83,7 @@ namespace OpenEngine {
             glBindBuffer(GL_ARRAY_BUFFER, verticeBOID);
             glBufferData(GL_ARRAY_BUFFER, 
                          sizeof(GLfloat) * numberOfVertices * DIMENSIONS,
-                         vertices, GL_DYNAMIC_DRAW);
+                         vertices, GL_STATIC_DRAW);
             
             // Tex Coord buffer object
             glGenBuffers(1, &texCoordBOID);
