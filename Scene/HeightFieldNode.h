@@ -53,19 +53,19 @@ namespace OpenEngine {
             int numberOfVertices;
 
             float* vertices;
-            unsigned int verticeBOID;
+            unsigned int verticeBufferId;
 
             float* texCoords;
-            unsigned int texCoordBOID;
+            unsigned int texCoordBufferId;
 
             float* normalMapCoords;
-            unsigned int normalMapCoordBOID;
+            unsigned int normalMapCoordBufferId;
 
             float* geoMorphScaleCoords;
-            unsigned int geoMorphScaleCoordOffset;
+            unsigned int geoMorphScaleCoordBufferId;
 
             float* verticeLOD;
-            unsigned int verticeLODOffset;
+            unsigned int verticeLODBufferId;
             
             unsigned int numberOfIndices;
             unsigned int indiceId;
@@ -106,9 +106,10 @@ namespace OpenEngine {
 
             // *** Get/Set methods ***
 
-            unsigned int GetVerticeBufferID() const { return verticeBOID; }
-            unsigned int GetTexCoordBufferID() const { return texCoordBOID; }
-            unsigned int GetNormalMapCoordBufferID() const { return normalMapCoordBOID; }
+            unsigned int GetVerticeBufferID() const { return verticeBufferId; }
+            unsigned int GetTexCoordBufferID() const { return texCoordBufferId; }
+            unsigned int GetNormalMapCoordBufferID() const { return normalMapCoordBufferId; }
+            unsigned int GetVerticeLODBufferID() const { return verticeLODBufferId; }
             unsigned int GetIndiceID() const { return indiceId; }
             unsigned int GetNumberOfIndices() const { return numberOfIndices; }
             int GetNumberOfVertices() const { return numberOfVertices; }
@@ -131,14 +132,15 @@ namespace OpenEngine {
             inline void SetupNormalMap();
             inline void SetupTerrainTexture();
             inline void CalcTexCoords(int x, int z);
+            inline void CalcVerticeLOD();
+            inline void CalcGeomorphHeight(int x, int z);
             inline void ComputeIndices();
 
             inline int CoordToIndex(int x, int z) const;
             inline float* GetVertice(int x, int z) const;
             inline float* GetTexCoord(int x, int z) const;
             inline float* GetNormalMapCoord(int x, int z) const;
-            inline float YCoord(int x, int z) const;
-
+            inline float* GetVerticeLOD(int x, int z) const;
         };
     }
 } 

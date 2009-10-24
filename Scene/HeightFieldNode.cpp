@@ -79,29 +79,29 @@ namespace OpenEngine {
             // Create vbos
 
             // Vertice buffer object
-            glGenBuffers(1, &verticeBOID);
-            glBindBuffer(GL_ARRAY_BUFFER, verticeBOID);
+            glGenBuffers(1, &verticeBufferId);
+            glBindBuffer(GL_ARRAY_BUFFER, verticeBufferId);
             glBufferData(GL_ARRAY_BUFFER, 
                          sizeof(GLfloat) * numberOfVertices * DIMENSIONS,
                          vertices, GL_STATIC_DRAW);
             
             // Tex Coord buffer object
-            glGenBuffers(1, &texCoordBOID);
-            glBindBuffer(GL_ARRAY_BUFFER, texCoordBOID);
+            glGenBuffers(1, &texCoordBufferId);
+            glBindBuffer(GL_ARRAY_BUFFER, texCoordBufferId);
             glBufferData(GL_ARRAY_BUFFER, 
                          sizeof(GLfloat) * numberOfVertices * TEXCOORDS,
                          texCoords, GL_STATIC_DRAW);
 
             // Tex Coord buffer object
-            glGenBuffers(1, &normalMapCoordBOID);
-            glBindBuffer(GL_ARRAY_BUFFER, normalMapCoordBOID);
+            glGenBuffers(1, &normalMapCoordBufferId);
+            glBindBuffer(GL_ARRAY_BUFFER, normalMapCoordBufferId);
             glBufferData(GL_ARRAY_BUFFER, 
                          sizeof(GLfloat) * numberOfVertices * TEXCOORDS,
                          normalMapCoords, GL_STATIC_DRAW);
 
             glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-            // create indice buffer
+            // Create indice buffer
             glGenBuffers(1, &indiceId);
 
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indiceId);
@@ -140,6 +140,7 @@ namespace OpenEngine {
             vertices = new float[numberOfVertices * DIMENSIONS];
             texCoords = new float[numberOfVertices * TEXCOORDS];
             normalMapCoords = new float[numberOfVertices * TEXCOORDS];
+            verticeLOD = new float[numberOfVertices];
 
             int numberOfCharsPrColor = tex->GetDepth() / 8;
             unsigned char* data = tex->GetData();
@@ -168,17 +169,22 @@ namespace OpenEngine {
             
             SetupNormalMap();
             SetupTerrainTexture();
+            CalcVerticeLOD();
+
+            if (landscapeShader != NULL)
+                for (int x = 0; x < depth; ++x)
+                    for (int z = 0; z < width; ++z)
+                        CalcGeomorphHeight(x, z);
         }
 
         void HeightFieldNode::SetupNormalMap(){
             normalmap = Utils::CreateNormalMap(tex, heightScale, widthScale);
-            for (int x = 0; x < depth; ++x){
+            for (int x = 0; x < depth; ++x)
                 for (int z = 0; z < width; ++z){
                     float* coord = GetNormalMapCoord(x, z);
                     coord[1] = x / (float) depth-1;
                     coord[0] = z / (float) width-1;
                 }
-            }
         }
 
         void HeightFieldNode::SetupTerrainTexture(){
@@ -193,6 +199,32 @@ namespace OpenEngine {
             float* texCoord = GetTexCoord(x, z);
             texCoord[1] = x * texDetail;
             texCoord[0] = z * texDetail;
+        }
+
+        void HeightFieldNode::CalcVerticeLOD(){
+            for (int LOD = 1; LOD < pow(2, HeightFieldPatchNode::MAX_LODS-1); LOD *= 2){
+                for (int x = 0; x < depth; x += LOD){
+                    for (int z = 0; z < width; z += LOD){
+                        int entry = CoordToIndex(x, z);
+                        verticeLOD[entry] = LOD;
+                    }
+                }
+            }
+        }
+
+        void HeightFieldNode::CalcGeomorphHeight(int x, int z){
+            int LOD = (int)GetVerticeLOD(x, z)[0];
+
+            int dx = x % (LOD * 2);
+            int dz = z % (LOD * 2);
+
+            float* vertice = GetVertice(x, z);
+            float* verticeNeighbour1 = GetVertice(x + dx, z + dz);
+            float* verticeNeighbour2 = GetVertice(x - dx, z - dz);
+
+            // Store the morphing value in the w-coord to use in the
+            // shader.
+            vertice[3] = (verticeNeighbour1[1] + verticeNeighbour2[1]) / 2 - vertice[1];
         }
 
         void HeightFieldNode::ComputeIndices(){
@@ -242,9 +274,9 @@ namespace OpenEngine {
             return normalMapCoords + index * TEXCOORDS;
         }
 
-        float HeightFieldNode::YCoord(int x, int z) const{
-            return (GetVertice(x, z))[1];
+        float* HeightFieldNode::GetVerticeLOD(int x, int z) const{
+            int index = CoordToIndex(x, z);
+            return verticeLOD + index;
         }
-
     }
 }

@@ -108,12 +108,12 @@ namespace OpenEngine {
                     // Setup Texture coords
                     glBindBuffer(GL_ARRAY_BUFFER, node->GetTexCoordBufferID());
                     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                    glTexCoordPointer(2, GL_FLOAT, 0, 0);
+                    glTexCoordPointer(HeightFieldNode::TEXCOORDS, GL_FLOAT, 0, 0);
 
                     glClientActiveTexture(GL_TEXTURE1);
                     glBindBuffer(GL_ARRAY_BUFFER, node->GetNormalMapCoordBufferID());
                     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                    glTexCoordPointer(2, GL_FLOAT, 0, 0);
+                    glTexCoordPointer(HeightFieldNode::TEXCOORDS, GL_FLOAT, 0, 0);
 
                     float* dir = sun->GetPos();
                     shader->SetUniform("lightDir", Vector<3, float>(dir[0], dir[1], dir[2]));

@@ -449,10 +449,6 @@ namespace OpenEngine {
 
             texCoords[entry+1] = x * texDetail;
             texCoords[entry] = z * texDetail;
-            /*
-            texCoords[entry+1] = (x * texDetail) / (float)depth;
-            texCoords[entry] = (z * texDetail) / (float)width;
-            */
         }
 
         void LandscapeNode::SetupGeoMorphing(){
@@ -476,40 +472,16 @@ namespace OpenEngine {
             int entry = CoordToEntry(x, z);
             int LOD = verticeLOD[entry];
             
-            int placementX = x % (LOD * 2);
-            int placementZ = z % (LOD * 2);
+            int dx = x % (LOD * 2);
+            int dz = z % (LOD * 2);
 
-            if (placementX == LOD && placementZ == 0){
-                // vertical line
-                int entryAbove = CoordToEntry(x + LOD, z);
-                int entryBelow = CoordToEntry(x - LOD, z);
-                
-                morphedValues[entry * 4] = (originalValues[entryAbove * 4] + originalValues[entryBelow * 4]) / 2 - originalValues[entry * 4];
-                morphedValues[entry * 4 + 1] = (originalValues[entryAbove * 4 + 1] + originalValues[entryBelow * 4 + 1]) / 2 - originalValues[entry * 4 + 1];
-                morphedValues[entry * 4 + 2] = (originalValues[entryAbove * 4 + 2] + originalValues[entryBelow * 4 + 2]) / 2 - originalValues[entry * 4 + 2];
-                morphedValues[entry * 4 + 3] = (originalValues[entryAbove * 4 + 3] + originalValues[entryBelow * 4 + 3]) / 2 - originalValues[entry * 4 + 3];
-            }else if(placementX == 0 && placementZ == LOD){
-                // horizontal line
-                int leftEntry = CoordToEntry(x, z - LOD);
-                int rightEntry = CoordToEntry(x, z + LOD);
-                
-                morphedValues[entry * 4] = (originalValues[leftEntry * 4] + originalValues[rightEntry * 4]) / 2 - originalValues[entry * 4];
-                morphedValues[entry * 4 + 1] = (originalValues[leftEntry * 4 + 1] + originalValues[rightEntry * 4 + 1]) / 2 - originalValues[entry * 4 + 1];
-                morphedValues[entry * 4 + 2] = (originalValues[leftEntry * 4 + 2] + originalValues[rightEntry * 4 + 2]) / 2 - originalValues[entry * 4 + 2];
-                morphedValues[entry * 4 + 3] = (originalValues[leftEntry * 4 + 3] + originalValues[rightEntry * 4 + 3]) / 2 - originalValues[entry * 4 + 3];
-            }else if(placementX == LOD && placementZ == LOD){
-                // diagonal line
-                int entryAbove = CoordToEntry(x + LOD, z + LOD);
-                int entryBelow = CoordToEntry(x - LOD, z - LOD);
+            int nEntry1 = CoordToEntry(x + dx, z + dz);
+            int nEntry2 = CoordToEntry(x - dx, z - dz);
 
-                morphedValues[entry * 4] = (originalValues[entryAbove * 4] + originalValues[entryBelow * 4]) / 2 - originalValues[entry * 4];                
-                morphedValues[entry * 4 + 1] = (originalValues[entryAbove * 4 + 1] + originalValues[entryBelow * 4 + 1]) / 2 - originalValues[entry * 4 + 1];                
-                morphedValues[entry * 4 + 2] = (originalValues[entryAbove * 4 + 2] + originalValues[entryBelow * 4 + 2]) / 2 - originalValues[entry * 4 + 2];                
-                morphedValues[entry * 4 + 3] = (originalValues[entryAbove * 4 + 3] + originalValues[entryBelow * 4 + 3]) / 2 - originalValues[entry * 4 + 3];                
-            }else{
-                // Highest LOD so no morphing
-                //logger.info << "LOD " << LOD << " with coords (" << x << ", " << z << ")" << logger.end;
-            }
+            morphedValues[entry * 4] = (originalValues[nEntry1 * 4] + originalValues[nEntry2 * 4]) / 2 - originalValues[entry * 4];
+            morphedValues[entry * 4 + 1] = (originalValues[nEntry1 * 4 + 1] + originalValues[nEntry2 * 4 + 1]) / 2 - originalValues[entry * 4 + 1];
+            morphedValues[entry * 4 + 2] = (originalValues[nEntry1 * 4 + 2] + originalValues[nEntry2 * 4 + 2]) / 2 - originalValues[entry * 4 + 2];
+            morphedValues[entry * 4 + 3] = (originalValues[nEntry1 * 4 + 3] + originalValues[nEntry2 * 4 + 3]) / 2 - originalValues[entry * 4 + 3];
         }
 
         void LandscapeNode::CalcLODSwitchDistances(){
