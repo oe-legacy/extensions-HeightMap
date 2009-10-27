@@ -17,6 +17,8 @@
 
 #include <algorithm>
 
+#define USE_PATCHES true
+
 using namespace OpenEngine::Renderers::OpenGL;
 
 namespace OpenEngine {
@@ -38,15 +40,29 @@ namespace OpenEngine {
 
         void HeightFieldNode::Load() {
             InitArrays();
-            ComputeIndices();
+            if (USE_PATCHES)
+                SetupPatches();
+            else
+                ComputeIndices();
+        }
+
+        void HeightFieldNode::CalcLOD(Display::IViewingVolume* view){
+            if (USE_PATCHES)
+                for (int i = 0; i < numberOfPatches; ++i)
+                    patchNodes[i]->CalcLOD(view);
         }
 
         void HeightFieldNode::Render(){
-            glDrawElements(GL_TRIANGLE_STRIP, numberOfIndices, GL_UNSIGNED_INT, indices);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indiceId);
+            if (USE_PATCHES){
+                for (int i = 0; i < numberOfPatches; ++i)
+                    patchNodes[i]->Render();
+            }else{
+                glDrawElements(GL_TRIANGLE_STRIP, numberOfIndices, GL_UNSIGNED_INT, 0);
+            }
         }
 
         void HeightFieldNode::VisitSubNodes(ISceneNodeVisitor& visitor){
-            // @TODO Visit patches here aswell
             list<ISceneNode*>::iterator itr;
             for (itr = subNodes.begin(); itr != subNodes.end(); ++itr){
                 (*itr)->Accept(visitor);
@@ -54,6 +70,8 @@ namespace OpenEngine {
         }
 
         void HeightFieldNode::Handle(RenderingEventArg arg){
+            Load();
+
             if (landscapeShader != NULL) {
                 landscapeShader->Load();
                 TextureList texs = landscapeShader->GetTextures();
@@ -103,19 +121,42 @@ namespace OpenEngine {
 
             // Create indice buffer
             glGenBuffers(1, &indiceId);
-
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indiceId);
             glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                         sizeof(GLfloat) * numberOfIndices,
+                         sizeof(GLuint) * numberOfIndices,
                          indices, GL_STATIC_DRAW);
-
+            
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
         }
         
         // **** Get/Set methods ****
 
-        void HeightFieldNode::SetTextureDetail(float detail){
+        int HeightFieldNode::GetIndice(int x, int z){
+            return CoordToIndex(x, z);
+        }
+
+        float* HeightFieldNode::GetVertex(int x, int z){
+            return GetVertice(x, z);
+        }
+
+        /**
+         * Set the distance at which the LOD should switch.
+         *
+         * @ base The base distance to the camera where the LOD is the highest.
+         * @ dec The distance between each decrement in LOD.
+         */
+        void HeightFieldNode::SetLODSwitchDistance(float base, float dec){
+            baseDistance = base;
+            
+            float edgeLength = HeightFieldPatchNode::PATCH_EDGE_SQUARES * widthScale;
+            if (dec * dec < edgeLength * edgeLength * 2){
+                incrementalDistance = sqrt(edgeLength * edgeLength * 2);
+                logger.error << "Incremental LOD distance is too low, setting it to lowest value: " << dec << logger.end;
+            }else
+                incrementalDistance = dec;
+        }
+
+        void HeightFieldNode::SetTextureDetail(const float detail){
             texDetail = detail;
             if (texCoords)
                 SetupTerrainTexture();
@@ -202,7 +243,7 @@ namespace OpenEngine {
         }
 
         void HeightFieldNode::CalcVerticeLOD(){
-            for (int LOD = 1; LOD < pow(2, HeightFieldPatchNode::MAX_LODS-1); LOD *= 2){
+            for (int LOD = 1; LOD < pow(2, HeightFieldPatchNode::MAX_LODS); LOD *= 2){
                 for (int x = 0; x < depth; x += LOD){
                     for (int z = 0; z < width; z += LOD){
                         int entry = CoordToIndex(x, z);
@@ -228,7 +269,7 @@ namespace OpenEngine {
         }
 
         void HeightFieldNode::ComputeIndices(){
-            int LOD = 4;
+            int LOD = 8;
             int xs = (depth-1) / LOD + 1;
             int zs = (width-1) / LOD + 1;
             numberOfIndices = 2 * ((xs - 1) * zs + xs - 2);
@@ -255,6 +296,67 @@ namespace OpenEngine {
             }
         }
 
+        void HeightFieldNode::SetupPatches(){
+            SetLODSwitchDistance(0, 100);
+
+            // Create the patches
+            int squares = HeightFieldPatchNode::PATCH_EDGE_SQUARES;
+            patchGridWidth = (width-1) / squares;
+            patchGridDepth = (depth-1) / squares;
+            numberOfPatches = patchGridWidth * patchGridDepth;
+            patchNodes = new HeightFieldPatchNode*[numberOfPatches];
+            int entry = 0;
+            for (int x = 0; x < depth - squares; x +=squares ){
+                for (int z = 0; z < width - squares; z += squares){
+                    patchNodes[entry++] = new HeightFieldPatchNode(x, z, this);
+                }
+            }
+
+            // Link the patches
+            for (int x = 0; x < patchGridDepth; ++x){
+                for (int z = 0; z < patchGridWidth; ++z){
+                    int entry = z + x * patchGridWidth;
+                    if (x + 1 < patchGridDepth)
+                        patchNodes[entry]->SetUpperNeighbor(patchNodes[entry + patchGridWidth]);
+                    if (z + 1 < patchGridWidth) 
+                        patchNodes[entry]->SetRightNeighbor(patchNodes[entry + 1]);
+                }
+            }
+
+            // Setup indice buffer
+            numberOfIndices = 0;
+            for (int p = 0; p < numberOfPatches; ++p){
+                for (int l = 0; l < HeightFieldPatchNode::MAX_LODS; ++l){
+                    for (int rl = 0; rl < 3; ++rl){
+                        for (int ul = 0; ul < 3; ++ul){
+                            LODstruct& lod = patchNodes[p]->GetLod(l,rl,ul);
+                            lod.indiceBufferOffset = (void*)(numberOfIndices * sizeof(GLuint));
+                            numberOfIndices += lod.numberOfIndices;
+                        }
+                    }
+                }
+            }
+
+            indices = new unsigned int[numberOfIndices];
+
+            logger.info << "Number of indices at creation is " << numberOfIndices << logger.end;
+
+            unsigned int i = 0;
+            for (int p = 0; p < numberOfPatches; ++p){
+                for (int l = 0; l < HeightFieldPatchNode::MAX_LODS; ++l){
+                    for (int rl = 0; rl < 3; ++rl){
+                        for (int ul = 0; ul < 3; ++ul){
+                            LODstruct& lod = patchNodes[p]->GetLod(l,rl,ul);
+                            memcpy(indices + i, lod.indices, sizeof(unsigned int) * lod.numberOfIndices);
+                            i += lod.numberOfIndices;
+                        }
+                    }
+                }
+            }
+                        
+            // Setup shader uniforms used in geomorphing
+        }
+        
         int HeightFieldNode::CoordToIndex(int x, int z) const{
             return z + x * width;
         }

@@ -119,8 +119,9 @@ namespace OpenEngine {
                     shader->SetUniform("lightDir", Vector<3, float>(dir[0], dir[1], dir[2]));
                 }
 
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, node->GetIndiceID());
-                glDrawElements(GL_TRIANGLE_STRIP, node->GetNumberOfIndices(), GL_UNSIGNED_INT, 0);
+                node->CalcLOD(viewport.GetViewingVolume());
+
+                node->Render();
 
                 //node->VisitSubNodes(*this);
 

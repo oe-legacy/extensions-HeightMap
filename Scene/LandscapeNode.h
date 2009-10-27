@@ -126,6 +126,7 @@ namespace OpenEngine {
             void SetSun(SunNode* s) { sun = s; }
             
             void SetTextureDetail(float detail);
+
             void SetLODSwitchDistance(const float base, const float inc);
             float* GetLODSwitchArray() const { return lodDistanceSquared; }
             float GetLODBaseDistance() const { return baseDistance; }

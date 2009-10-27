@@ -11,6 +11,7 @@
 #define _HEIGHTFIELD_NODE_H_
 
 #include <Scene/ISceneNode.h>
+#include <Scene/HeightFieldPatchNode.h>
 #include <Core/IListener.h>
 #include <Renderers/IRenderer.h>
 #include <Resources/IShaderResource.h>
@@ -21,6 +22,9 @@ using namespace OpenEngine::Renderers;
 using namespace OpenEngine::Resources;
 
 namespace OpenEngine {
+    namespace Display {
+        class IViewingVolume;
+    }
     namespace Scene {
         class SunNode;
 
@@ -82,10 +86,13 @@ namespace OpenEngine {
 
             float texDetail;
 
+            // Patch variables
+            int patchGridWidth, patchGridDepth, numberOfPatches;
+            HeightFieldPatchNode** patchNodes;
+
             // Distances for changing the LOD
             float baseDistance;
             float incrementalDistance;
-            float* lodDistanceSquared;
 
             ITextureResourcePtr tex;
             ITextureResourcePtr normalmap;
@@ -98,6 +105,7 @@ namespace OpenEngine {
 
             void Load();
 
+            void CalcLOD(Display::IViewingVolume* view);
             void Render();
 
             void VisitSubNodes(ISceneNodeVisitor& visitor);
@@ -113,17 +121,22 @@ namespace OpenEngine {
             unsigned int GetIndiceID() const { return indiceId; }
             unsigned int GetNumberOfIndices() const { return numberOfIndices; }
             int GetNumberOfVertices() const { return numberOfVertices; }
+            int GetIndice(int x, int z);
+            float* GetVertex(int x, int z);
 
             void SetHeightScale(const float scale) { heightScale = scale; }
             void SetWidthScale(const float scale) { widthScale = scale; }
             int GetWidth() const { return width * widthScale; }
             int GetDepth() const { return depth * widthScale; }
 
+            void SetLODSwitchDistance(const float base, const float inc);
+            float GetLODBaseDistance() const { return baseDistance; }
+            float GetLODIncDistance() const { return incrementalDistance; }
+
             SunNode* GetSun() const { return sun; }
             void SetSun(SunNode* s) { sun = s; }
 
-            void SetTextureDetail(float detail);
-
+            void SetTextureDetail(const float detail);
             void SetLandscapeShader(IShaderResourcePtr shader) { landscapeShader = shader; }
             IShaderResourcePtr GetLandscapeShader() const { return landscapeShader; }
 
@@ -135,6 +148,7 @@ namespace OpenEngine {
             inline void CalcVerticeLOD();
             inline void CalcGeomorphHeight(int x, int z);
             inline void ComputeIndices();
+            inline void SetupPatches();
 
             inline int CoordToIndex(int x, int z) const;
             inline float* GetVertice(int x, int z) const;

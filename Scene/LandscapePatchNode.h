@@ -21,6 +21,9 @@ using namespace OpenEngine::Display;
 namespace OpenEngine {
     namespace Scene {
 
+        class LandscapePatchNode : public ISceneNode {
+            OE_SCENE_NODE(LandscapePatchNode, ISceneNode)
+
         struct LODstruct {
             int LOD;
 
@@ -40,9 +43,6 @@ namespace OpenEngine {
             GLuint* upperStitchingLowerIndices;
         };
 
-        class LandscapePatchNode : public ISceneNode {
-            OE_SCENE_NODE(LandscapePatchNode, ISceneNode)
-            
         public:
             static const int PATCH_EDGE_SQUARES = 32;
             static const int PATCH_EDGE_VERTICES = PATCH_EDGE_SQUARES + 1;
