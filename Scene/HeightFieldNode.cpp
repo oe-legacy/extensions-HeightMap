@@ -264,9 +264,10 @@ namespace OpenEngine {
         }
 
         void HeightFieldNode::CalcVerticeLOD(){
-            for (int LOD = 1; LOD < pow(2, HeightFieldPatchNode::MAX_LODS); LOD *= 2){
-                for (int x = 0; x < depth; x += LOD){
-                    for (int z = 0; z < width; z += LOD){
+            for (int LOD = 1; LOD <= HeightFieldPatchNode::MAX_LODS; ++LOD){
+                int delta = pow(2, LOD-1);
+                for (int x = 0; x < depth; x += delta){
+                    for (int z = 0; z < width; z += delta){
                         GetVerticeLOD(x, z) = LOD;
                     }
                 }
@@ -276,8 +277,16 @@ namespace OpenEngine {
         void HeightFieldNode::CalcGeomorphHeight(int x, int z){
             int LOD = (int)GetVerticeLOD(x, z);
 
-            int dx = x % (LOD * 2);
-            int dz = z % (LOD * 2);
+            int delta = pow(2, LOD-1);
+
+            int dx, dz;
+            if (LOD < HeightFieldPatchNode::MAX_LODS){
+                dx = x % (delta * 2);
+                dz = z % (delta * 2);
+            }else{
+                dx = 0;
+                dz = 0;
+            }
 
             float* vertice = GetVertice(x, z);
             float* verticeNeighbour1 = GetVertice(x + dx, z + dz);

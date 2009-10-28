@@ -34,7 +34,7 @@ namespace OpenEngine {
         public:
             static const int PATCH_EDGE_SQUARES = 32;
             static const int PATCH_EDGE_VERTICES = PATCH_EDGE_SQUARES + 1;
-            static const int MAX_LODS = 3;
+            static const int MAX_LODS = 4;
             static const int MIN_LOD = 1;
 
             enum LODrelation { LOWER = 0, SAME = 1, HIGHER = 2 };
