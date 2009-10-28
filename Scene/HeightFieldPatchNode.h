@@ -40,7 +40,7 @@ namespace OpenEngine {
             enum LODrelation { LOWER = 0, SAME = 1, HIGHER = 2 };
             
         private:
-            int LOD; // a LOD of 0 means the patch is outside the frustum
+            int LOD;
             float geomorphingScale;
             bool visible;
             

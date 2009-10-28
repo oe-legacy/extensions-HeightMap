@@ -289,7 +289,7 @@ namespace OpenEngine {
         }
 
         void HeightFieldNode::ComputeIndices(){
-            int LOD = 8;
+            int LOD = 4;
             int xs = (depth-1) / LOD + 1;
             int zs = (width-1) / LOD + 1;
             numberOfIndices = 2 * ((xs - 1) * zs + xs - 2);
@@ -317,8 +317,6 @@ namespace OpenEngine {
         }
 
         void HeightFieldNode::SetupPatches(){
-            //SetLODSwitchDistance(50, 100);
-
             // Create the patches
             int squares = HeightFieldPatchNode::PATCH_EDGE_SQUARES;
             patchGridWidth = (width-1) / squares;

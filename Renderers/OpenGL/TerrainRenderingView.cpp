@@ -85,6 +85,8 @@ namespace OpenEngine {
             }
 
             void TerrainRenderingView::VisitHeightFieldNode(HeightFieldNode* node) {
+                //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
                 glEnable(GL_CULL_FACE);
 
                 SunNode* sun = node->GetSun();
@@ -146,6 +148,8 @@ namespace OpenEngine {
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
                 glDisable(GL_CULL_FACE);
+
+                //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             }
 
             void TerrainRenderingView::VisitSunNode(SunNode* node) {
