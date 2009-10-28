@@ -11,7 +11,6 @@
 #define _HEIGHTFIELD_NODE_H_
 
 #include <Scene/ISceneNode.h>
-#include <Scene/HeightFieldPatchNode.h>
 #include <Core/IListener.h>
 #include <Renderers/IRenderer.h>
 #include <Resources/IShaderResource.h>
@@ -27,6 +26,7 @@ namespace OpenEngine {
     }
     namespace Scene {
         class SunNode;
+        class HeightFieldPatchNode;
 
         /**
          * A class for creating landscapes through heightmaps
@@ -65,12 +65,9 @@ namespace OpenEngine {
             float* normalMapCoords;
             unsigned int normalMapCoordBufferId;
 
-            float* geoMorphScaleCoords;
-            unsigned int geoMorphScaleCoordBufferId;
+            float* geomorphValues; // {PatchCenterX, PatchCenterZ, LOD}
+            unsigned int geomorphBufferId;
 
-            float* verticeLOD;
-            unsigned int verticeLODBufferId;
-            
             unsigned int numberOfIndices;
             unsigned int indiceId;
             unsigned int* indices;
@@ -115,9 +112,9 @@ namespace OpenEngine {
             // *** Get/Set methods ***
 
             unsigned int GetVerticeBufferID() const { return verticeBufferId; }
+            unsigned int GetGeomorphBufferID() const { return geomorphBufferId; }
             unsigned int GetTexCoordBufferID() const { return texCoordBufferId; }
             unsigned int GetNormalMapCoordBufferID() const { return normalMapCoordBufferId; }
-            unsigned int GetVerticeLODBufferID() const { return verticeLODBufferId; }
             unsigned int GetIndiceID() const { return indiceId; }
             unsigned int GetNumberOfIndices() const { return numberOfIndices; }
             int GetNumberOfVertices() const { return numberOfVertices; }
@@ -154,7 +151,8 @@ namespace OpenEngine {
             inline float* GetVertice(int x, int z) const;
             inline float* GetTexCoord(int x, int z) const;
             inline float* GetNormalMapCoord(int x, int z) const;
-            inline float* GetVerticeLOD(int x, int z) const;
+            inline float* GetGeomorphValues(int x, int z) const;
+            inline float& GetVerticeLOD(int x, int z) const;
         };
     }
 } 

@@ -36,8 +36,14 @@ namespace OpenEngine {
         }
 
         void HeightFieldPatchNode::CalcLOD(IViewingVolume* view){
-            Vector<3, float> viewPos = view->GetPosition();
+            if (!view->IsVisible(boundingBox)){
+                visible = false;
+                return;
+            }
+            visible = true;
 
+            Vector<3, float> viewPos = view->GetPosition();
+            
             float distance = (viewPos - patchCenter).GetLength();
 
             float baseDistance = terrain->GetLODBaseDistance();
@@ -54,12 +60,14 @@ namespace OpenEngine {
         }
 
         void HeightFieldPatchNode::Render(){
-            int rightLODdiff = rightNeighbour != NULL ? rightNeighbour->GetLOD() - LOD + 1 : 1;
-            int upperLODdiff = upperNeighbour != NULL ? upperNeighbour->GetLOD() - LOD + 1 : 1;
-            
-            unsigned int numberOfIndices = LODs[LOD-1][rightLODdiff][upperLODdiff].numberOfIndices;
-            void* offset = LODs[LOD-1][rightLODdiff][upperLODdiff].indiceBufferOffset;
-            glDrawElements(GL_TRIANGLE_STRIP, numberOfIndices, GL_UNSIGNED_INT, offset);
+            if (visible){
+                int rightLODdiff = rightNeighbour != NULL ? rightNeighbour->GetLOD() - LOD + 1 : 1;
+                int upperLODdiff = upperNeighbour != NULL ? upperNeighbour->GetLOD() - LOD + 1 : 1;
+                
+                unsigned int numberOfIndices = LODs[LOD-1][rightLODdiff][upperLODdiff].numberOfIndices;
+                void* offset = LODs[LOD-1][rightLODdiff][upperLODdiff].indiceBufferOffset;
+                glDrawElements(GL_TRIANGLE_STRIP, numberOfIndices, GL_UNSIGNED_INT, offset);
+            }
         }
 
         void HeightFieldPatchNode::RenderBoundingGeometry(){
@@ -294,6 +302,8 @@ namespace OpenEngine {
 
             patchCenter = (min + max) / 2;
             boundingBox = Box(patchCenter, max - patchCenter);
+
+            patchCenter[1] = 0;
         }
 
     }

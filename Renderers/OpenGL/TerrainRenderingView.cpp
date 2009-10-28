@@ -105,6 +105,11 @@ namespace OpenEngine {
                 if (shader){
                     shader->ApplyShader();
 
+                    // Pass geomorphvalues via the normal array
+                    glBindBuffer(GL_ARRAY_BUFFER, node->GetGeomorphBufferID());
+                    glEnableClientState(GL_NORMAL_ARRAY);
+                    glNormalPointer(GL_FLOAT, 0, 0);
+
                     // Setup Texture coords
                     glBindBuffer(GL_ARRAY_BUFFER, node->GetTexCoordBufferID());
                     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -115,8 +120,11 @@ namespace OpenEngine {
                     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
                     glTexCoordPointer(HeightFieldNode::TEXCOORDS, GL_FLOAT, 0, 0);
 
+                    // Setup uniforms
                     float* dir = sun->GetPos();
                     shader->SetUniform("lightDir", Vector<3, float>(dir[0], dir[1], dir[2]));
+
+                    shader->SetUniform("viewPos", viewport.GetViewingVolume()->GetPosition());
                 }
 
                 node->CalcLOD(viewport.GetViewingVolume());

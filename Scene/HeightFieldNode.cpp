@@ -90,10 +90,12 @@ namespace OpenEngine {
                 landscapeShader->SetUniform("sandBlend", (float)10);
 
                 landscapeShader->SetTexture("normalMap", normalmap);
-                
+
                 landscapeShader->ReleaseShader();
             }
             
+            SetLODSwitchDistance(0, 100);
+
             // Create vbos
 
             // Vertice buffer object
@@ -103,6 +105,15 @@ namespace OpenEngine {
                          sizeof(GLfloat) * numberOfVertices * DIMENSIONS,
                          vertices, GL_STATIC_DRAW);
             
+            if (landscapeShader != NULL){
+                // Geomorph values buffer object
+                glGenBuffers(1, &geomorphBufferId);
+                glBindBuffer(GL_ARRAY_BUFFER, geomorphBufferId);
+                glBufferData(GL_ARRAY_BUFFER, 
+                             sizeof(GLfloat) * numberOfVertices * 3,
+                             geomorphValues, GL_STATIC_DRAW);
+            }
+
             // Tex Coord buffer object
             glGenBuffers(1, &texCoordBufferId);
             glBindBuffer(GL_ARRAY_BUFFER, texCoordBufferId);
@@ -154,6 +165,16 @@ namespace OpenEngine {
                 logger.error << "Incremental LOD distance is too low, setting it to lowest value: " << dec << logger.end;
             }else
                 incrementalDistance = dec;
+
+            // Update uniforms
+            if (landscapeShader != NULL) {
+                landscapeShader->ApplyShader();
+
+                landscapeShader->SetUniform("baseDistance", baseDistance);
+                landscapeShader->SetUniform("invIncDistance", 1.0f / incrementalDistance);
+
+                landscapeShader->ReleaseShader();
+            }
         }
 
         void HeightFieldNode::SetTextureDetail(const float detail){
@@ -181,7 +202,7 @@ namespace OpenEngine {
             vertices = new float[numberOfVertices * DIMENSIONS];
             texCoords = new float[numberOfVertices * TEXCOORDS];
             normalMapCoords = new float[numberOfVertices * TEXCOORDS];
-            verticeLOD = new float[numberOfVertices];
+            geomorphValues = new float[numberOfVertices * 3];
 
             int numberOfCharsPrColor = tex->GetDepth() / 8;
             unsigned char* data = tex->GetData();
@@ -210,9 +231,9 @@ namespace OpenEngine {
             
             SetupNormalMap();
             SetupTerrainTexture();
-            CalcVerticeLOD();
 
             if (landscapeShader != NULL)
+                CalcVerticeLOD();
                 for (int x = 0; x < depth; ++x)
                     for (int z = 0; z < width; ++z)
                         CalcGeomorphHeight(x, z);
@@ -246,15 +267,14 @@ namespace OpenEngine {
             for (int LOD = 1; LOD < pow(2, HeightFieldPatchNode::MAX_LODS); LOD *= 2){
                 for (int x = 0; x < depth; x += LOD){
                     for (int z = 0; z < width; z += LOD){
-                        int entry = CoordToIndex(x, z);
-                        verticeLOD[entry] = LOD;
+                        GetVerticeLOD(x, z) = LOD;
                     }
                 }
             }
         }
 
         void HeightFieldNode::CalcGeomorphHeight(int x, int z){
-            int LOD = (int)GetVerticeLOD(x, z)[0];
+            int LOD = (int)GetVerticeLOD(x, z);
 
             int dx = x % (LOD * 2);
             int dz = z % (LOD * 2);
@@ -297,7 +317,7 @@ namespace OpenEngine {
         }
 
         void HeightFieldNode::SetupPatches(){
-            SetLODSwitchDistance(0, 100);
+            //SetLODSwitchDistance(50, 100);
 
             // Create the patches
             int squares = HeightFieldPatchNode::PATCH_EDGE_SQUARES;
@@ -339,8 +359,6 @@ namespace OpenEngine {
 
             indices = new unsigned int[numberOfIndices];
 
-            logger.info << "Number of indices at creation is " << numberOfIndices << logger.end;
-
             unsigned int i = 0;
             for (int p = 0; p < numberOfPatches; ++p){
                 for (int l = 0; l < HeightFieldPatchNode::MAX_LODS; ++l){
@@ -355,6 +373,16 @@ namespace OpenEngine {
             }
                         
             // Setup shader uniforms used in geomorphing
+            for (int x = 0; x < depth - 1; ++x){
+                for (int z = 0; z < width - 1; ++z){
+                    int patchX = x / HeightFieldPatchNode::PATCH_EDGE_SQUARES;
+                    int patchZ = z / HeightFieldPatchNode::PATCH_EDGE_SQUARES;
+                    float centerOffset = HeightFieldPatchNode::PATCH_EDGE_SQUARES / 2 * widthScale;
+                    float* geomorph = GetGeomorphValues(x, z);
+                    geomorph[0] = patchX * HeightFieldPatchNode::PATCH_EDGE_SQUARES * widthScale + centerOffset;
+                    geomorph[1] = patchZ * HeightFieldPatchNode::PATCH_EDGE_SQUARES * widthScale + centerOffset;
+                }
+            }
         }
         
         int HeightFieldNode::CoordToIndex(int x, int z) const{
@@ -376,9 +404,14 @@ namespace OpenEngine {
             return normalMapCoords + index * TEXCOORDS;
         }
 
-        float* HeightFieldNode::GetVerticeLOD(int x, int z) const{
+        float* HeightFieldNode::GetGeomorphValues(int x, int z) const{
             int index = CoordToIndex(x, z);
-            return verticeLOD + index;
+            return geomorphValues + index * 3;
+        }
+
+        float& HeightFieldNode::GetVerticeLOD(int x, int z) const{
+            int index = CoordToIndex(x, z);
+            return (geomorphValues + index * 3)[2];
         }
     }
 }

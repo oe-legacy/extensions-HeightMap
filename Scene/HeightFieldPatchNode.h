@@ -42,6 +42,7 @@ namespace OpenEngine {
         private:
             int LOD; // a LOD of 0 means the patch is outside the frustum
             float geomorphingScale;
+            bool visible;
             
             int xStart, xEnd, zStart, zEnd, xEndMinusOne, zEndMinusOne;
             Vector<3, float> patchCenter;
