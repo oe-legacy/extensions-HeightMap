@@ -157,7 +157,7 @@ namespace OpenEngine {
             
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, FBOwidth, FBOheight, 0, GL_RGBA, GL_UNSIGNED_INT, NULL);
 
-            reflectionTex = ITextureResourcePtr(new OpenGLTextureResource(reflectionTexID));
+            reflectionTex = ITextureResourcePtr(new OpenGLTextureResource(reflectionTexID, FBOwidth, FBOheight, 32));
             
             // attach the texture to FBO color attachment point
             glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, 
@@ -208,8 +208,8 @@ namespace OpenEngine {
                                       GL_DEPTH_ATTACHMENT_EXT,
                                       GL_TEXTURE_2D, depthBuffer, 0);
 
-            refractionTex = ITextureResourcePtr(new OpenGLTextureResource(refractionTexID));
-            depthbufferTex = ITextureResourcePtr(new OpenGLTextureResource(depthBuffer));
+            refractionTex = ITextureResourcePtr(new OpenGLTextureResource(refractionTexID, FBOwidth, FBOheight, 32));
+            depthbufferTex = ITextureResourcePtr(new OpenGLTextureResource(depthBuffer, FBOwidth, FBOheight, 8));
 
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
             glBindTexture(GL_TEXTURE_2D, 0);
