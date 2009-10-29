@@ -207,7 +207,7 @@ namespace OpenEngine {
             // if texwidth/depth isn't expressible as n * patchwidth + 1 fix it.
             int patchWidth = HeightFieldPatchNode::PATCH_EDGE_SQUARES;
             int widthRest = (texWidth - 1) % patchWidth;
-            width = widthRest ? texWidth + 32 - widthRest : texWidth;
+            width = widthRest ? texWidth + patchWidth - widthRest : texWidth;
 
             int depthRest = (texDepth - 1) % patchWidth;
             depth = depthRest ? texDepth + patchWidth - depthRest : texDepth;
