@@ -46,11 +46,11 @@ namespace OpenEngine {
             float distance = (viewPos - patchCenter).GetLength();
 
             float baseDistance = terrain->GetLODBaseDistance();
-            float incDistance = terrain->GetLODIncDistance();
+            float invIncDistance = terrain->GetLODInverseIncDistance();
 
             distance -= baseDistance;
             
-            geomorphingScale = distance / incDistance;
+            geomorphingScale = distance * invIncDistance;
 
             if (geomorphingScale < 1)
                 geomorphingScale = 1;

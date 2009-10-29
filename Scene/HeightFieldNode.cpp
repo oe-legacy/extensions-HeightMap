@@ -33,7 +33,7 @@ namespace OpenEngine {
             
             texDetail = 1;
             baseDistance = 1;
-            incrementalDistance = 1;
+            invIncDistance = 1 / 100;
 
             texCoords = NULL;
         }
@@ -100,7 +100,7 @@ namespace OpenEngine {
                 landscapeShader->ReleaseShader();
             }
             
-            SetLODSwitchDistance(0, 100);
+            SetLODSwitchDistance(baseDistance, 1 / invIncDistance);
 
             // Create vbos
 
@@ -176,17 +176,17 @@ namespace OpenEngine {
             
             float edgeLength = HeightFieldPatchNode::PATCH_EDGE_SQUARES * widthScale;
             if (dec * dec < edgeLength * edgeLength * 2){
-                incrementalDistance = sqrt(edgeLength * edgeLength * 2);
-                logger.error << "Incremental LOD distance is too low, setting it to lowest value: " << dec << logger.end;
+                invIncDistance = 1 / sqrt(edgeLength * edgeLength * 2);
+                logger.error << "Incremental LOD distance is too low, setting it to lowest value: " << 1.0f / invIncDistance << logger.end;
             }else
-                incrementalDistance = dec;
+                invIncDistance = 1 / dec;
 
             // Update uniforms
             if (landscapeShader != NULL) {
                 landscapeShader->ApplyShader();
 
                 landscapeShader->SetUniform("baseDistance", baseDistance);
-                landscapeShader->SetUniform("invIncDistance", 1.0f / incrementalDistance);
+                landscapeShader->SetUniform("invIncDistance", 1.0f / invIncDistance);
 
                 landscapeShader->ReleaseShader();
             }

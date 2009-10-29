@@ -89,7 +89,7 @@ namespace OpenEngine {
 
             // Distances for changing the LOD
             float baseDistance;
-            float incrementalDistance;
+            float invIncDistance;
 
             ITextureResourcePtr tex;
             ITextureResourcePtr normalmap;
@@ -132,7 +132,8 @@ namespace OpenEngine {
 
             void SetLODSwitchDistance(const float base, const float inc);
             float GetLODBaseDistance() const { return baseDistance; }
-            float GetLODIncDistance() const { return incrementalDistance; }
+            float GetLODIncDistance() const { return 1.0f / invIncDistance; }
+            float GetLODInverseIncDistance() const { return invIncDistance; }
 
             SunNode* GetSun() const { return sun; }
             void SetSun(SunNode* s) { sun = s; }
