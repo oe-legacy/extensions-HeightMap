@@ -186,7 +186,7 @@ namespace OpenEngine {
                 landscapeShader->ApplyShader();
 
                 landscapeShader->SetUniform("baseDistance", baseDistance);
-                landscapeShader->SetUniform("invIncDistance", 1.0f / invIncDistance);
+                landscapeShader->SetUniform("invIncDistance", invIncDistance);
 
                 landscapeShader->ReleaseShader();
             }
