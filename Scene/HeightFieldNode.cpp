@@ -255,7 +255,7 @@ namespace OpenEngine {
         }
 
         void HeightFieldNode::SetupNormalMap(){
-            normalmap = Utils::CreateNormalMap(tex, heightScale, widthScale);
+            normalmap = Utils::CreateNormalMap(this);
             for (int x = 0; x < depth; ++x)
                 for (int z = 0; z < width; ++z){
                     float* coord = GetNormalMapCoord(x, z);

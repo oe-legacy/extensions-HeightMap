@@ -85,8 +85,6 @@ namespace OpenEngine {
             }
 
             void TerrainRenderingView::VisitHeightFieldNode(HeightFieldNode* node) {
-                //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
                 glEnable(GL_CULL_FACE);
 
                 SunNode* sun = node->GetSun();
@@ -133,6 +131,9 @@ namespace OpenEngine {
 
                 node->Render();
 
+                if (renderTangent)
+                    node->RenderBoundingGeometry();
+
                 //node->VisitSubNodes(*this);
 
                 glDisableClientState(GL_VERTEX_ARRAY);
@@ -148,8 +149,6 @@ namespace OpenEngine {
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
                 glDisable(GL_CULL_FACE);
-
-                //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             }
 
             void TerrainRenderingView::VisitSunNode(SunNode* node) {
@@ -168,7 +167,7 @@ namespace OpenEngine {
                 gluQuadricNormals(qobj, GLU_SMOOTH);
                 gluQuadricDrawStyle(qobj, GLU_FILL);
                 gluQuadricOrientation(qobj, GLU_INSIDE);
-                gluSphere(qobj, 15, 10, 10); 
+                gluSphere(qobj, 35, 10, 10); 
                 gluDeleteQuadric(qobj);
                 glPopMatrix();
                 
