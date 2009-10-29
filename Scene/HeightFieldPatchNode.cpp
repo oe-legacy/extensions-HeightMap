@@ -11,7 +11,6 @@
 #include <Scene/HeightFieldNode.h>
 #include <Meta/OpenGL.h>
 #include <Display/IViewingVolume.h>
-#include <Logging/Logger.h>
 
 #include <math.h>
 
@@ -53,10 +52,12 @@ namespace OpenEngine {
             
             geomorphingScale = distance / incDistance;
 
-            geomorphingScale = geomorphingScale < 1 ? 1 : geomorphingScale;
-            geomorphingScale = geomorphingScale > MAX_LODS ? MAX_LODS : geomorphingScale;
+            if (geomorphingScale < 1)
+                geomorphingScale = 1;
+            else if (geomorphingScale > MAX_LODS)
+                geomorphingScale = MAX_LODS;
 
-            LOD = floor(geomorphingScale);
+            LOD = floor(geomorphingScale) - 1;
         }
 
         void HeightFieldPatchNode::Render(){
@@ -64,8 +65,8 @@ namespace OpenEngine {
                 int rightLODdiff = rightNeighbour != NULL ? rightNeighbour->GetLOD() - LOD + 1 : 1;
                 int upperLODdiff = upperNeighbour != NULL ? upperNeighbour->GetLOD() - LOD + 1 : 1;
                 
-                unsigned int numberOfIndices = LODs[LOD-1][rightLODdiff][upperLODdiff].numberOfIndices;
-                void* offset = LODs[LOD-1][rightLODdiff][upperLODdiff].indiceBufferOffset;
+                unsigned int numberOfIndices = LODs[LOD][rightLODdiff][upperLODdiff].numberOfIndices;
+                void* offset = LODs[LOD][rightLODdiff][upperLODdiff].indiceBufferOffset;
                 glDrawElements(GL_TRIANGLE_STRIP, numberOfIndices, GL_UNSIGNED_INT, offset);
             }
         }
@@ -137,9 +138,6 @@ namespace OpenEngine {
 
                 delete[] body;
             }
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-            //logger.info << "indice addr in patch: " << (unsigned int) LODs[1][1][1].indices << logger.end;
         }
         
         unsigned int* HeightFieldPatchNode::ComputeBodyIndices(int& indices, int LOD){
@@ -162,9 +160,6 @@ namespace OpenEngine {
                     ret[i++] = terrain->GetIndice(x+delta, zEndMinusOne - delta);
                 }
             }
-
-            if (i != indices)
-                logger.info << "woa" << logger.end;
 
             return ret;
         }

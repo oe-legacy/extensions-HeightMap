@@ -62,6 +62,12 @@ namespace OpenEngine {
             }
         }
 
+        void HeightFieldNode::RenderBoundingGeometry(){
+            if (USE_PATCHES)
+                for (int i = 0; i < numberOfPatches; ++i)
+                    patchNodes[i]->RenderBoundingGeometry();
+        }
+
         void HeightFieldNode::VisitSubNodes(ISceneNodeVisitor& visitor){
             list<ISceneNode*>::iterator itr;
             for (itr = subNodes.begin(); itr != subNodes.end(); ++itr){
@@ -147,6 +153,15 @@ namespace OpenEngine {
         }
 
         float* HeightFieldNode::GetVertex(int x, int z){
+            if (x < 0)
+                x = 0;
+            else if (x >= depth)
+                x = depth - 1;
+
+            if (z < 0)
+                z = 0;
+            else if (z >= width)
+                z = width - 1;
             return GetVertice(x, z);
         }
 

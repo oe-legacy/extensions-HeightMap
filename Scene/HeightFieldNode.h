@@ -104,6 +104,7 @@ namespace OpenEngine {
 
             void CalcLOD(Display::IViewingVolume* view);
             void Render();
+            void RenderBoundingGeometry();
 
             void VisitSubNodes(ISceneNodeVisitor& visitor);
 
@@ -125,6 +126,9 @@ namespace OpenEngine {
             void SetWidthScale(const float scale) { widthScale = scale; }
             int GetWidth() const { return width * widthScale; }
             int GetDepth() const { return depth * widthScale; }
+            int GetVerticeWidth() const { return width; }
+            int GetVerticeDepth() const { return depth; }
+            float GetWidthScale() const { return widthScale; }
 
             void SetLODSwitchDistance(const float base, const float inc);
             float GetLODBaseDistance() const { return baseDistance; }

@@ -32,7 +32,7 @@ namespace OpenEngine {
             origo = o;
             coords = new float[3];
             time = 0;
-            timeModifier = 10000000;
+            timeModifier = 50000000;
             Move(time);
         }
 
