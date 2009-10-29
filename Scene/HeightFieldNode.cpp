@@ -165,6 +165,49 @@ namespace OpenEngine {
             return GetVertice(x, z);
         }
 
+        void HeightFieldNode::SetVertex(int x, int z, float value){
+            //logger.info << "Now setting height at (" << x << ", " << z << ") to " << value << logger.end;
+
+            glBindBuffer(GL_ARRAY_BUFFER, verticeBufferId);
+            float* vbo = (float*) glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+
+            // Update height for the moved vertice affected.
+            int index = CoordToIndex(x, z);
+            vbo[index * DIMENSIONS + 1] = GetVertice(index)[1] = value;
+            vbo[index * DIMENSIONS + 3] = GetVertice(index)[3] = CalcGeomorphHeight(x, z);
+
+            //logger.info << "LOD is " << GetVerticeLOD(index) << " at index " << index << logger.end;
+
+            for (int i = GetVerticeLOD(index) - 1; i > 1; --i){
+                int delta = pow(2, i - 1);
+
+                logger.info << "Neighbour offset " << delta << " for LOD " << i << logger.end;
+
+                if (0 <= x-delta){
+                    index = CoordToIndex(x-delta, z);
+                    vbo[index * DIMENSIONS + 3] = GetVertice(index)[3] = CalcGeomorphHeight(x-delta, z);
+                }
+                
+                if (x-delta < depth){
+                    index = CoordToIndex(x+delta, z);
+                    vbo[index * DIMENSIONS + 3] = GetVertice(index)[3] = CalcGeomorphHeight(x+delta, z);
+                }
+                
+                if (0 <= z-delta){
+                    index = CoordToIndex(x, z-delta);
+                    vbo[index * DIMENSIONS + 3] = GetVertice(index)[3] = CalcGeomorphHeight(x, z-delta);
+                }
+
+                if (z-delta < width){
+                    index = CoordToIndex(x, z+delta);
+                    vbo[index * DIMENSIONS + 3] = GetVertice(index)[3] = CalcGeomorphHeight(x, z+delta);
+                }
+            }
+
+            glUnmapBuffer(GL_ARRAY_BUFFER);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+        }
+
         /**
          * Set the distance at which the LOD should switch.
          *
@@ -250,8 +293,12 @@ namespace OpenEngine {
             if (landscapeShader != NULL)
                 CalcVerticeLOD();
                 for (int x = 0; x < depth; ++x)
-                    for (int z = 0; z < width; ++z)
-                        CalcGeomorphHeight(x, z);
+                    for (int z = 0; z < width; ++z){
+                        // Store the morphing value in the w-coord to
+                        // use in the shader.
+                        float* vertice = GetVertice(x, z);
+                        vertice[3] = CalcGeomorphHeight(x, z);
+                    }
         }
 
         void HeightFieldNode::SetupNormalMap(){
@@ -289,7 +336,7 @@ namespace OpenEngine {
             }
         }
 
-        void HeightFieldNode::CalcGeomorphHeight(int x, int z){
+        float HeightFieldNode::CalcGeomorphHeight(int x, int z){
             int LOD = (int)GetVerticeLOD(x, z);
 
             int delta = pow(2, LOD-1);
@@ -307,9 +354,7 @@ namespace OpenEngine {
             float* verticeNeighbour1 = GetVertice(x + dx, z + dz);
             float* verticeNeighbour2 = GetVertice(x - dx, z - dz);
 
-            // Store the morphing value in the w-coord to use in the
-            // shader.
-            vertice[3] = (verticeNeighbour1[1] + verticeNeighbour2[1]) / 2 - vertice[1];
+            return (verticeNeighbour1[1] + verticeNeighbour2[1]) / 2 - vertice[1];
         }
 
         void HeightFieldNode::ComputeIndices(){
@@ -413,6 +458,10 @@ namespace OpenEngine {
         
         float* HeightFieldNode::GetVertice(int x, int z) const{
             int index = CoordToIndex(x, z);
+            return GetVertice(index);
+        }
+
+        float* HeightFieldNode::GetVertice(int index) const{
             return vertices + index * DIMENSIONS;
         }
         
@@ -433,6 +482,10 @@ namespace OpenEngine {
 
         float& HeightFieldNode::GetVerticeLOD(int x, int z) const{
             int index = CoordToIndex(x, z);
+            return GetVerticeLOD(index);
+        }
+
+        float& HeightFieldNode::GetVerticeLOD(int index) const{
             return (geomorphValues + index * 3)[2];
         }
     }

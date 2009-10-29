@@ -121,6 +121,7 @@ namespace OpenEngine {
             int GetNumberOfVertices() const { return numberOfVertices; }
             int GetIndice(int x, int z);
             float* GetVertex(int x, int z);
+            void SetVertex(int x, int z, float value);
 
             void SetHeightScale(const float scale) { heightScale = scale; }
             void SetWidthScale(const float scale) { widthScale = scale; }
@@ -148,16 +149,18 @@ namespace OpenEngine {
             inline void SetupTerrainTexture();
             inline void CalcTexCoords(int x, int z);
             inline void CalcVerticeLOD();
-            inline void CalcGeomorphHeight(int x, int z);
+            inline float CalcGeomorphHeight(int x, int z);
             inline void ComputeIndices();
             inline void SetupPatches();
 
             inline int CoordToIndex(int x, int z) const;
             inline float* GetVertice(int x, int z) const;
+            inline float* GetVertice(int index) const;
             inline float* GetTexCoord(int x, int z) const;
             inline float* GetNormalMapCoord(int x, int z) const;
             inline float* GetGeomorphValues(int x, int z) const;
             inline float& GetVerticeLOD(int x, int z) const;
+            inline float& GetVerticeLOD(int index) const;
         };
     }
 } 
