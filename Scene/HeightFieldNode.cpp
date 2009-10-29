@@ -33,7 +33,7 @@ namespace OpenEngine {
             
             texDetail = 1;
             baseDistance = 1;
-            invIncDistance = 1 / 100;
+            invIncDistance = 1.0f / 100.0f;
 
             texCoords = NULL;
         }
@@ -176,10 +176,10 @@ namespace OpenEngine {
             
             float edgeLength = HeightFieldPatchNode::PATCH_EDGE_SQUARES * widthScale;
             if (dec * dec < edgeLength * edgeLength * 2){
-                invIncDistance = 1 / sqrt(edgeLength * edgeLength * 2);
+                invIncDistance = 1.0f / sqrt(edgeLength * edgeLength * 2);
                 logger.error << "Incremental LOD distance is too low, setting it to lowest value: " << 1.0f / invIncDistance << logger.end;
             }else
-                invIncDistance = 1 / dec;
+                invIncDistance = 1.0f / dec;
 
             // Update uniforms
             if (landscapeShader != NULL) {
