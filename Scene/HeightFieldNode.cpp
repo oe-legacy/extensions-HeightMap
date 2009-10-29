@@ -178,10 +178,12 @@ namespace OpenEngine {
 
             //logger.info << "LOD is " << GetVerticeLOD(index) << " at index " << index << logger.end;
 
+            // Update morphing height for all surrounding affected
+            // vertices.
             for (int i = GetVerticeLOD(index) - 1; i > 1; --i){
                 int delta = pow(2, i - 1);
 
-                logger.info << "Neighbour offset " << delta << " for LOD " << i << logger.end;
+                //logger.info << "Neighbour offset " << delta << " for LOD " << i << logger.end;
 
                 if (0 <= x-delta){
                     index = CoordToIndex(x-delta, z);
@@ -205,6 +207,15 @@ namespace OpenEngine {
             }
 
             glUnmapBuffer(GL_ARRAY_BUFFER);
+
+            // Update shadows
+            /*
+            glBindBuffer(GL_ARRAY_BUFFER, shadowBufferId);
+            float* pbo = (float*) glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+
+            glUnmapBuffer(GL_ARRAY_BUFFER);
+            */
+
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
 
