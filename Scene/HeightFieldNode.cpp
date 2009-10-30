@@ -219,6 +219,45 @@ namespace OpenEngine {
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
 
+        Vector<3, float> HeightFieldNode::GetNormal(int x, int z){
+            
+            Vector<3, float> normal = Vector<3, float>(0.0f);
+            float vHeight = GetVertice(x, z)[1];
+
+            // Right vertex
+            if (x + 1 < depth){
+                float wHeight = GetVertice(x + 1, z)[1];
+                normal[0] += vHeight - wHeight;
+                normal[1] += widthScale;
+            }
+            
+            // Left vertex
+            if (0 < x){
+                float wHeight = GetVertice(x - 1, z)[1];
+                normal[0] += wHeight - vHeight;
+                normal[1] += widthScale;
+            }
+
+            // upper vertex
+            if (z + 1 < width){
+                float wHeight = GetVertice(x, z + 1)[1];
+                normal[2] += vHeight - wHeight;
+                normal[1] += widthScale;
+            }
+            
+            // Lower vertex
+            if (0 < z){
+                float wHeight = GetVertice(x, z - 1)[1];
+                normal[2] += wHeight - vHeight;
+                normal[1] += widthScale;
+            }
+
+            normal.Normalize();
+
+            return normal;
+            
+        }
+        
         /**
          * Set the distance at which the LOD should switch.
          *

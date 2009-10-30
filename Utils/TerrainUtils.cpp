@@ -124,7 +124,6 @@ namespace OpenEngine {
 
             int depth = terrain->GetVerticeDepth();
             int width = terrain->GetVerticeWidth();
-            float widthScale = terrain->GetWidthScale();
             
             ITextureResourcePtr normalTex = ITextureResourcePtr(new EmptyTextureResource(depth, width, 24));
             normalTex->Load();
@@ -136,30 +135,7 @@ namespace OpenEngine {
 
                     int index = (z + x * width) * DIMENSIONS;
 
-                    float vHeight = terrain->GetVertex(x, z)[1];
-
-                    Vector<3, float> normal = Vector<3, float>(0.0f);
-
-                    // Point to the right
-                    float wHeight = terrain->GetVertex(x+1, z)[1];
-                    normal[0] += vHeight - wHeight;
-
-                    // point to the left
-                    wHeight = terrain->GetVertex(x-1, z)[1];
-                    normal[0] += wHeight - vHeight;
-
-                    // Point above
-                    wHeight = terrain->GetVertex(x, z+1)[1];
-                    normal[2] += vHeight - wHeight;
-
-                    // Point below
-                    wHeight = terrain->GetVertex(x, z-1)[1];
-                    normal[2] += wHeight - vHeight;
-
-                    normal[1] = 4 * widthScale;
-
-                    normal.Normalize();
-
+                    Vector<3, float> normal = terrain->GetNormal(x, z);
                     normal = (normal + 1) * 0.5f;
 
                     normalData[index] = (unsigned char) (255 * normal[0]);

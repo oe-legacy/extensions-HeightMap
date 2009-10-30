@@ -119,9 +119,11 @@ namespace OpenEngine {
             unsigned int GetIndiceID() const { return indiceId; }
             unsigned int GetNumberOfIndices() const { return numberOfIndices; }
             int GetNumberOfVertices() const { return numberOfVertices; }
+
             int GetIndice(int x, int z);
             float* GetVertex(int x, int z);
             void SetVertex(int x, int z, float value);
+            Vector<3, float> GetNormal(int x, int z);
 
             void SetHeightScale(const float scale) { heightScale = scale; }
             void SetWidthScale(const float scale) { widthScale = scale; }
