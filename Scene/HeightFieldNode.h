@@ -52,12 +52,13 @@ namespace OpenEngine {
             static const int TEXCOORDS = 2;
 
         private:
-            int* map; // mapping (x, z) coords to the index where the information is located
-            
             int numberOfVertices;
 
             float* vertices;
             unsigned int verticeBufferId;
+
+            float* normals;
+            unsigned int normalsBufferId;
 
             float* texCoords;
             unsigned int texCoordBufferId;
@@ -67,6 +68,8 @@ namespace OpenEngine {
 
             float* geomorphValues; // {PatchCenterX, PatchCenterZ, LOD}
             unsigned int geomorphBufferId;
+
+            short* deltaValues;            
 
             unsigned int numberOfIndices;
             unsigned int indiceId;
@@ -98,7 +101,7 @@ namespace OpenEngine {
         public:
             HeightFieldNode() {}
             HeightFieldNode(ITextureResourcePtr tex);
-            ~HeightFieldNode() {}
+            ~HeightFieldNode();
 
             void Load();
 
@@ -163,6 +166,8 @@ namespace OpenEngine {
             inline float* GetGeomorphValues(int x, int z) const;
             inline float& GetVerticeLOD(int x, int z) const;
             inline float& GetVerticeLOD(int index) const;
+            inline short& GetVerticeDelta(int x, int z) const;
+            inline short& GetVerticeDelta(int index) const;
         };
     }
 } 

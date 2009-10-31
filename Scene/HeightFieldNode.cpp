@@ -38,6 +38,19 @@ namespace OpenEngine {
             texCoords = NULL;
         }
 
+        HeightFieldNode::~HeightFieldNode(){
+            delete [] vertices;
+            delete [] normals;
+            delete [] geomorphValues;
+            delete [] texCoords;
+            delete [] normalMapCoords;
+            delete [] indices;
+            delete [] deltaValues;
+            delete [] indices;
+
+            delete [] patchNodes;
+        }
+        
         void HeightFieldNode::Load() {
             InitArrays();
             if (USE_PATCHES)
@@ -112,12 +125,31 @@ namespace OpenEngine {
                          vertices, GL_STATIC_DRAW);
             
             if (landscapeShader != NULL){
+                // normal map pbo
+                glGenBuffers(1, &normalsBufferId);
+                glBindBuffer(GL_PIXEL_UNPACK_BUFFER, normalsBufferId);
+                glBufferData(GL_PIXEL_UNPACK_BUFFER, 
+                             sizeof(GLfloat) * numberOfVertices * 3,
+                             normals, GL_STATIC_DRAW);
+
+                // Update the complete normal map texture with the pbo data
+                
+
+                glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+
                 // Geomorph values buffer object
                 glGenBuffers(1, &geomorphBufferId);
                 glBindBuffer(GL_ARRAY_BUFFER, geomorphBufferId);
                 glBufferData(GL_ARRAY_BUFFER, 
                              sizeof(GLfloat) * numberOfVertices * 3,
                              geomorphValues, GL_STATIC_DRAW);
+
+                // normal map Coord buffer object
+                glGenBuffers(1, &normalMapCoordBufferId);
+                glBindBuffer(GL_ARRAY_BUFFER, normalMapCoordBufferId);
+                glBufferData(GL_ARRAY_BUFFER, 
+                             sizeof(GLfloat) * numberOfVertices * TEXCOORDS,
+                             normalMapCoords, GL_STATIC_DRAW);
             }
 
             // Tex Coord buffer object
@@ -126,13 +158,6 @@ namespace OpenEngine {
             glBufferData(GL_ARRAY_BUFFER, 
                          sizeof(GLfloat) * numberOfVertices * TEXCOORDS,
                          texCoords, GL_STATIC_DRAW);
-
-            // Tex Coord buffer object
-            glGenBuffers(1, &normalMapCoordBufferId);
-            glBindBuffer(GL_ARRAY_BUFFER, normalMapCoordBufferId);
-            glBufferData(GL_ARRAY_BUFFER, 
-                         sizeof(GLfloat) * numberOfVertices * TEXCOORDS,
-                         normalMapCoords, GL_STATIC_DRAW);
 
             glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -144,6 +169,16 @@ namespace OpenEngine {
                          indices, GL_STATIC_DRAW);
             
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+            // Cleanup in ram
+            delete [] geomorphValues;
+            geomorphValues = NULL;
+            delete [] texCoords;
+            texCoords = NULL;
+            delete [] normalMapCoords;
+            normalMapCoords = NULL;
+            delete [] indices;
+            indices = NULL;
         }
         
         // **** Get/Set methods ****
@@ -180,10 +215,7 @@ namespace OpenEngine {
 
             // Update morphing height for all surrounding affected
             // vertices.
-            for (int i = GetVerticeLOD(index) - 1; i > 1; --i){
-                int delta = pow(2, i - 1);
-
-                //logger.info << "Neighbour offset " << delta << " for LOD " << i << logger.end;
+            for (int delta = GetVerticeDelta(index) / 2; delta > 1; delta /= 2){
 
                 if (0 <= x-delta){
                     index = CoordToIndex(x-delta, z);
@@ -308,9 +340,11 @@ namespace OpenEngine {
             numberOfVertices = width * depth;
 
             vertices = new float[numberOfVertices * DIMENSIONS];
+            normals = new float[numberOfVertices * 3];
             texCoords = new float[numberOfVertices * TEXCOORDS];
             normalMapCoords = new float[numberOfVertices * TEXCOORDS];
             geomorphValues = new float[numberOfVertices * 3];
+            deltaValues = new short[numberOfVertices];
 
             int numberOfCharsPrColor = tex->GetDepth() / 8;
             unsigned char* data = tex->GetData();
@@ -381,18 +415,17 @@ namespace OpenEngine {
                 for (int x = 0; x < depth; x += delta){
                     for (int z = 0; z < width; z += delta){
                         GetVerticeLOD(x, z) = LOD;
+                        GetVerticeDelta(x, z) = pow(2, LOD-1);
                     }
                 }
             }
         }
 
         float HeightFieldNode::CalcGeomorphHeight(int x, int z){
-            int LOD = (int)GetVerticeLOD(x, z);
-
-            int delta = pow(2, LOD-1);
+            short delta = GetVerticeDelta(x, z);
 
             int dx, dz;
-            if (LOD < HeightFieldPatchNode::MAX_LODS){
+            if (delta < HeightFieldPatchNode::MAX_DELTA){
                 dx = x % (delta * 2);
                 dz = z % (delta * 2);
             }else{
@@ -537,6 +570,15 @@ namespace OpenEngine {
 
         float& HeightFieldNode::GetVerticeLOD(int index) const{
             return (geomorphValues + index * 3)[2];
+        }
+
+        short& HeightFieldNode::GetVerticeDelta(int x, int z) const{
+            int index = CoordToIndex(x, z);
+            return GetVerticeDelta(index);
+        }
+
+        short& HeightFieldNode::GetVerticeDelta(int index) const{
+            return deltaValues[index];
         }
     }
 }

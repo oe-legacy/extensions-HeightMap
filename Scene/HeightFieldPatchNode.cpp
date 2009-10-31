@@ -34,6 +34,10 @@ namespace OpenEngine {
             SetupBoundingBox();
         }
 
+        HeightFieldPatchNode::~HeightFieldPatchNode(){
+            delete [] LODs;
+        }
+
         void HeightFieldPatchNode::CalcLOD(IViewingVolume* view){
             if (!view->IsVisible(boundingBox)){
                 visible = false;
