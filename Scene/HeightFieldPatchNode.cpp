@@ -11,6 +11,7 @@
 #include <Scene/HeightFieldNode.h>
 #include <Meta/OpenGL.h>
 #include <Display/IViewingVolume.h>
+#include <Logging/Logger.h>
 
 #include <math.h>
 
@@ -20,8 +21,9 @@ namespace OpenEngine {
     namespace Scene {
         
         HeightFieldPatchNode::HeightFieldPatchNode(int xStart, int zStart, HeightFieldNode* t)
-            : LOD(MAX_LODS-1), xStart(xStart), zStart(zStart), terrain(t){
-
+            : terrain(t), LOD(MAX_LODS-1), xStart(xStart), zStart(zStart),
+              upperNeighbour(NULL), rightNeighbour(NULL){
+            
             xEnd = xStart + PATCH_EDGE_VERTICES;
             zEnd = zStart + PATCH_EDGE_VERTICES;
             xEndMinusOne = xEnd - 1;
@@ -29,8 +31,6 @@ namespace OpenEngine {
 
             ComputeIndices();
             
-            rightNeighbour = upperNeighbour = NULL;
-
             SetupBoundingBox();
         }
 
@@ -38,6 +38,47 @@ namespace OpenEngine {
             delete [] LODs;
         }
 
+        void HeightFieldPatchNode::UpdateBoundingGeometry(float h){
+            if (h > max[1]){
+                // The vertex is above the box and the box should be
+                // updated to the new height.
+                max[1] = h;
+            }else if (h < max[1]){
+                // Otherwise if the height is below the box check if
+                // the roof of the box is still supported.
+                float tempHeight = h;
+                bool roofSupport = false;
+                for (int x = xStart; x < xEnd && !roofSupport; ++x){
+                    for (int z = zStart; z < zEnd && !roofSupport; ++z){
+                        float y = terrain->GetVertex(x, z)[1];
+                        roofSupport = y == max[1];
+                        if (y > tempHeight)
+                            tempHeight = y;
+                    }
+                }
+                max[1] = tempHeight;
+            }
+
+            if (h < min[1]){
+                min[1] = h;
+            }else if(h > min[1]){
+                float tempHeight = h;
+                bool floorSupport = false;
+                for (int x = xStart; x < xEnd && !floorSupport; ++x){
+                    for (int z = zStart; z < zEnd && !floorSupport; ++z){
+                        float y = terrain->GetVertex(x, z)[1];
+                        floorSupport = y == min[1];
+                        if (y < tempHeight)
+                            tempHeight = y;
+                    }
+                }
+                min[1] = tempHeight;
+            }
+
+            UpdateBoundingBox();
+            return;
+        }
+        
         void HeightFieldPatchNode::CalcLOD(IViewingVolume* view){
             if (!view->IsVisible(boundingBox)){
                 visible = false;
@@ -288,8 +329,8 @@ namespace OpenEngine {
         }
 
         void HeightFieldPatchNode::SetupBoundingBox(){
-            Vector<3, float> min = Vector<3, float>(terrain->GetVertex(xStart, zStart));
-            Vector<3, float> max = Vector<3, float>(terrain->GetVertex(xEnd-1, zEnd-1));
+            min = Vector<3, float>(terrain->GetVertex(xStart, zStart));
+            max = Vector<3, float>(terrain->GetVertex(xEnd-1, zEnd-1));
 
             for (int x = xStart; x < xEnd; ++x){
                 for (int z = zStart; z < zEnd; ++z){
@@ -299,9 +340,13 @@ namespace OpenEngine {
                 }
             }
 
+            UpdateBoundingBox();
+        }
+
+        void HeightFieldPatchNode::UpdateBoundingBox(){
             patchCenter = (min + max) / 2;
             boundingBox = Box(patchCenter, max - patchCenter);
-
+            
             patchCenter[1] = 0;
         }
 

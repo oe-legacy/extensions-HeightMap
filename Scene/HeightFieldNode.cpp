@@ -258,6 +258,14 @@ namespace OpenEngine {
             glBindBuffer(GL_ARRAY_BUFFER, 0);
 
             // Update bounding box
+            HeightFieldPatchNode* mainNode = GetPatch(x, z);
+            mainNode->UpdateBoundingGeometry(value);
+            HeightFieldPatchNode* upperNode = GetPatch(x+1, z);
+            if (upperNode != mainNode) upperNode->UpdateBoundingGeometry(value);
+            HeightFieldPatchNode* rightNode = GetPatch(x, z+1);
+            if (rightNode != mainNode) rightNode->UpdateBoundingGeometry(value);
+            HeightFieldPatchNode* upperRightNode = GetPatch(x+1, z+1);
+            if (upperRightNode != mainNode) upperRightNode->UpdateBoundingGeometry(value);
 
             // Update shadows
             glBindBuffer(GL_PIXEL_UNPACK_BUFFER, normalsBufferId);
@@ -596,59 +604,71 @@ namespace OpenEngine {
             }
         }
         
-        int HeightFieldNode::CoordToIndex(int x, int z) const{
+        int HeightFieldNode::CoordToIndex(const int x, const int z) const{
             return z + x * width;
         }
         
-        float* HeightFieldNode::GetVertice(int x, int z) const{
+        float* HeightFieldNode::GetVertice(const int x, const int z) const{
             int index = CoordToIndex(x, z);
             return GetVertice(index);
         }
 
-        float* HeightFieldNode::GetVertice(int index) const{
+        float* HeightFieldNode::GetVertice(const int index) const{
             return vertices + index * DIMENSIONS;
         }
         
-        float* HeightFieldNode::GetNormals(int x, int z) const{
+        float* HeightFieldNode::GetNormals(const int x, const int z) const{
             int index = CoordToIndex(x, z);
             return GetNormals(index);
         }
 
-        float* HeightFieldNode::GetNormals(int index) const{
+        float* HeightFieldNode::GetNormals(const int index) const{
             return normals + index * 3;
         }
 
-        float* HeightFieldNode::GetTexCoord(int x, int z) const{
+        float* HeightFieldNode::GetTexCoord(const int x, const int z) const{
             int index = CoordToIndex(x, z);
             return texCoords + index * TEXCOORDS;
         }
 
-        float* HeightFieldNode::GetNormalMapCoord(int x, int z) const{
+        float* HeightFieldNode::GetNormalMapCoord(const int x, const int z) const{
             int index = CoordToIndex(x, z);
             return normalMapCoords + index * TEXCOORDS;
         }
 
-        float* HeightFieldNode::GetGeomorphValues(int x, int z) const{
+        float* HeightFieldNode::GetGeomorphValues(const int x, const int z) const{
             int index = CoordToIndex(x, z);
             return geomorphValues + index * 3;
         }
 
-        float& HeightFieldNode::GetVerticeLOD(int x, int z) const{
+        float& HeightFieldNode::GetVerticeLOD(const int x, const int z) const{
             int index = CoordToIndex(x, z);
             return GetVerticeLOD(index);
         }
 
-        float& HeightFieldNode::GetVerticeLOD(int index) const{
+        float& HeightFieldNode::GetVerticeLOD(const int index) const{
             return (geomorphValues + index * 3)[2];
         }
 
-        short& HeightFieldNode::GetVerticeDelta(int x, int z) const{
+        short& HeightFieldNode::GetVerticeDelta(const int x, const int z) const{
             int index = CoordToIndex(x, z);
             return GetVerticeDelta(index);
         }
 
-        short& HeightFieldNode::GetVerticeDelta(int index) const{
+        short& HeightFieldNode::GetVerticeDelta(const int index) const{
             return deltaValues[index];
         }
+
+        int HeightFieldNode::GetPatchIndex(const int x, const int z) const{
+            int patchX = (x-1) / HeightFieldPatchNode::PATCH_EDGE_SQUARES;
+            int patchZ = (z-1) / HeightFieldPatchNode::PATCH_EDGE_SQUARES;
+            return patchZ + patchX * patchGridWidth;
+        }
+
+        HeightFieldPatchNode* HeightFieldNode::GetPatch(const int x, const int z) const{
+            int index = GetPatchIndex(x, z);
+            return patchNodes[index];
+        }
+
     }
 }

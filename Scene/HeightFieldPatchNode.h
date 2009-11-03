@@ -41,14 +41,16 @@ namespace OpenEngine {
             enum LODrelation { LOWER = 0, SAME = 1, HIGHER = 2 };
             
         private:
+            HeightFieldNode* terrain;
+
             int LOD;
             float geomorphingScale;
             bool visible;
             
-            int xStart, xEnd, zStart, zEnd, xEndMinusOne, zEndMinusOne;
+            int xStart, zStart, xEnd, zEnd, xEndMinusOne, zEndMinusOne;
             Vector<3, float> patchCenter;
             Geometry::Box boundingBox;
-            HeightFieldNode* terrain;
+            Vector<3, float> min, max;
 
             LODstruct LODs[MAX_LODS][3][3];
 
@@ -62,6 +64,8 @@ namespace OpenEngine {
             HeightFieldPatchNode() {}
             HeightFieldPatchNode(int xStart, int zStart, HeightFieldNode* t);
             ~HeightFieldPatchNode();
+
+            void UpdateBoundingGeometry(float height);
 
             // Render functions
             void CalcLOD(Display::IViewingVolume* view);
@@ -85,6 +89,7 @@ namespace OpenEngine {
             inline unsigned int* ComputeUpperStichingIndices(int& indices, int LOD, LODrelation upperLOD);
 
             inline void SetupBoundingBox();
+            inline void UpdateBoundingBox();
         };
         
     }

@@ -159,18 +159,20 @@ namespace OpenEngine {
             inline void ComputeIndices();
             inline void SetupPatches();
 
-            inline int CoordToIndex(int x, int z) const;
-            inline float* GetVertice(int x, int z) const;
-            inline float* GetVertice(int index) const;
-            inline float* GetNormals(int x, int z) const;
-            inline float* GetNormals(int index) const;
-            inline float* GetTexCoord(int x, int z) const;
-            inline float* GetNormalMapCoord(int x, int z) const;
-            inline float* GetGeomorphValues(int x, int z) const;
-            inline float& GetVerticeLOD(int x, int z) const;
-            inline float& GetVerticeLOD(int index) const;
-            inline short& GetVerticeDelta(int x, int z) const;
-            inline short& GetVerticeDelta(int index) const;
+            inline int CoordToIndex(const int x, const int z) const;
+            inline float* GetVertice(const int x, const int z) const;
+            inline float* GetVertice(const int index) const;
+            inline float* GetNormals(const int x, const int z) const;
+            inline float* GetNormals(const int index) const;
+            inline float* GetTexCoord(const int x, const int z) const;
+            inline float* GetNormalMapCoord(const int x, const int z) const;
+            inline float* GetGeomorphValues(const int x, const int z) const;
+            inline float& GetVerticeLOD(const int x, const int z) const;
+            inline float& GetVerticeLOD(const int index) const;
+            inline short& GetVerticeDelta(const int x, const int z) const;
+            inline short& GetVerticeDelta(const int index) const;
+            inline int GetPatchIndex(const int x, const int z) const;
+            inline HeightFieldPatchNode* GetPatch(const int x, const int z) const;
         };
     }
 } 
