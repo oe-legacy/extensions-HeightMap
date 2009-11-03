@@ -407,16 +407,6 @@ namespace OpenEngine {
             int numberOfCharsPrColor = tex->GetDepth() / 8;
             unsigned char* data = tex->GetData();
 
-            /*
-            for (int x = 0; x < 100; ++x){
-                for (int z = 0; z < 100; ++z){
-                    int i = (x + z * texWidth) * numberOfCharsPrColor;
-                    logger.info << (int) data[i];
-                }
-                logger.info << logger.end;
-            }
-            */
-
             // Fill the vertex array
             int d = numberOfCharsPrColor - 1;
             for (int x = 0; x < depth; ++x){
@@ -439,16 +429,6 @@ namespace OpenEngine {
                 }
             }
             
-            /*            
-            for (int x = 0; x < 100; ++x){
-                for (int z = 0; z < 100; ++z){
-                    float* v = GetVertice(x, z);
-                    logger.info << v[1] << " ";
-                }
-                logger.info << logger.end;
-            }
-            */
-
             SetupNormalMap();
             SetupTerrainTexture();
 
