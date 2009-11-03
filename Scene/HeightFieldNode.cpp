@@ -14,6 +14,7 @@
 #include <Logging/Logger.h>
 #include <Utils/TerrainUtils.h>
 #include <Renderers/OpenGL/TextureLoader.h>
+#include <Resources/OpenGLTextureResource.h>
 
 #include <algorithm>
 
@@ -91,7 +92,72 @@ namespace OpenEngine {
         void HeightFieldNode::Handle(RenderingEventArg arg){
             Load();
 
+            // Create vbos
+
+            // Vertice buffer object
+            glGenBuffers(1, &verticeBufferId);
+            glBindBuffer(GL_ARRAY_BUFFER, verticeBufferId);
+            glBufferData(GL_ARRAY_BUFFER, 
+                         sizeof(GLfloat) * numberOfVertices * DIMENSIONS,
+                         vertices, GL_STATIC_DRAW);
+            
+            // Tex Coord buffer object
+            glGenBuffers(1, &texCoordBufferId);
+            glBindBuffer(GL_ARRAY_BUFFER, texCoordBufferId);
+            glBufferData(GL_ARRAY_BUFFER, 
+                         sizeof(GLfloat) * numberOfVertices * TEXCOORDS,
+                         texCoords, GL_STATIC_DRAW);
+
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+            // Create indice buffer
+            glGenBuffers(1, &indiceId);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indiceId);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                         sizeof(GLuint) * numberOfIndices,
+                         indices, GL_STATIC_DRAW);
+            
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
             if (landscapeShader != NULL) {
+                // Init shader used buffer objects
+
+                // normal map pbo
+                glGenBuffers(1, &normalsBufferId);
+                glBindBuffer(GL_PIXEL_UNPACK_BUFFER, normalsBufferId);
+                glBufferData(GL_PIXEL_UNPACK_BUFFER, 
+                             sizeof(GLfloat) * numberOfVertices * 3,
+                             normals, GL_STATIC_DRAW);
+
+                // Create the image to hold the normal map
+                unsigned int normalTexId;
+                glGenTextures(1, &normalTexId);
+                glBindTexture(GL_TEXTURE_2D, normalTexId);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S, GL_REPEAT);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T, GL_REPEAT);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, depth, width, 0, GL_RGB, GL_FLOAT, NULL);
+
+                glBindTexture(GL_TEXTURE_2D, 0);
+                glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+
+                normalmap = ITextureResourcePtr(new OpenGLTextureResource(normalTexId, depth, width, 24));
+
+                // Geomorph values buffer object
+                glGenBuffers(1, &geomorphBufferId);
+                glBindBuffer(GL_ARRAY_BUFFER, geomorphBufferId);
+                glBufferData(GL_ARRAY_BUFFER, 
+                             sizeof(GLfloat) * numberOfVertices * 3,
+                             geomorphValues, GL_STATIC_DRAW);                
+
+                // normal map Coord buffer object
+                glGenBuffers(1, &normalMapCoordBufferId);
+                glBindBuffer(GL_ARRAY_BUFFER, normalMapCoordBufferId);
+                glBufferData(GL_ARRAY_BUFFER, 
+                             sizeof(GLfloat) * numberOfVertices * TEXCOORDS,
+                             normalMapCoords, GL_STATIC_DRAW);
+
                 landscapeShader->Load();
                 TextureList texs = landscapeShader->GetTextures();
                 for (unsigned int i = 0; i < texs.size(); ++i)
@@ -114,61 +180,6 @@ namespace OpenEngine {
             }
             
             SetLODSwitchDistance(baseDistance, 1 / invIncDistance);
-
-            // Create vbos
-
-            // Vertice buffer object
-            glGenBuffers(1, &verticeBufferId);
-            glBindBuffer(GL_ARRAY_BUFFER, verticeBufferId);
-            glBufferData(GL_ARRAY_BUFFER, 
-                         sizeof(GLfloat) * numberOfVertices * DIMENSIONS,
-                         vertices, GL_STATIC_DRAW);
-            
-            if (landscapeShader != NULL){
-                // normal map pbo
-                glGenBuffers(1, &normalsBufferId);
-                glBindBuffer(GL_PIXEL_UNPACK_BUFFER, normalsBufferId);
-                glBufferData(GL_PIXEL_UNPACK_BUFFER, 
-                             sizeof(GLfloat) * numberOfVertices * 3,
-                             normals, GL_STATIC_DRAW);
-
-                // Update the complete normal map texture with the pbo data
-                
-
-                glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-
-                // Geomorph values buffer object
-                glGenBuffers(1, &geomorphBufferId);
-                glBindBuffer(GL_ARRAY_BUFFER, geomorphBufferId);
-                glBufferData(GL_ARRAY_BUFFER, 
-                             sizeof(GLfloat) * numberOfVertices * 3,
-                             geomorphValues, GL_STATIC_DRAW);
-
-                // normal map Coord buffer object
-                glGenBuffers(1, &normalMapCoordBufferId);
-                glBindBuffer(GL_ARRAY_BUFFER, normalMapCoordBufferId);
-                glBufferData(GL_ARRAY_BUFFER, 
-                             sizeof(GLfloat) * numberOfVertices * TEXCOORDS,
-                             normalMapCoords, GL_STATIC_DRAW);
-            }
-
-            // Tex Coord buffer object
-            glGenBuffers(1, &texCoordBufferId);
-            glBindBuffer(GL_ARRAY_BUFFER, texCoordBufferId);
-            glBufferData(GL_ARRAY_BUFFER, 
-                         sizeof(GLfloat) * numberOfVertices * TEXCOORDS,
-                         texCoords, GL_STATIC_DRAW);
-
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-            // Create indice buffer
-            glGenBuffers(1, &indiceId);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indiceId);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                         sizeof(GLuint) * numberOfIndices,
-                         indices, GL_STATIC_DRAW);
-            
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
             // Cleanup in ram
             delete [] geomorphValues;
@@ -201,8 +212,6 @@ namespace OpenEngine {
         }
 
         void HeightFieldNode::SetVertex(int x, int z, float value){
-            //logger.info << "Now setting height at (" << x << ", " << z << ") to " << value << logger.end;
-
             glBindBuffer(GL_ARRAY_BUFFER, verticeBufferId);
             float* vbo = (float*) glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 
@@ -211,18 +220,15 @@ namespace OpenEngine {
             vbo[index * DIMENSIONS + 1] = GetVertice(index)[1] = value;
             vbo[index * DIMENSIONS + 3] = GetVertice(index)[3] = CalcGeomorphHeight(x, z);
 
-            //logger.info << "LOD is " << GetVerticeLOD(index) << " at index " << index << logger.end;
-
             // Update morphing height for all surrounding affected
             // vertices.
-            for (int delta = GetVerticeDelta(index) / 2; delta > 1; delta /= 2){
-
+            for (int delta = GetVerticeDelta(index) / 2; delta >= 1; delta /= 2){
                 if (0 <= x-delta){
                     index = CoordToIndex(x-delta, z);
                     vbo[index * DIMENSIONS + 3] = GetVertice(index)[3] = CalcGeomorphHeight(x-delta, z);
                 }
                 
-                if (x-delta < depth){
+                if (x+delta < depth){
                     index = CoordToIndex(x+delta, z);
                     vbo[index * DIMENSIONS + 3] = GetVertice(index)[3] = CalcGeomorphHeight(x+delta, z);
                 }
@@ -232,23 +238,75 @@ namespace OpenEngine {
                     vbo[index * DIMENSIONS + 3] = GetVertice(index)[3] = CalcGeomorphHeight(x, z-delta);
                 }
 
-                if (z-delta < width){
+                if (z+delta < width){
                     index = CoordToIndex(x, z+delta);
                     vbo[index * DIMENSIONS + 3] = GetVertice(index)[3] = CalcGeomorphHeight(x, z+delta);
+                }
+
+                if (0 <= x-delta && 0 <= z-delta){
+                    index = CoordToIndex(x-delta, z-delta);
+                    vbo[index * DIMENSIONS + 3] = GetVertice(index)[3] = CalcGeomorphHeight(x-delta, z-delta);
+                }
+
+                if (x+delta < depth && z+delta < width){
+                    index = CoordToIndex(x+delta, z+delta);
+                    vbo[index * DIMENSIONS + 3] = GetVertice(index)[3] = CalcGeomorphHeight(x+delta, z+delta);
                 }
             }
 
             glUnmapBuffer(GL_ARRAY_BUFFER);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+            // Update bounding box
 
             // Update shadows
-            /*
-            glBindBuffer(GL_ARRAY_BUFFER, shadowBufferId);
-            float* pbo = (float*) glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+            glBindBuffer(GL_PIXEL_UNPACK_BUFFER, normalsBufferId);
+            glBindTexture(GL_TEXTURE_2D, normalmap->GetID());
+            float* pbo = (float*) glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
+            
+            index = CoordToIndex(x, z);
+            Vector<3, float> normal = (GetNormal(x, z) + 1) / 2;
+            normal.ToArray(GetNormals(x, z));
+            normal.ToArray(pbo + index * 3);
 
-            glUnmapBuffer(GL_ARRAY_BUFFER);
-            */
+            // fix lower
+            if (0 < x){
+                index = CoordToIndex(x-1, z);
+                normal = (GetNormal(x-1, z) + 1) / 2;
+                normal.ToArray(GetNormals(x-1, z));
+                normal.ToArray(pbo + index * 3);
+            }
 
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            // fix upper
+            if (x + 1 < depth){
+                index = CoordToIndex(x+1, z);
+                normal = (GetNormal(x+1, z) + 1) / 2;
+                normal.ToArray(GetNormals(x+1, z));
+                normal.ToArray(pbo + index * 3);
+            }
+
+            // fix left 
+            if (0 < z){
+                index = CoordToIndex(x, z-1);
+                normal = (GetNormal(x, z-1) + 1) / 2;
+                normal.ToArray(GetNormals(x, z-1));
+                normal.ToArray(pbo + index * 3);
+            }
+
+            // fix right
+            if (z + 1 < width){
+                index = CoordToIndex(x, z+1);
+                normal = (GetNormal(x, z+1) + 1) / 2;
+                normal.ToArray(GetNormals(x, z+1));
+                normal.ToArray(pbo + index * 3);
+            }
+
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, depth, width, GL_RGB, GL_FLOAT, 0);
+
+            glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+
         }
 
         Vector<3, float> HeightFieldNode::GetNormal(int x, int z){
@@ -349,6 +407,16 @@ namespace OpenEngine {
             int numberOfCharsPrColor = tex->GetDepth() / 8;
             unsigned char* data = tex->GetData();
 
+            /*
+            for (int x = 0; x < 100; ++x){
+                for (int z = 0; z < 100; ++z){
+                    int i = (x + z * texWidth) * numberOfCharsPrColor;
+                    logger.info << (int) data[i];
+                }
+                logger.info << logger.end;
+            }
+            */
+
             // Fill the vertex array
             int d = numberOfCharsPrColor - 1;
             for (int x = 0; x < depth; ++x){
@@ -365,12 +433,22 @@ namespace OpenEngine {
                         d += numberOfCharsPrColor;
                         vertice[1] = height * heightScale - waterlevel - heightScale / 2;
                     }else{
-                        // outside the heightmap, set height to 0
-                        vertice[1] = -waterlevel;
+                        // outside the heightmap, set height to waterlevel
+                        vertice[1] = -waterlevel - heightScale / 2;
                     }
                 }
             }
             
+            /*            
+            for (int x = 0; x < 100; ++x){
+                for (int z = 0; z < 100; ++z){
+                    float* v = GetVertice(x, z);
+                    logger.info << v[1] << " ";
+                }
+                logger.info << logger.end;
+            }
+            */
+
             SetupNormalMap();
             SetupTerrainTexture();
 
@@ -386,12 +464,13 @@ namespace OpenEngine {
         }
 
         void HeightFieldNode::SetupNormalMap(){
-            normalmap = Utils::CreateNormalMap(this);
             for (int x = 0; x < depth; ++x)
                 for (int z = 0; z < width; ++z){
                     float* coord = GetNormalMapCoord(x, z);
                     coord[1] = x / (float) depth-1;
                     coord[0] = z / (float) width-1;
+                    Vector<3, float> normal = (GetNormal(x, z) + 1) / 2;
+                    normal.ToArray(GetNormals(x, z));
                 }
         }
 
@@ -548,6 +627,15 @@ namespace OpenEngine {
             return vertices + index * DIMENSIONS;
         }
         
+        float* HeightFieldNode::GetNormals(int x, int z) const{
+            int index = CoordToIndex(x, z);
+            return GetNormals(index);
+        }
+
+        float* HeightFieldNode::GetNormals(int index) const{
+            return normals + index * 3;
+        }
+
         float* HeightFieldNode::GetTexCoord(int x, int z) const{
             int index = CoordToIndex(x, z);
             return texCoords + index * TEXCOORDS;

@@ -116,6 +116,7 @@ namespace OpenEngine {
             // *** Get/Set methods ***
 
             unsigned int GetVerticeBufferID() const { return verticeBufferId; }
+            ITextureResourcePtr GetNormalMapID() const { return normalmap; }
             unsigned int GetGeomorphBufferID() const { return geomorphBufferId; }
             unsigned int GetTexCoordBufferID() const { return texCoordBufferId; }
             unsigned int GetNormalMapCoordBufferID() const { return normalMapCoordBufferId; }
@@ -161,6 +162,8 @@ namespace OpenEngine {
             inline int CoordToIndex(int x, int z) const;
             inline float* GetVertice(int x, int z) const;
             inline float* GetVertice(int index) const;
+            inline float* GetNormals(int x, int z) const;
+            inline float* GetNormals(int index) const;
             inline float* GetTexCoord(int x, int z) const;
             inline float* GetNormalMapCoord(int x, int z) const;
             inline float* GetGeomorphValues(int x, int z) const;
