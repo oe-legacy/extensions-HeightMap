@@ -34,9 +34,10 @@ namespace OpenEngine {
             unsigned char* GetData() { throw Exception("Cannot extract data from OpenGL."); }
             ColorFormat GetColorFormat() { 
                 switch (depth){
-                case 8: return LUMINANCE; break;
-                case 24: return RGB; break;
-                case 32: return RGBA; break;
+                case 8: return LUMINANCE;
+                case 24: return RGB;
+                    //case 32: return RGBA;
+                default: return RGBA;
                 }
             }
         };

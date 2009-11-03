@@ -22,15 +22,9 @@ namespace OpenEngine {
             unsigned int depth;
             unsigned char* data;
             int id;
-            ColorFormat format;
         public:
             EmptyTextureResource(unsigned int w, unsigned int h, unsigned int d) 
-                : width(w), height(h), depth(d), data(NULL), id(0) {
-                switch (depth){
-                case 8: format = LUMINANCE; break;
-                case 24: format = RGB; break;
-                case 32: format = RGBA; break;
-                }
+                : width(w), height(h), depth(d), data(NULL), id(0) {                
             }
 
             ~EmptyTextureResource() { delete data; }
@@ -42,7 +36,14 @@ namespace OpenEngine {
             unsigned int GetHeight() { return height; }
             unsigned int GetDepth() { return depth; }
             unsigned char* GetData() { return data; }
-            ColorFormat GetColorFormat() { return format; }
+            ColorFormat GetColorFormat() { 
+                switch (depth){
+                case 8: return LUMINANCE;
+                case 24: return RGB;
+                    //case 32: return RGBA;
+                default: return RGBA;
+                }
+            }
         };
     }
 }
