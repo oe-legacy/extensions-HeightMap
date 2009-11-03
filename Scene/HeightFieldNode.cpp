@@ -447,8 +447,10 @@ namespace OpenEngine {
             for (int x = 0; x < depth; ++x)
                 for (int z = 0; z < width; ++z){
                     float* coord = GetNormalMapCoord(x, z);
-                    coord[1] = x / (float) depth-1;
-                    coord[0] = z / (float) width-1;
+                    //coord[1] = x / (float) (depth-1);
+                    //coord[0] = z / (float) (width-1);
+                    coord[1] = (x + 0.5f) / (float) depth;
+                    coord[0] = (z + 0.5f) / (float) width;
                     Vector<3, float> normal = (GetNormal(x, z) + 1) / 2;
                     normal.ToArray(GetNormals(x, z));
                 }
