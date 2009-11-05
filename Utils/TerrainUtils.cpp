@@ -119,34 +119,6 @@ namespace OpenEngine {
             
         }
 
-        ITextureResourcePtr CreateNormalMap(Scene::HeightFieldNode* terrain){
-            const int DIMENSIONS = 3;
-
-            int depth = terrain->GetVerticeDepth();
-            int width = terrain->GetVerticeWidth();
-            
-            ITextureResourcePtr normalTex = ITextureResourcePtr(new EmptyTextureResource(depth, width, 24));
-            normalTex->Load();
-            
-            unsigned char* normalData = normalTex->GetData();
-            
-            for (int x = 0; x < depth; ++x){
-                for (int z = 0; z < width; ++z) {
-
-                    int index = (z + x * width) * DIMENSIONS;
-
-                    Vector<3, float> normal = terrain->GetNormal(x, z);
-                    normal = (normal + 1) * 0.5f;
-
-                    normalData[index] = (unsigned char) (255 * normal[0]);
-                    normalData[index+1] = (unsigned char) (255 * normal[1]);
-                    normalData[index+2] = (unsigned char) (255 * normal[2]);
-                }
-            }
-
-            return normalTex;
-        }
-
         void SmoothTerrain(HeightFieldNode* heightfield, float persistence){
             int depth = heightfield->GetVerticeDepth();
             int width = heightfield->GetVerticeWidth();
