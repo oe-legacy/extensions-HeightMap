@@ -6,8 +6,6 @@ ADD_LIBRARY( ${EXTENSION_NAME}
   Renderers/OpenGL/TerrainRenderingView.cpp
   Scene/HeightFieldNode.cpp
   Scene/HeightFieldPatchNode.cpp
-  Scene/LandscapeNode.cpp
-  Scene/LandscapePatchNode.cpp
   Scene/SunNode.cpp
   Scene/WaterNode.cpp
   Utils/TerrainUtils.cpp

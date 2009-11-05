@@ -8,7 +8,6 @@
 //--------------------------------------------------------------------
 
 #include "TerrainRenderingView.h"
-#include <Scene/LandscapeNode.h>
 #include <Scene/HeightFieldNode.h>
 #include <Scene/SunNode.h>
 #include <Scene/WaterNode.h>
@@ -24,60 +23,6 @@ namespace OpenEngine {
             TerrainRenderingView::TerrainRenderingView(Viewport& viewport) : 
                 IRenderingView(viewport), 
                 RenderingView(viewport) {
-            }
-            
-            void TerrainRenderingView::VisitLandscapeNode(LandscapeNode* node) {
-                node->CalcLOD(viewport.GetViewingVolume());
-
-                // Then do opengl stuff
-                glEnable(GL_CULL_FACE);
-
-                glEnableClientState(GL_VERTEX_ARRAY);
-                glVertexPointer(3, GL_FLOAT, 0, node->GetVerticeArray());
-                
-                glEnableClientState(GL_NORMAL_ARRAY);
-                glNormalPointer(GL_FLOAT, 0, node->GetNormalArray());
-                
-                SunNode* sun = node->GetSun();
-                if (sun){
-                    glLightfv(GL_LIGHT0, GL_POSITION, sun->GetPos());
-                    float color[4];
-                    sun->GetAmbient().ToArray(color);
-                    glLightfv(GL_LIGHT0, GL_AMBIENT, color);
-                    sun->GetDiffuse().ToArray(color);
-                    glLightfv(GL_LIGHT0, GL_DIFFUSE, color);
-                }
-
-                IShaderResourcePtr shader = node->GetLandscapeShader();
-                if (shader){
-                    shader->ApplyShader();
-                    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                    glTexCoordPointer(2, GL_FLOAT, 0, node->GetTextureCoordArray());
-                }else{
-                    glEnableClientState(GL_COLOR_ARRAY);
-                    glColorPointer(3, GL_UNSIGNED_BYTE, 0, node->GetColorArray());
-                }
-
-                node->VisitSubNodes(*this);
-
-                glDisableClientState(GL_VERTEX_ARRAY);
-                glDisableClientState(GL_NORMAL_ARRAY);
-                if (shader){
-                    shader->ReleaseShader();
-                    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-                }else{
-                    glDisableClientState(GL_COLOR_ARRAY);
-                }
-                glDisable(GL_CULL_FACE);
-
-                if (renderSoftNormal)
-                    node->RenderNormals();
-            }
-
-            void TerrainRenderingView::VisitLandscapePatchNode(LandscapePatchNode* node) {
-                node->Render();
-
-                //node->RenderBoundingGeometry();
             }
 
             void TerrainRenderingView::VisitHeightFieldNode(HeightFieldNode* node) {

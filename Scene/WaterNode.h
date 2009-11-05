@@ -13,9 +13,9 @@
 #include <Scene/ISceneNode.h>
 #include <Core/IListener.h>
 #include <Renderers/IRenderer.h>
-#include <Scene/LandscapeNode.h>
 #include <Resources/IShaderResource.h>
 #include <Resources/ITextureResource.h>
+#include <Meta/OpenGL.h>
 
 using namespace OpenEngine::Resources;
 using namespace OpenEngine::Core;
