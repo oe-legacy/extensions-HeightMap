@@ -118,7 +118,7 @@ namespace OpenEngine {
 
                     // Setup uniforms
                     float* dir = sun->GetPos();
-                    shader->SetUniform("lightDir", Vector<3, float>(dir[0], dir[1], dir[2]));
+                    shader->SetUniform("lightDir", Vector<3, float>(dir[0], dir[1], dir[2]).GetNormalize());
 
                     shader->SetUniform("viewPos", viewport.GetViewingVolume()->GetPosition());
                 }
