@@ -127,8 +127,6 @@ namespace OpenEngine {
 
                 node->Render();
 
-                //node->VisitSubNodes(*this);
-
                 glDisableClientState(GL_VERTEX_ARRAY);
                 glDisableClientState(GL_NORMAL_ARRAY);
                 if (shader){
@@ -145,6 +143,8 @@ namespace OpenEngine {
 
                 if (renderTangent)
                     node->RenderBoundingGeometry();
+
+                node->VisitSubNodes(*this);
             }
 
             void TerrainRenderingView::VisitSunNode(SunNode* node) {
@@ -222,7 +222,7 @@ namespace OpenEngine {
                     glDrawArrays(GL_TRIANGLE_FAN, 0, 26);
 
                     glEnable(GL_BLEND);
-                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);                    
+                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
                     shader->ApplyShader();
 
