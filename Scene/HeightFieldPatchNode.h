@@ -80,7 +80,8 @@ namespace OpenEngine {
             void SetRightNeighbor(HeightFieldPatchNode* r) {rightNeighbour = r; }
             int GetLOD() const { return LOD; }
             float GetGeomorphingScale() const { return geomorphingScale; }
-            LODstruct& GetLod(int lod, int rightlod, int upperlod) { return (LODs[lod][rightlod][upperlod]); }
+            LODstruct& GetLodStruct(int lod, int rightlod, int upperlod) { return (LODs[lod][rightlod][upperlod]); }
+            Vector<3, float> GetCenter() const { return patchCenter; }
 
         protected:
             inline void ComputeIndices();

@@ -119,7 +119,7 @@ namespace OpenEngine {
         void HeightFieldPatchNode::RenderBoundingGeometry(){
             glBegin(GL_LINES);
             Vector<3, float> center = boundingBox.GetCenter();
-            glColor3f(center[0], center[1], center[2]);
+            glColor3f(0, 1, 0);
 
             for (int i = 0; i < 8; ++i){
                 Vector<3, float> ic = boundingBox.GetCorner(i);

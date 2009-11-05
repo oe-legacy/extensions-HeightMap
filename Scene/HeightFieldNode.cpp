@@ -201,13 +201,13 @@ namespace OpenEngine {
         float* HeightFieldNode::GetVertex(int x, int z){
             if (x < 0)
                 x = 0;
-            else if (x >= depth)
-                x = depth - 1;
+            else if (x >= width)
+                x = width - 1;
 
             if (z < 0)
                 z = 0;
-            else if (z >= width)
-                z = width - 1;
+            else if (z >= depth)
+                z = depth - 1;
             return GetVertice(x, z);
         }
 
@@ -228,7 +228,7 @@ namespace OpenEngine {
                     vbo[index * DIMENSIONS + 3] = GetVertice(index)[3] = CalcGeomorphHeight(x-delta, z);
                 }
                 
-                if (x+delta < depth){
+                if (x+delta < width){
                     index = CoordToIndex(x+delta, z);
                     vbo[index * DIMENSIONS + 3] = GetVertice(index)[3] = CalcGeomorphHeight(x+delta, z);
                 }
@@ -238,7 +238,7 @@ namespace OpenEngine {
                     vbo[index * DIMENSIONS + 3] = GetVertice(index)[3] = CalcGeomorphHeight(x, z-delta);
                 }
 
-                if (z+delta < width){
+                if (z+delta < depth){
                     index = CoordToIndex(x, z+delta);
                     vbo[index * DIMENSIONS + 3] = GetVertice(index)[3] = CalcGeomorphHeight(x, z+delta);
                 }
@@ -248,7 +248,7 @@ namespace OpenEngine {
                     vbo[index * DIMENSIONS + 3] = GetVertice(index)[3] = CalcGeomorphHeight(x-delta, z-delta);
                 }
 
-                if (x+delta < depth && z+delta < width){
+                if (x+delta < width && z+delta < depth){
                     index = CoordToIndex(x+delta, z+delta);
                     vbo[index * DIMENSIONS + 3] = GetVertice(index)[3] = CalcGeomorphHeight(x+delta, z+delta);
                 }
@@ -286,7 +286,7 @@ namespace OpenEngine {
             }
 
             // fix upper
-            if (x + 1 < depth){
+            if (x + 1 < width){
                 index = CoordToIndex(x+1, z);
                 normal = (GetNormal(x+1, z) + 1) / 2;
                 normal.ToArray(GetNormals(x+1, z));
@@ -302,14 +302,14 @@ namespace OpenEngine {
             }
 
             // fix right
-            if (z + 1 < width){
+            if (z + 1 < depth){
                 index = CoordToIndex(x, z+1);
                 normal = (GetNormal(x, z+1) + 1) / 2;
                 normal.ToArray(GetNormals(x, z+1));
                 normal.ToArray(pbo + index * 3);
             }
 
-            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, depth, width, GL_RGB, GL_FLOAT, 0);
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, depth, GL_RGB, GL_FLOAT, 0);
 
             glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
             glBindTexture(GL_TEXTURE_2D, 0);
@@ -323,7 +323,7 @@ namespace OpenEngine {
             float vHeight = GetVertice(x, z)[1];
 
             // Right vertex
-            if (x + 1 < depth){
+            if (x + 1 < width){
                 float wHeight = GetVertice(x + 1, z)[1];
                 normal[0] += vHeight - wHeight;
                 normal[1] += widthScale;
@@ -337,7 +337,7 @@ namespace OpenEngine {
             }
 
             // upper vertex
-            if (z + 1 < width){
+            if (z + 1 < depth){
                 float wHeight = GetVertice(x, z + 1)[1];
                 normal[2] += vHeight - wHeight;
                 normal[1] += widthScale;
@@ -392,8 +392,8 @@ namespace OpenEngine {
         // **** inline functions ****
 
         void HeightFieldNode::InitArrays(){
-            int texWidth = tex->GetWidth();
-            int texDepth = tex->GetHeight();
+            int texWidth = tex->GetHeight();
+            int texDepth = tex->GetWidth();
 
             // if texwidth/depth isn't expressible as n * patchwidth + 1 fix it.
             int patchWidth = HeightFieldPatchNode::PATCH_EDGE_SQUARES;
@@ -417,15 +417,15 @@ namespace OpenEngine {
 
             // Fill the vertex array
             int d = numberOfCharsPrColor - 1;
-            for (int x = 0; x < depth; ++x){
-                for (int z = 0; z < width; ++z){
+            for (int x = 0; x < width; ++x){
+                for (int z = 0; z < depth; ++z){
                     float* vertice = GetVertice(x, z);
                      
                     vertice[0] = widthScale * x;
                     vertice[2] = widthScale * z;
                     vertice[3] = 1;
        
-                    if (x < texDepth && z < texWidth){
+                    if (x < texWidth && z < texDepth){
                         // inside the heightmap
                         float height = (float)data[d];
                         d += numberOfCharsPrColor;
@@ -442,8 +442,8 @@ namespace OpenEngine {
 
             if (landscapeShader != NULL)
                 CalcVerticeLOD();
-                for (int x = 0; x < depth; ++x)
-                    for (int z = 0; z < width; ++z){
+                for (int x = 0; x < width; ++x)
+                    for (int z = 0; z < depth; ++z){
                         // Store the morphing value in the w-coord to
                         // use in the shader.
                         float* vertice = GetVertice(x, z);
@@ -452,21 +452,19 @@ namespace OpenEngine {
         }
 
         void HeightFieldNode::SetupNormalMap(){
-            for (int x = 0; x < depth; ++x)
-                for (int z = 0; z < width; ++z){
+            for (int x = 0; x < width; ++x)
+                for (int z = 0; z < depth; ++z){
                     float* coord = GetNormalMapCoord(x, z);
-                    //coord[1] = x / (float) (depth-1);
-                    //coord[0] = z / (float) (width-1);
-                    coord[1] = (x + 0.5f) / (float) depth;
-                    coord[0] = (z + 0.5f) / (float) width;
+                    coord[1] = (x + 0.5f) / (float) width;
+                    coord[0] = (z + 0.5f) / (float) depth;
                     Vector<3, float> normal = (GetNormal(x, z) + 1) / 2;
                     normal.ToArray(GetNormals(x, z));
                 }
         }
 
         void HeightFieldNode::SetupTerrainTexture(){
-            for (int x = 0; x < depth; ++x){
-                for (int z = 0; z < width; ++z){
+            for (int x = 0; x < width; ++x){
+                for (int z = 0; z < depth; ++z){
                     CalcTexCoords(x, z);
                 }
             }
@@ -481,8 +479,8 @@ namespace OpenEngine {
         void HeightFieldNode::CalcVerticeLOD(){
             for (int LOD = 1; LOD <= HeightFieldPatchNode::MAX_LODS; ++LOD){
                 int delta = pow(2, LOD-1);
-                for (int x = 0; x < depth; x += delta){
-                    for (int z = 0; z < width; z += delta){
+                for (int x = 0; x < width; x += delta){
+                    for (int z = 0; z < depth; z += delta){
                         GetVerticeLOD(x, z) = LOD;
                         GetVerticeDelta(x, z) = pow(2, LOD-1);
                     }
@@ -511,14 +509,14 @@ namespace OpenEngine {
 
         void HeightFieldNode::ComputeIndices(){
             int LOD = 4;
-            int xs = (depth-1) / LOD + 1;
-            int zs = (width-1) / LOD + 1;
+            int xs = (width-1) / LOD + 1;
+            int zs = (depth-1) / LOD + 1;
             numberOfIndices = 2 * ((xs - 1) * zs + xs - 2);
             indices = new unsigned int[numberOfIndices];
 
             unsigned int i = 0;
-            for (int x = 0; x < depth - 1; x += LOD){
-                for (int z = width - 1; z >= 0; z -= LOD){
+            for (int x = 0; x < width - 1; x += LOD){
+                for (int z = depth - 1; z >= 0; z -= LOD){
                     indices[i++] = CoordToIndex(x, z);
                     indices[i++] = CoordToIndex(x+LOD, z);
                 }
@@ -545,19 +543,19 @@ namespace OpenEngine {
             numberOfPatches = patchGridWidth * patchGridDepth;
             patchNodes = new HeightFieldPatchNode*[numberOfPatches];
             int entry = 0;
-            for (int x = 0; x < depth - squares; x +=squares ){
-                for (int z = 0; z < width - squares; z += squares){
+            for (int x = 0; x < width - squares; x +=squares ){
+                for (int z = 0; z < depth - squares; z += squares){
                     patchNodes[entry++] = new HeightFieldPatchNode(x, z, this);
                 }
             }
 
             // Link the patches
-            for (int x = 0; x < patchGridDepth; ++x){
-                for (int z = 0; z < patchGridWidth; ++z){
-                    int entry = z + x * patchGridWidth;
-                    if (x + 1 < patchGridDepth)
-                        patchNodes[entry]->SetUpperNeighbor(patchNodes[entry + patchGridWidth]);
-                    if (z + 1 < patchGridWidth) 
+            for (int x = 0; x < patchGridWidth; ++x){
+                for (int z = 0; z < patchGridDepth; ++z){
+                    int entry = z + x * patchGridDepth;
+                    if (x + 1 < patchGridWidth)
+                        patchNodes[entry]->SetUpperNeighbor(patchNodes[entry + patchGridDepth]);
+                    if (z + 1 < patchGridDepth) 
                         patchNodes[entry]->SetRightNeighbor(patchNodes[entry + 1]);
                 }
             }
@@ -568,7 +566,7 @@ namespace OpenEngine {
                 for (int l = 0; l < HeightFieldPatchNode::MAX_LODS; ++l){
                     for (int rl = 0; rl < 3; ++rl){
                         for (int ul = 0; ul < 3; ++ul){
-                            LODstruct& lod = patchNodes[p]->GetLod(l,rl,ul);
+                            LODstruct& lod = patchNodes[p]->GetLodStruct(l,rl,ul);
                             lod.indiceBufferOffset = (void*)(numberOfIndices * sizeof(GLuint));
                             numberOfIndices += lod.numberOfIndices;
                         }
@@ -583,7 +581,7 @@ namespace OpenEngine {
                 for (int l = 0; l < HeightFieldPatchNode::MAX_LODS; ++l){
                     for (int rl = 0; rl < 3; ++rl){
                         for (int ul = 0; ul < 3; ++ul){
-                            LODstruct& lod = patchNodes[p]->GetLod(l,rl,ul);
+                            LODstruct& lod = patchNodes[p]->GetLodStruct(l,rl,ul);
                             memcpy(indices + i, lod.indices, sizeof(unsigned int) * lod.numberOfIndices);
                             i += lod.numberOfIndices;
                         }
@@ -592,20 +590,26 @@ namespace OpenEngine {
             }
                         
             // Setup shader uniforms used in geomorphing
-            for (int x = 0; x < depth - 1; ++x){
-                for (int z = 0; z < width - 1; ++z){
+            for (int x = 0; x < width - 1; ++x){
+                for (int z = 0; z < depth - 1; ++z){
+                    /*
                     int patchX = x / HeightFieldPatchNode::PATCH_EDGE_SQUARES;
                     int patchZ = z / HeightFieldPatchNode::PATCH_EDGE_SQUARES;
                     float centerOffset = HeightFieldPatchNode::PATCH_EDGE_SQUARES / 2 * widthScale;
                     float* geomorph = GetGeomorphValues(x, z);
                     geomorph[0] = patchX * HeightFieldPatchNode::PATCH_EDGE_SQUARES * widthScale + centerOffset;
                     geomorph[1] = patchZ * HeightFieldPatchNode::PATCH_EDGE_SQUARES * widthScale + centerOffset;
+                    */
+                    HeightFieldPatchNode* patch = GetPatch(x, z);
+                    float* geomorph = GetGeomorphValues(x, z);
+                    geomorph[0] = patch->GetCenter()[0];
+                    geomorph[1] = patch->GetCenter()[2];
                 }
             }
         }
         
         int HeightFieldNode::CoordToIndex(const int x, const int z) const{
-            return z + x * width;
+            return z + x * depth;
         }
         
         float* HeightFieldNode::GetVertice(const int x, const int z) const{
@@ -662,7 +666,7 @@ namespace OpenEngine {
         int HeightFieldNode::GetPatchIndex(const int x, const int z) const{
             int patchX = (x-1) / HeightFieldPatchNode::PATCH_EDGE_SQUARES;
             int patchZ = (z-1) / HeightFieldPatchNode::PATCH_EDGE_SQUARES;
-            return patchZ + patchX * patchGridWidth;
+            return patchZ + patchX * patchGridDepth;
         }
 
         HeightFieldPatchNode* HeightFieldNode::GetPatch(const int x, const int z) const{
