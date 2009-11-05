@@ -317,6 +317,73 @@ namespace OpenEngine {
 
         }
 
+        void HeightFieldNode::SetVertices(int x, int z, int w, int d, float* values){
+
+            //          Upper
+            //        z
+            //        A
+            //        |
+            // Left   |           Right
+            //        |
+            //        |
+            //       -+-------> x 
+            // 
+            //          Lower
+
+            // Calculate bounderies.
+
+            int morphLeft, morphAbove, morphRight, morphBelow;
+            int shadowX, shadowZ, shadowWidth, shadowDepth;
+
+            // if the area is outside the heightmap
+            if (x >= width || z >= depth || x + w <= 0 || z + d <= 0) return;
+            
+            if (x <= 0){
+                morphLeft = shadowX = x = 0;
+            }else{
+                shadowX = x - 1;
+                morphLeft = x;
+                //                                         @TODO perhpas = isn't nesecary
+                for (int delta = HeightFieldPatchNode::MAX_DELTA; delta >= 1; delta /= 2){
+                    if (x & delta == 0){
+                        morphLeft = x - delta / 2;
+                        break;
+                    }
+                }
+                if (morphLeft < 0)
+                    morphLeft = 0;
+            }
+
+            if (x + w >= width){
+                morphRight = 0;
+                shadowWidth = w = width - x;
+            }else{
+
+            }
+
+            if (z <= 0){
+                morphBelow = shadowZ = z = 0;
+            }else{
+                shadowZ = z - 1;
+                morphBelow = z;
+                //                                         @TODO perhpas = isn't nesecary
+                for (int delta = HeightFieldPatchNode::MAX_DELTA; delta >= 1; delta /= 2){
+                    if (z & delta == 0){
+                        morphBelow = z - delta / 2;
+                        break;
+                    }
+                }
+                if (morphBelow < 0)
+                    morphBelow = 0;
+            }
+
+            // Update the vertices height and morphing height.
+
+            // Update the bounding geometry.
+
+            // Update the shadows.
+        }
+
         Vector<3, float> HeightFieldNode::GetNormal(int x, int z){
             
             Vector<3, float> normal = Vector<3, float>(0.0f);

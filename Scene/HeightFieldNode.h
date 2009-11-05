@@ -127,6 +127,7 @@ namespace OpenEngine {
             int GetIndice(int x, int z);
             float* GetVertex(int x, int z);
             void SetVertex(int x, int z, float value);
+            void SetVertices(int x, int z, int width, int depth, float* values);
             Vector<3, float> GetNormal(int x, int z);
 
             void SetHeightScale(const float scale) { heightScale = scale; }
