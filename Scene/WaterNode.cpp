@@ -140,7 +140,7 @@ namespace OpenEngine {
             GLuint depth;
             glGenRenderbuffersEXT(1, &depth);
             glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depth);
-            glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT32, FBOwidth, FBOheight);
+            glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, FBOwidth, FBOheight);
             
             glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
                                          GL_RENDERBUFFER_EXT, depth);
@@ -150,8 +150,8 @@ namespace OpenEngine {
             glGenTextures(1, &reflectionTexID);
             glBindTexture(GL_TEXTURE_2D, reflectionTexID);
             
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S, GL_CLAMP);
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T, GL_CLAMP);
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T, GL_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
             
