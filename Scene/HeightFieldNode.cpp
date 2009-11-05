@@ -659,14 +659,6 @@ namespace OpenEngine {
             // Setup shader uniforms used in geomorphing
             for (int x = 0; x < width - 1; ++x){
                 for (int z = 0; z < depth - 1; ++z){
-                    /*
-                    int patchX = x / HeightFieldPatchNode::PATCH_EDGE_SQUARES;
-                    int patchZ = z / HeightFieldPatchNode::PATCH_EDGE_SQUARES;
-                    float centerOffset = HeightFieldPatchNode::PATCH_EDGE_SQUARES / 2 * widthScale;
-                    float* geomorph = GetGeomorphValues(x, z);
-                    geomorph[0] = patchX * HeightFieldPatchNode::PATCH_EDGE_SQUARES * widthScale + centerOffset;
-                    geomorph[1] = patchZ * HeightFieldPatchNode::PATCH_EDGE_SQUARES * widthScale + centerOffset;
-                    */
                     HeightFieldPatchNode* patch = GetPatch(x, z);
                     float* geomorph = GetGeomorphValues(x, z);
                     geomorph[0] = patch->GetCenter()[0];

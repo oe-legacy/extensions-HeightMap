@@ -105,7 +105,7 @@ namespace OpenEngine {
             LOD = floor(geomorphingScale) - 1;
         }
 
-        void HeightFieldPatchNode::Render(){
+        void HeightFieldPatchNode::Render() const{
             if (visible){
                 int rightLODdiff = rightNeighbour != NULL ? rightNeighbour->GetLOD() - LOD + 1 : 1;
                 int upperLODdiff = upperNeighbour != NULL ? upperNeighbour->GetLOD() - LOD + 1 : 1;
@@ -116,7 +116,7 @@ namespace OpenEngine {
             }
         }
 
-        void HeightFieldPatchNode::RenderBoundingGeometry(){
+        void HeightFieldPatchNode::RenderBoundingGeometry() const{
             glBegin(GL_LINES);
             Vector<3, float> center = boundingBox.GetCenter();
             glColor3f(0, 1, 0);

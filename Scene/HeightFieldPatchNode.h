@@ -69,8 +69,8 @@ namespace OpenEngine {
 
             // Render functions
             void CalcLOD(Display::IViewingVolume* view);
-            void Render();
-            void RenderBoundingGeometry();
+            void Render() const;
+            void RenderBoundingGeometry() const;
 
             void VisitSubNodes(ISceneNodeVisitor& visitor) {};
 
@@ -80,7 +80,7 @@ namespace OpenEngine {
             void SetRightNeighbor(HeightFieldPatchNode* r) {rightNeighbour = r; }
             int GetLOD() const { return LOD; }
             float GetGeomorphingScale() const { return geomorphingScale; }
-            LODstruct& GetLodStruct(int lod, int rightlod, int upperlod) { return (LODs[lod][rightlod][upperlod]); }
+            LODstruct& GetLodStruct(const int lod, const int rightlod, const int upperlod) { return (LODs[lod][rightlod][upperlod]); }
             Vector<3, float> GetCenter() const { return patchCenter; }
 
         protected:
