@@ -27,8 +27,6 @@ namespace OpenEngine {
             }
             
             void TerrainRenderingView::VisitLandscapeNode(LandscapeNode* node) {
-                //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
                 node->CalcLOD(viewport.GetViewingVolume());
 
                 // Then do opengl stuff
@@ -74,8 +72,6 @@ namespace OpenEngine {
 
                 if (renderSoftNormal)
                     node->RenderNormals();
-
-                //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             }
 
             void TerrainRenderingView::VisitLandscapePatchNode(LandscapePatchNode* node) {
@@ -131,9 +127,6 @@ namespace OpenEngine {
 
                 node->Render();
 
-                if (renderTangent)
-                    node->RenderBoundingGeometry();
-
                 //node->VisitSubNodes(*this);
 
                 glDisableClientState(GL_VERTEX_ARRAY);
@@ -149,6 +142,9 @@ namespace OpenEngine {
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
                 glDisable(GL_CULL_FACE);
+
+                if (renderTangent)
+                    node->RenderBoundingGeometry();
             }
 
             void TerrainRenderingView::VisitSunNode(SunNode* node) {
