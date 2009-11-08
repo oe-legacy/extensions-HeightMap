@@ -27,7 +27,7 @@ namespace OpenEngine {
                 : width(w), height(h), depth(d), data(NULL), id(0) {                
             }
 
-            ~EmptyTextureResource() { delete data; }
+            ~EmptyTextureResource() { delete [] data; }
             void Load() { if (!data) data = new unsigned char[width * height * depth / 8]; }
             void Unload() { delete data; }
             int GetID() { return id; }
