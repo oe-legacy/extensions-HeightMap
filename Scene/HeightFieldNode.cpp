@@ -137,7 +137,7 @@ namespace OpenEngine {
                 glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T, GL_REPEAT);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, depth, width, 0, GL_RGB, GL_FLOAT, NULL);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, depth, width, 0, GL_RGB, GL_FLOAT, NULL);
 
                 glBindTexture(GL_TEXTURE_2D, 0);
                 glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
@@ -524,7 +524,8 @@ namespace OpenEngine {
                     float* coord = GetNormalMapCoord(x, z);
                     coord[1] = (x + 0.5f) / (float) width;
                     coord[0] = (z + 0.5f) / (float) depth;
-                    Vector<3, float> normal = (GetNormal(x, z) + 1) / 2;
+                    //Vector<3, float> normal = (GetNormal(x, z) + 1) / 2;
+                    Vector<3, float> normal = GetNormal(x, z);
                     normal.ToArray(GetNormals(x, z));
                 }
         }
