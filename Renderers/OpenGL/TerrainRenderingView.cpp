@@ -177,7 +177,8 @@ namespace OpenEngine {
                     Vector<3, float> viewPos = viewport.GetViewingVolume()->GetPosition();
                     shader->SetUniform("viewpos", viewPos);
                     float time = (float)node->GetElapsedTime();
-                    shader->SetUniform("time2", time / 4000000);
+                    shader->SetUniform("time", time / 8000000000.0f);
+                    shader->SetUniform("time2", time / 4000000.0f);
                     float* pos = node->GetSun()->GetPos();
                     shader->SetUniform("lightDir", Vector<3, float>(pos[0], pos[2], pos[1]).GetNormalize());
 
