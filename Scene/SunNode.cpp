@@ -26,7 +26,7 @@ namespace OpenEngine {
 
         void SunNode::Init(float* dir, float* o){
             baseDiffuse = Vector<4, float>(1.0);
-            baseSpecular = Vector<4, float>(0.5, 0, 0, 1);
+            baseSpecular = Vector<4, float>(1.0, 1.0, 0.7, 1);
             ambient = Vector<4, float>(0.2, 0.2, 0.2, 0.0);
             direction = dir;
             origo = o;

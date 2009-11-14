@@ -36,6 +36,8 @@ namespace OpenEngine {
                     glLightfv(GL_LIGHT0, GL_AMBIENT, color);
                     sun->GetDiffuse().ToArray(color);
                     glLightfv(GL_LIGHT0, GL_DIFFUSE, color);
+                    sun->GetSpecular().ToArray(color);
+                    glLightfv(GL_LIGHT0, GL_SPECULAR, color);
                 }
 
                 glBindBuffer(GL_ARRAY_BUFFER, node->GetVerticeBufferID());
