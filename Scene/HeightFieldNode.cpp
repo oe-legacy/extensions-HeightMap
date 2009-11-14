@@ -31,6 +31,7 @@ namespace OpenEngine {
             heightScale = 1;
             widthScale = 1;
             waterlevel = 10;
+            offset = Vector<3, float>(0, 0, 0);
             
             texDetail = 1;
             baseDistance = 1;
@@ -488,18 +489,19 @@ namespace OpenEngine {
                 for (int z = 0; z < depth; ++z){
                     float* vertice = GetVertice(x, z);
                      
-                    vertice[0] = widthScale * x;
-                    vertice[2] = widthScale * z;
-                    vertice[3] = 1;
+                    vertice[0] = widthScale * x + offset[0];
+                    vertice[2] = widthScale * z + offset[2];
+                    if (DIMENSIONS > 3)
+                        vertice[3] = 1;
        
                     if (x < texWidth && z < texDepth){
                         // inside the heightmap
                         float height = (float)data[d];
                         d += numberOfCharsPrColor;
-                        vertice[1] = height * heightScale - waterlevel - heightScale / 2;
+                        vertice[1] = height * heightScale - waterlevel - heightScale / 2 + offset[1];
                     }else{
                         // outside the heightmap, set height to waterlevel
-                        vertice[1] = -waterlevel - heightScale / 2;
+                        vertice[1] = -waterlevel - heightScale / 2 + offset[1];
                     }
                 }
             }

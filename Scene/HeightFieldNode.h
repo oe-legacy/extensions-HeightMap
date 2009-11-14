@@ -81,6 +81,7 @@ namespace OpenEngine {
             float widthScale;
             float heightScale;
             float waterlevel;
+            Vector<3, float> offset;
 
             SunNode* sun;
 
@@ -137,6 +138,8 @@ namespace OpenEngine {
             int GetVerticeWidth() const { return width; }
             int GetVerticeDepth() const { return depth; }
             float GetWidthScale() const { return widthScale; }
+            void SetOffset(Vector<3, float> o) { offset = o; }
+            Vector<3, float> GetOffset() const { return offset; }
 
             void SetLODSwitchDistance(const float base, const float inc);
             float GetLODBaseDistance() const { return baseDistance; }
