@@ -274,14 +274,16 @@ namespace OpenEngine {
             float* pbo = (float*) glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
             
             index = CoordToIndex(x, z);
-            Vector<3, float> normal = (GetNormal(x, z) + 1) / 2;
+            //Vector<3, float> normal = (GetNormal(x, z) + 1) / 2;
+            Vector<3, float> normal = GetNormal(x, z);
             normal.ToArray(GetNormals(x, z));
             normal.ToArray(pbo + index * 3);
 
             // fix lower
             if (0 < x){
                 index = CoordToIndex(x-1, z);
-                normal = (GetNormal(x-1, z) + 1) / 2;
+                //normal = (GetNormal(x-1, z) + 1) / 2;
+                normal = GetNormal(x-1, z);
                 normal.ToArray(GetNormals(x-1, z));
                 normal.ToArray(pbo + index * 3);
             }
@@ -289,7 +291,8 @@ namespace OpenEngine {
             // fix upper
             if (x + 1 < width){
                 index = CoordToIndex(x+1, z);
-                normal = (GetNormal(x+1, z) + 1) / 2;
+                //normal = (GetNormal(x+1, z) + 1) / 2;
+                normal = GetNormal(x+1, z);
                 normal.ToArray(GetNormals(x+1, z));
                 normal.ToArray(pbo + index * 3);
             }
@@ -297,7 +300,8 @@ namespace OpenEngine {
             // fix left 
             if (0 < z){
                 index = CoordToIndex(x, z-1);
-                normal = (GetNormal(x, z-1) + 1) / 2;
+                //normal = (GetNormal(x, z-1) + 1) / 2;
+                normal = GetNormal(x, z-1);
                 normal.ToArray(GetNormals(x, z-1));
                 normal.ToArray(pbo + index * 3);
             }
@@ -305,7 +309,8 @@ namespace OpenEngine {
             // fix right
             if (z + 1 < depth){
                 index = CoordToIndex(x, z+1);
-                normal = (GetNormal(x, z+1) + 1) / 2;
+                //normal = (GetNormal(x, z+1) + 1) / 2;
+                normal = GetNormal(x, z+1);
                 normal.ToArray(GetNormals(x, z+1));
                 normal.ToArray(pbo + index * 3);
             }
