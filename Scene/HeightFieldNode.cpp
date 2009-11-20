@@ -274,7 +274,6 @@ namespace OpenEngine {
             float* pbo = (float*) glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
             
             index = CoordToIndex(x, z);
-            //Vector<3, float> normal = (GetNormal(x, z) + 1) / 2;
             Vector<3, float> normal = GetNormal(x, z);
             normal.ToArray(GetNormals(x, z));
             normal.ToArray(pbo + index * 3);
@@ -282,7 +281,6 @@ namespace OpenEngine {
             // fix lower
             if (0 < x){
                 index = CoordToIndex(x-1, z);
-                //normal = (GetNormal(x-1, z) + 1) / 2;
                 normal = GetNormal(x-1, z);
                 normal.ToArray(GetNormals(x-1, z));
                 normal.ToArray(pbo + index * 3);
@@ -291,7 +289,6 @@ namespace OpenEngine {
             // fix upper
             if (x + 1 < width){
                 index = CoordToIndex(x+1, z);
-                //normal = (GetNormal(x+1, z) + 1) / 2;
                 normal = GetNormal(x+1, z);
                 normal.ToArray(GetNormals(x+1, z));
                 normal.ToArray(pbo + index * 3);
@@ -300,7 +297,6 @@ namespace OpenEngine {
             // fix left 
             if (0 < z){
                 index = CoordToIndex(x, z-1);
-                //normal = (GetNormal(x, z-1) + 1) / 2;
                 normal = GetNormal(x, z-1);
                 normal.ToArray(GetNormals(x, z-1));
                 normal.ToArray(pbo + index * 3);
@@ -309,7 +305,6 @@ namespace OpenEngine {
             // fix right
             if (z + 1 < depth){
                 index = CoordToIndex(x, z+1);
-                //normal = (GetNormal(x, z+1) + 1) / 2;
                 normal = GetNormal(x, z+1);
                 normal.ToArray(GetNormals(x, z+1));
                 normal.ToArray(pbo + index * 3);
@@ -483,7 +478,7 @@ namespace OpenEngine {
             texCoords = new float[numberOfVertices * TEXCOORDS];
             normalMapCoords = new float[numberOfVertices * TEXCOORDS];
             geomorphValues = new float[numberOfVertices * 3];
-            deltaValues = new short[numberOfVertices];
+            deltaValues = new char[numberOfVertices];
 
             int numberOfCharsPrColor = tex->GetDepth() / 8;
             unsigned char* data = tex->GetData();
@@ -531,7 +526,6 @@ namespace OpenEngine {
                     float* coord = GetNormalMapCoord(x, z);
                     coord[1] = (x + 0.5f) / (float) width;
                     coord[0] = (z + 0.5f) / (float) depth;
-                    //Vector<3, float> normal = (GetNormal(x, z) + 1) / 2;
                     Vector<3, float> normal = GetNormal(x, z);
                     normal.ToArray(GetNormals(x, z));
                 }
@@ -721,12 +715,12 @@ namespace OpenEngine {
             return (geomorphValues + index * 3)[2];
         }
 
-        short& HeightFieldNode::GetVerticeDelta(const int x, const int z) const{
+        char& HeightFieldNode::GetVerticeDelta(const int x, const int z) const{
             int index = CoordToIndex(x, z);
             return GetVerticeDelta(index);
         }
 
-        short& HeightFieldNode::GetVerticeDelta(const int index) const{
+        char& HeightFieldNode::GetVerticeDelta(const int index) const{
             return deltaValues[index];
         }
 

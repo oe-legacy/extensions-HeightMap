@@ -69,7 +69,9 @@ namespace OpenEngine {
             float* geomorphValues; // {PatchCenterX, PatchCenterZ, LOD}
             unsigned int geomorphBufferId;
 
-            short* deltaValues;            
+            char* deltaValues;
+
+            //char
 
             unsigned int numberOfIndices;
             unsigned int indiceId;
@@ -173,8 +175,8 @@ namespace OpenEngine {
             inline float* GetGeomorphValues(const int x, const int z) const;
             inline float& GetVerticeLOD(const int x, const int z) const;
             inline float& GetVerticeLOD(const int index) const;
-            inline short& GetVerticeDelta(const int x, const int z) const;
-            inline short& GetVerticeDelta(const int index) const;
+            inline char& GetVerticeDelta(const int x, const int z) const;
+            inline char& GetVerticeDelta(const int index) const;
             inline int GetPatchIndex(const int x, const int z) const;
             inline HeightFieldPatchNode* GetPatch(const int x, const int z) const;
         };
