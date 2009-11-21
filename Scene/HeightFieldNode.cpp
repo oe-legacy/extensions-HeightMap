@@ -397,10 +397,10 @@ namespace OpenEngine {
 
             // Update the bounding geometry
             int patchSize = HeightFieldPatchNode::PATCH_EDGE_SQUARES;
-            int xBoundingEnd = xEnd + patchSize > width ? width : xEnd + patchSize;
-            int zBoundingEnd = zEnd + patchSize > depth ? depth : zEnd + patchSize;
-            for (int xi = xStart; xi < xBoundingEnd; xi += patchSize)
-                for (int zi = zStart; zi < zBoundingEnd; zi += patchSize){
+            int xBoundingStart = (xStart / patchSize) * patchSize;
+            int zBoundingStart = (zStart / patchSize) * patchSize;
+            for (int xi = xBoundingStart; xi < xEnd; xi += patchSize)
+                for (int zi = zBoundingStart; zi < zEnd; zi += patchSize){
                     GetPatch(xi, zi)->UpdateBoundingGeometry();
                 }
         }
