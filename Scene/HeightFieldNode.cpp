@@ -266,6 +266,33 @@ namespace OpenEngine {
             glUnmapBuffer(GL_ARRAY_BUFFER);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+            // Update shadows
+            int shadowLeft = x < 2 ? 0 : x - 1;
+            int shadowRight = x + 3 > width ? width : x + 2;
+            int shadowBelow = z < 2 ? 0 : z - 1;
+            int shadowAbove = z + 3 > depth ? depth : z + 2;
+
+            glBindBuffer(GL_PIXEL_UNPACK_BUFFER, normalsBufferId);
+            float* pbo = (float*) glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
+            int pboIndex = 0;
+            for (int xi = shadowLeft; xi < shadowRight; ++xi)
+                for (int zi = shadowBelow; zi < shadowAbove; ++zi){
+                    Vector<3, float> normal = GetNormal(xi, zi);
+                    normal.ToArray(GetNormals(xi, zi));
+                    normal.ToArray(pbo + pboIndex);
+                    pboIndex += 3;
+                }
+
+            glBindTexture(GL_TEXTURE_2D, normalmap->GetID());
+
+            glTexSubImage2D(GL_TEXTURE_2D, 0, shadowLeft, shadowBelow, 
+                            shadowRight - shadowLeft, shadowAbove - shadowBelow, 
+                            GL_RGB, GL_FLOAT, 0);
+
+            glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);            
+
             // Update bounding box
             HeightFieldPatchNode* mainNode = GetPatch(x, z);
             mainNode->UpdateBoundingGeometry(value);
@@ -275,54 +302,6 @@ namespace OpenEngine {
             if (rightNode != mainNode) rightNode->UpdateBoundingGeometry(value);
             HeightFieldPatchNode* upperRightNode = GetPatch(x+1, z+1);
             if (upperRightNode != mainNode) upperRightNode->UpdateBoundingGeometry(value);
-
-            // Update shadows
-            glBindBuffer(GL_PIXEL_UNPACK_BUFFER, normalsBufferId);
-            glBindTexture(GL_TEXTURE_2D, normalmap->GetID());
-            float* pbo = (float*) glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
-            
-            index = CoordToIndex(x, z);
-            Vector<3, float> normal = GetNormal(x, z);
-            normal.ToArray(GetNormals(x, z));
-            normal.ToArray(pbo + index * 3);
-
-            // fix lower
-            if (0 < x){
-                index = CoordToIndex(x-1, z);
-                normal = GetNormal(x-1, z);
-                normal.ToArray(GetNormals(x-1, z));
-                normal.ToArray(pbo + index * 3);
-            }
-
-            // fix upper
-            if (x + 1 < width){
-                index = CoordToIndex(x+1, z);
-                normal = GetNormal(x+1, z);
-                normal.ToArray(GetNormals(x+1, z));
-                normal.ToArray(pbo + index * 3);
-            }
-
-            // fix left 
-            if (0 < z){
-                index = CoordToIndex(x, z-1);
-                normal = GetNormal(x, z-1);
-                normal.ToArray(GetNormals(x, z-1));
-                normal.ToArray(pbo + index * 3);
-            }
-
-            // fix right
-            if (z + 1 < depth){
-                index = CoordToIndex(x, z+1);
-                normal = GetNormal(x, z+1);
-                normal.ToArray(GetNormals(x, z+1));
-                normal.ToArray(pbo + index * 3);
-            }
-
-            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, depth, GL_RGB, GL_FLOAT, 0);
-
-            glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
-            glBindTexture(GL_TEXTURE_2D, 0);
-            glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 
         }
 
@@ -372,24 +351,27 @@ namespace OpenEngine {
             glBindBuffer(GL_ARRAY_BUFFER, 0);
 
             // Update the shadows
-            int shadowLeft = xStart < 1 ? 0 : xStart;
+            int shadowLeft = xStart < 1 ? 0 : xStart - 1;
             int shadowRight = xEnd + 1 > width ? width : xEnd + 1;
-            int shadowBelow = zStart < 1 ? 0 : zStart;
+            int shadowBelow = zStart < 1 ? 0 : zStart - 1;
             int shadowAbove = zEnd + 1 > depth ? depth : zEnd + 1;
 
             glBindBuffer(GL_PIXEL_UNPACK_BUFFER, normalsBufferId);
             float* pbo = (float*) glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
+            int pboIndex = 0;
             for (int xi = shadowLeft; xi < shadowRight; ++xi)
                 for (int zi = shadowBelow; zi < shadowAbove; ++zi){
-                    int index = CoordToIndex(xi, zi);
                     Vector<3, float> normal = GetNormal(xi, zi);
                     normal.ToArray(GetNormals(xi, zi));
-                    normal.ToArray(pbo + index * 3);
+                    normal.ToArray(pbo + pboIndex);
+                    pboIndex += 3;
                 }
 
             glBindTexture(GL_TEXTURE_2D, normalmap->GetID());
 
-            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, depth, GL_RGB, GL_FLOAT, 0);
+            glTexSubImage2D(GL_TEXTURE_2D, 0, shadowLeft, shadowBelow, 
+                            shadowRight - shadowLeft, shadowAbove - shadowBelow, 
+                            GL_RGB, GL_FLOAT, 0);
 
             glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
             glBindTexture(GL_TEXTURE_2D, 0);
