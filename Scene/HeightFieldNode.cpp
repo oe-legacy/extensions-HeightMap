@@ -11,16 +11,19 @@
 #include <Scene/HeightFieldPatchNode.h>
 #include <Math/Math.h>
 #include <Meta/OpenGL.h>
-#include <Logging/Logger.h>
 #include <Utils/TerrainUtils.h>
 #include <Renderers/OpenGL/TextureLoader.h>
 #include <Resources/OpenGLTextureResource.h>
+#include <Display/IViewingVolume.h>
+
+#include <Logging/Logger.h>
 
 #include <algorithm>
 
 #define USE_PATCHES true
 
 using namespace OpenEngine::Renderers::OpenGL;
+using namespace OpenEngine::Display;
 
 namespace OpenEngine {
     namespace Scene {
@@ -61,17 +64,22 @@ namespace OpenEngine {
                 ComputeIndices();
         }
 
-        void HeightFieldNode::CalcLOD(Display::IViewingVolume* view){
+        void HeightFieldNode::CalcLOD(IViewingVolume* view){
             if (USE_PATCHES)
                 for (int i = 0; i < numberOfPatches; ++i)
                     patchNodes[i]->CalcLOD(view);
         }
 
-        void HeightFieldNode::Render(){
+        void HeightFieldNode::Render(IViewingVolume* view){
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indiceId);
             if (USE_PATCHES){
-                for (int i = 0; i < numberOfPatches; ++i)
-                    patchNodes[i]->Render();
+                int xStart, xEnd, zStart, zEnd;
+                Vector<3, float> viewDir;
+                for (int x = 0; x < patchGridWidth; ++x){
+                    for (int z = 0; z < patchGridDepth; ++z){
+                        patchNodes[z + x * patchGridDepth]->Render();
+                    }
+                }
             }else{
                 glDrawElements(GL_TRIANGLE_STRIP, numberOfIndices, GL_UNSIGNED_INT, 0);
             }
