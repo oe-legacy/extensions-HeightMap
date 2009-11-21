@@ -21,7 +21,6 @@ namespace OpenEngine {
     namespace Utils {
 
         ITextureResourcePtr CreateHeightMap();
-        ITextureResourcePtr CreateNormalMap(ITextureResourcePtr heightMap, float heightScale = 1.0, float widthScale = 1.0, bool padding = true);
 
         void SmoothTerrain(Scene::HeightFieldNode* heightfield, float persistence = 0.5);
         
