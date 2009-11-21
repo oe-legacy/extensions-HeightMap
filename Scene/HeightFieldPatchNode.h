@@ -65,6 +65,7 @@ namespace OpenEngine {
             HeightFieldPatchNode(int xStart, int zStart, HeightFieldNode* t);
             ~HeightFieldPatchNode();
 
+            void UpdateBoundingGeometry();
             void UpdateBoundingGeometry(float height);
 
             // Render functions

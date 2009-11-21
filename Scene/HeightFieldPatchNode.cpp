@@ -38,6 +38,18 @@ namespace OpenEngine {
             delete [] LODs;
         }
 
+        void HeightFieldPatchNode::UpdateBoundingGeometry(){
+            for (int x = xStart; x < xEnd; ++x){
+                for (int z = zStart; z < zEnd; ++z){
+                    float y = terrain->GetVertex(x, z)[1];
+                    min[1] = y < min[1] ? y : min[1];
+                    max[1] = y > max[1] ? y : max[1];
+                }
+            }
+
+            UpdateBoundingBox();
+        }
+
         void HeightFieldPatchNode::UpdateBoundingGeometry(float h){
             if (h > max[1]){
                 // The vertex is above the box and the box should be
@@ -76,7 +88,6 @@ namespace OpenEngine {
             }
 
             UpdateBoundingBox();
-            return;
         }
         
         void HeightFieldPatchNode::CalcLOD(IViewingVolume* view){

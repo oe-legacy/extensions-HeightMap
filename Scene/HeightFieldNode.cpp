@@ -320,7 +320,7 @@ namespace OpenEngine {
 
         void HeightFieldNode::SetVertices(int x, int z, int w, int d, float* values){
 
-            //          Upper
+            //          Above
             //        z
             //        A
             //        |
@@ -329,60 +329,72 @@ namespace OpenEngine {
             //        |
             //       -+-------> x 
             // 
-            //          Lower
-
-            // Calculate bounderies.
-
-            int morphLeft, morphAbove, morphRight, morphBelow;
-            int shadowX, shadowZ, shadowWidth, shadowDepth;
+            //          Below
 
             // if the area is outside the heightmap
             if (x >= width || z >= depth || x + w <= 0 || z + d <= 0) return;
+
+            // Update the height for the moved vertices
+            int xStart = x < 0 ? 0 : x;
+            int zStart = z < 0 ? 0 : z;
+            int xEnd = (x + w >= width) ? width : x + w;
+            int zEnd = (z + d >= depth) ? depth : z + d;
             
-            if (x <= 0){
-                morphLeft = shadowX = x = 0;
-            }else{
-                shadowX = x - 1;
-                morphLeft = x;
-                //                                         @TODO perhpas = isn't nesecary
-                for (int delta = HeightFieldPatchNode::MAX_DELTA; delta >= 1; delta /= 2){
-                    if (x & delta == 0){
-                        morphLeft = x - delta / 2;
-                        break;
-                    }
+            glBindBuffer(GL_ARRAY_BUFFER, verticeBufferId);
+            float* vbo = (float*) glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+            for (int xi = xStart; xi < xEnd; ++xi)
+                for (int zi = zStart; zi < zEnd; ++zi){
+                    int index = CoordToIndex(xi, zi);
+                    vbo[index * DIMENSIONS + 1] = GetVertice(index)[1] = values[(zi - z) + (xi - x) * d];
                 }
-                if (morphLeft < 0)
-                    morphLeft = 0;
-            }
 
-            if (x + w >= width){
-                morphRight = 0;
-                shadowWidth = w = width - x;
-            }else{
+            // Update the morphing height for all affected vertices
+            int morphLeft = xStart - HeightFieldPatchNode::MAX_DELTA < 0 ? 0 : xStart - HeightFieldPatchNode::MAX_DELTA;
+            int morphRight = xEnd + HeightFieldPatchNode::MAX_DELTA > width ? width : xEnd + HeightFieldPatchNode::MAX_DELTA;
+            int morphBelow = zStart - HeightFieldPatchNode::MAX_DELTA < 0 ? 0 : zStart - HeightFieldPatchNode::MAX_DELTA;;
+            int morphAbove = zEnd + HeightFieldPatchNode::MAX_DELTA > depth ? depth : zEnd + HeightFieldPatchNode::MAX_DELTA;
 
-            }
-
-            if (z <= 0){
-                morphBelow = shadowZ = z = 0;
-            }else{
-                shadowZ = z - 1;
-                morphBelow = z;
-                //                                         @TODO perhpas = isn't nesecary
-                for (int delta = HeightFieldPatchNode::MAX_DELTA; delta >= 1; delta /= 2){
-                    if (z & delta == 0){
-                        morphBelow = z - delta / 2;
-                        break;
-                    }
+            for (int xi = morphLeft; xi < morphRight; ++xi)
+                for (int zi = morphBelow; zi < morphAbove; ++zi){
+                    int index = CoordToIndex(xi, zi);
+                    vbo[index * DIMENSIONS + 3] = GetVertice(index)[3] = CalcGeomorphHeight(xi, zi);
                 }
-                if (morphBelow < 0)
-                    morphBelow = 0;
-            }
 
-            // Update the vertices height and morphing height.
+            glUnmapBuffer(GL_ARRAY_BUFFER);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-            // Update the bounding geometry.
+            // Update the shadows
+            int shadowLeft = xStart < 1 ? 0 : xStart;
+            int shadowRight = xEnd + 1 > width ? width : xEnd + 1;
+            int shadowBelow = zStart < 1 ? 0 : zStart;
+            int shadowAbove = zEnd + 1 > depth ? depth : zEnd + 1;
 
-            // Update the shadows.
+            glBindBuffer(GL_PIXEL_UNPACK_BUFFER, normalsBufferId);
+            float* pbo = (float*) glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
+            for (int xi = shadowLeft; xi < shadowRight; ++xi)
+                for (int zi = shadowBelow; zi < shadowAbove; ++zi){
+                    int index = CoordToIndex(xi, zi);
+                    Vector<3, float> normal = GetNormal(xi, zi);
+                    normal.ToArray(GetNormals(xi, zi));
+                    normal.ToArray(pbo + index * 3);
+                }
+
+            glBindTexture(GL_TEXTURE_2D, normalmap->GetID());
+
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, depth, GL_RGB, GL_FLOAT, 0);
+
+            glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+
+            // Update the bounding geometry
+            int patchSize = HeightFieldPatchNode::PATCH_EDGE_SQUARES;
+            int xBoundingEnd = xEnd + patchSize > width ? width : xEnd + patchSize;
+            int zBoundingEnd = zEnd + patchSize > depth ? depth : zEnd + patchSize;
+            for (int xi = xStart; xi < xBoundingEnd; xi += patchSize)
+                for (int zi = zStart; zi < zBoundingEnd; zi += patchSize){
+                    GetPatch(xi, zi)->UpdateBoundingGeometry();
+                }
         }
 
         Vector<3, float> HeightFieldNode::GetNormal(int x, int z){
