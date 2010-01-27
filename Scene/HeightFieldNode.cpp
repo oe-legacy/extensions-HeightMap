@@ -482,11 +482,10 @@ namespace OpenEngine {
             geomorphValues = new float[numberOfVertices * 3];
             deltaValues = new char[numberOfVertices];
 
-            int numberOfCharsPrColor = tex->GetDepth() / 8;
             unsigned char* data = tex->GetData();
 
             // Fill the vertex array
-            int d = numberOfCharsPrColor - 1;
+            int d = tex->GetChannels() - 1;
             for (int x = 0; x < width; ++x){
                 for (int z = 0; z < depth; ++z){
                     float* vertice = GetVertice(x, z);
@@ -499,7 +498,7 @@ namespace OpenEngine {
                     if (x < texWidth && z < texDepth){
                         // inside the heightmap
                         float height = (float)data[d];
-                        d += numberOfCharsPrColor;
+                        d += tex->GetChannels();
                         vertice[1] = height * heightScale - waterlevel - heightScale / 2 + offset[1];
                     }else{
                         // outside the heightmap, set height to waterlevel
