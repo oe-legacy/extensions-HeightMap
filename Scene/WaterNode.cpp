@@ -36,6 +36,8 @@ namespace OpenEngine {
                 for (unsigned int i = 0; i < texs.size(); ++i)
                     TextureLoader::LoadTextureResource(texs[i]);
                 
+                waterShader->ApplyShader();
+
                 // Check if framebuffering is supported
                 const std::string fboExt = "GL_EXT_framebuffer_object";
                 if (glewGetExtension(fboExt.c_str()) != GL_TRUE )
@@ -50,6 +52,8 @@ namespace OpenEngine {
 
                     waterShader->SetTexture("reflection", reflectionTex);
                 }
+
+                waterShader->ReleaseShader();
             }else if (surface != NULL)
                 TextureLoader::LoadTextureResource(surface);
         }
