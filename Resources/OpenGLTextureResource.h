@@ -17,29 +17,31 @@ namespace OpenEngine {
 
         class OpenGLTextureResource : public ITextureResource {
         private:
-            GLuint id;
-            unsigned int width, height, depth;
         public:
-            OpenGLTextureResource(GLuint id, unsigned int w, unsigned int h, unsigned int d = 24)
-                : id(id), width(w), height(h), depth(d) {
+            OpenGLTextureResource(GLuint id, unsigned int w, unsigned int h, unsigned int c = 3)
+                : ITextureResource() {
+                this->id = id;
+                this->width = w;
+                this->width = h;
+                this->channels = c;
+                
+                switch(this->channels){
+                case 1:
+                    format = LUMINANCE;
+                    break;
+                case 3:
+                    format = RGB;
+                    break;
+                case 4:
+                    format = RGBA;
+                    break;
+                default:
+                    throw Exception("unknown color format");
+                }
+
             }
             ~OpenGLTextureResource() {}
             void Load() {}
-            void Unload() {}
-            int GetID() { return id; }
-            void SetID(int id) { throw Exception("OpenGL textures can not change identifiers."); }
-            unsigned int GetWidth() { return width; }
-            unsigned int GetHeight() { return height; }
-            unsigned int GetDepth() { return depth; }
-            unsigned char* GetData() { throw Exception("Cannot extract data from OpenGL."); }
-            ColorFormat GetColorFormat() { 
-                switch (depth){
-                case 8: return LUMINANCE;
-                case 24: return RGB;
-                    //case 32: return RGBA;
-                default: return RGBA;
-                }
-            }
         };
         
     }
