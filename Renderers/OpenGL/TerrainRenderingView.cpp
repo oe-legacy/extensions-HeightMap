@@ -152,9 +152,12 @@ namespace OpenEngine {
                         glCullFace(GL_BACK);
 
                         // Disable frame buffer
-                        glViewport(0, 0, 800, 600);
                         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
                         glDisable(GL_CLIP_PLANE0);
+                        
+                        // Reset viewport
+                        Vector<4, int> viewDims = this->renderer->GetViewport().GetDimension();
+                        glViewport(viewDims[0], viewDims[1], viewDims[2], viewDims[3]);
 
                         // Render refraction
                         reflection->Accept(*this);
