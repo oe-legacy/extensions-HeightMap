@@ -118,6 +118,9 @@ namespace OpenEngine {
 
             // *** Get/Set methods ***
 
+            float GetHeight(Vector<3, float> point);
+            float GetHeight(float x, float z);
+
             unsigned int GetVerticeBufferID() const { return verticeBufferId; }
             ITextureResourcePtr GetNormalMapID() const { return normalmap; }
             unsigned int GetGeomorphBufferID() const { return geomorphBufferId; }

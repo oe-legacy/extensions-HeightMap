@@ -203,6 +203,34 @@ namespace OpenEngine {
         
         // **** Get/Set methods ****
 
+        float HeightFieldNode::GetHeight(Vector<3, float> point){
+            return GetHeight(point[0], point[2]);
+        }
+
+        /**
+         * http://en.wikipedia.org/wiki/Bilinear_interpolation
+         */
+        float HeightFieldNode::GetHeight(float x, float z){
+            // x and z normalized with respect to the scaling.
+            // @TODO If a translation is ever used it should go here aswell.
+            x /= widthScale;
+            z /= widthScale;
+            
+            // The indices into the array
+            int X = floor(x);
+            int Z = floor(z);
+            
+            float dX = x - X;
+            float dZ = z - Z;
+
+            float height = GetVertice(X, Z)[1] * (1-dX) * (1-dZ) +
+                           GetVertice(X+1, Z)[1] * dX * (1-dZ) +
+                           GetVertice(X, Z+1)[1] * (1-dX) * dZ +
+                           GetVertice(X+1, Z+1)[1] * dX * dZ;
+            
+            return height;
+        }
+
         int HeightFieldNode::GetIndice(int x, int z){
             return CoordToIndex(x, z);
         }
