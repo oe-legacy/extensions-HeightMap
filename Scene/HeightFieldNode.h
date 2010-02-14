@@ -118,8 +118,10 @@ namespace OpenEngine {
 
             // *** Get/Set methods ***
 
-            float GetHeight(Vector<3, float> point);
-            float GetHeight(float x, float z);
+            float GetHeight(Vector<3, float> point) const;
+            float GetHeight(float x, float z) const;
+            float GetNormal(Vector<3, float> point) const;
+            float GetNormal(float x, float z) const;
 
             unsigned int GetVerticeBufferID() const { return verticeBufferId; }
             ITextureResourcePtr GetNormalMapID() const { return normalmap; }
@@ -168,9 +170,21 @@ namespace OpenEngine {
             inline void ComputeIndices();
             inline void SetupPatches();
 
+            /**
+             * Returns the index into the arrays based on the coords.
+             * The index must be multiplied by the 'size' of the entry.
+             */
             inline int CoordToIndex(const int x, const int z) const;
+            /**
+             * Returns a pointer to the vertice from the indices into
+             * the 2D array.
+             */
             inline float* GetVertice(const int x, const int z) const;
             inline float* GetVertice(const int index) const;
+            /**
+             * Returns a pointer to the normal from the indices into
+             * the 2D array.
+             */
             inline float* GetNormals(const int x, const int z) const;
             inline float* GetNormals(const int index) const;
             inline float* GetTexCoord(const int x, const int z) const;
