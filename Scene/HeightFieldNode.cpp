@@ -223,6 +223,7 @@ namespace OpenEngine {
             float dX = x - X;
             float dZ = z - Z;
 
+            // Bilinear interpolation of the heights.
             float height = GetVertice(X, Z)[1] * (1-dX) * (1-dZ) +
                            GetVertice(X+1, Z)[1] * dX * (1-dZ) +
                            GetVertice(X, Z+1)[1] * (1-dX) * dZ +
