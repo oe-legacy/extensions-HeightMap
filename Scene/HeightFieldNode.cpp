@@ -380,10 +380,10 @@ namespace OpenEngine {
             glBindBuffer(GL_ARRAY_BUFFER, 0);
 
             // Update the shadows
-            int shadowLeft = xStart < 1 ? 0 : xStart - 1;
-            int shadowRight = xEnd + 1 > width ? width : xEnd + 1;
-            int shadowBelow = zStart < 1 ? 0 : zStart - 1;
-            int shadowAbove = zEnd + 1 > depth ? depth : zEnd + 1;
+            int shadowLeft = xStart < 2 ? 0 : xStart - 1;
+            int shadowRight = xEnd + 3 > width ? width : xEnd + 2;
+            int shadowBelow = zStart < 2 ? 0 : zStart - 1;
+            int shadowAbove = zEnd + 3 > depth ? depth : zEnd + 2;
 
             glBindBuffer(GL_PIXEL_UNPACK_BUFFER, normalsBufferId);
             float* pbo = (float*) glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
