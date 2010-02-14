@@ -73,10 +73,34 @@ namespace OpenEngine {
         void HeightFieldNode::Render(IViewingVolume* view){
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indiceId);
             if (USE_PATCHES){
-                int xStart, xEnd, zStart, zEnd;
-                Vector<3, float> viewDir;
-                for (int x = 0; x < patchGridWidth; ++x){
-                    for (int z = 0; z < patchGridDepth; ++z){
+                Vector<3, float> dir = view->GetDirection().RotateVector(Vector<3, float>(0,0,1));
+
+                int xStart, xEnd, xStep, zStart, zEnd, zStep;
+                if (dir[0] < 0){
+                    // If we're looking along the x-axis.
+                    xStart = 0;
+                    xEnd = patchGridWidth;
+                    xStep = 1;
+                }else{
+                    // else iterate form the other side.
+                    xStart = patchGridWidth-1;
+                    xEnd = -1;
+                    xStep = -1;
+                }
+                if (dir[2] < 0){
+                    // If we're looking along the z-axis.
+                    zStart = 0;
+                    zEnd = patchGridDepth;
+                    zStep = 1;
+                }else{
+                    // else iterate form the other side.
+                    zStart = patchGridDepth-1;
+                    zEnd = -1;
+                    zStep = -1;
+                }
+                
+                for (int x = xStart; x != xEnd ; x += xStep){
+                    for (int z = zStart; z != zEnd; z += zStep){
                         patchNodes[z + x * patchGridDepth]->Render();
                     }
                 }
