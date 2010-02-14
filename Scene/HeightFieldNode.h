@@ -118,9 +118,33 @@ namespace OpenEngine {
 
             // *** Get/Set methods ***
 
+            /**
+             * Takes as argument a 3D vector in worldspace and returns
+             * the height of the heightmap at that point.
+             *
+             * @return The height at the given point.
+             */
             float GetHeight(Vector<3, float> point) const;
+            /**
+             * Takes as argument an x- and z-coord in worldspace and
+             * returns the height of the heightmap at that point.
+             *
+             * @return The height at the given point.
+             */
             float GetHeight(float x, float z) const;
+            /**
+             * Takes as argument a 3D vector in worldspace and returns
+             * the normal of the heightmap at that point.
+             *
+             * @return The normal at the given point.
+             */
             float GetNormal(Vector<3, float> point) const;
+            /**
+             * Takes as argument an x- and z-coord in worldspace and
+             * returns the normal of the heightmap at that point.
+             *
+             * @return The normal at the given point.
+             */
             float GetNormal(float x, float z) const;
 
             unsigned int GetVerticeBufferID() const { return verticeBufferId; }
