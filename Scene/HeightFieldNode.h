@@ -148,7 +148,6 @@ namespace OpenEngine {
             float GetNormal(float x, float z) const;
 
             unsigned int GetVerticeBufferID() const { return verticeBufferId; }
-            ITexture2DPtr GetNormalMapID() const { return normalmap; }
             unsigned int GetGeomorphBufferID() const { return geomorphBufferId; }
             unsigned int GetTexCoordBufferID() const { return texCoordBufferId; }
             unsigned int GetNormalMapCoordBufferID() const { return normalMapCoordBufferId; }

@@ -105,8 +105,8 @@ namespace OpenEngine {
         private:
             inline void SetupArrays();
             inline void SetupTexCoords();
-            inline void SetupReflectionFBO();
-            inline void SetupRefractionFBO();
+            inline void SetupReflectionFBO(IRenderer& r);
+            inline void SetupRefractionFBO(IRenderer& r);
         };
 
     }

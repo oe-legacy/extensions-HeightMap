@@ -46,8 +46,8 @@ namespace OpenEngine {
                     FBOwidth = 400;
                     FBOheight = 300;
                     
-                    SetupReflectionFBO();                
-                    //SetupRefractionFBO();
+                    SetupReflectionFBO(arg.renderer);
+                    //SetupRefractionFBO(arg.renderer);
 
                     waterShader->SetTexture("reflection", reflectionTex);
                 }
@@ -134,7 +134,7 @@ namespace OpenEngine {
             }
         }
 
-        void WaterNode::SetupReflectionFBO(){
+        void WaterNode::SetupReflectionFBO(IRenderer& r){
             // setup frame buffer object for reflection
             glGenFramebuffersEXT(1, &reflectionFboID);
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, reflectionFboID);
@@ -149,80 +149,45 @@ namespace OpenEngine {
                                          GL_RENDERBUFFER_EXT, depth);
                         
             // Setup texture to render reflection to
-            GLuint reflectionTexID;
-            glGenTextures(1, &reflectionTexID);
-            glBindTexture(GL_TEXTURE_2D, reflectionTexID);
-            
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S, GL_CLAMP);
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T, GL_CLAMP);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, FBOwidth, FBOheight, 0, GL_RGBA, GL_UNSIGNED_INT, NULL);
-
-            //reflectionTex = ITextureResourcePtr(new OpenGLTextureResource(reflectionTexID, FBOwidth, FBOheight, 4));
             reflectionTex = UCharTexture2DPtr(new Texture2D<unsigned char>(FBOwidth, FBOheight, 4));
-            reflectionTex->SetID(reflectionTexID);
             reflectionTex->SetColorFormat(RGBA);
-            
+            reflectionTex->SetMipmapping(false);
+            r.LoadTexture(reflectionTex);
+
             // attach the texture to FBO color attachment point
             glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, 
                                       GL_COLOR_ATTACHMENT0_EXT,
-                                      GL_TEXTURE_2D, reflectionTexID, 0);
+                                      GL_TEXTURE_2D, reflectionTex->GetID(), 0);
             
             glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-            glBindTexture(GL_TEXTURE_2D, 0);
         }
 
-        void WaterNode::SetupRefractionFBO(){
+        void WaterNode::SetupRefractionFBO(IRenderer& r){
             // setup frame buffer object for refraction
             glGenFramebuffersEXT(1, &refractionFboID);
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, refractionFboID);                        
                         
             // Setup texture to render refraction to
-            GLuint refractionTexID;
-            glGenTextures(1, &refractionTexID);
-            glBindTexture(GL_TEXTURE_2D, refractionTexID);
-            
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S, GL_CLAMP);
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T, GL_CLAMP);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, FBOwidth, FBOheight, 0, GL_RGBA, GL_UNSIGNED_INT, NULL);
+            refractionTex = UCharTexture2DPtr(new Texture2D<unsigned char>(FBOwidth, FBOheight, 4));
+            refractionTex->SetColorFormat(RGBA);
+            refractionTex->SetMipmapping(false);
+            r.LoadTexture(refractionTex);
 
             // attach the texture to FBO color attachment point
             glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, 
                                       GL_COLOR_ATTACHMENT0_EXT,
-                                      GL_TEXTURE_2D, refractionTexID, 0);
+                                      GL_TEXTURE_2D, refractionTex->GetID(), 0);
 
             // attach the depth buffer to the frame buffer
-            GLuint depthBuffer;
-            glGenTextures(1, &depthBuffer);
-            glBindTexture(GL_TEXTURE_2D, depthBuffer);
-
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S, GL_CLAMP);
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T, GL_CLAMP);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
-
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, FBOwidth, FBOheight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+            depthbufferTex = UCharTexture2DPtr(new Texture2D<unsigned char>(FBOwidth, FBOheight, 1));
+            depthbufferTex->SetColorFormat(DEPTH);
+            depthbufferTex->SetMipmapping(false);
+            r.LoadTexture(depthbufferTex);
 
             glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, 
                                       GL_DEPTH_ATTACHMENT_EXT,
-                                      GL_TEXTURE_2D, depthBuffer, 0);
-
-            //refractionTex = ITextureResourcePtr(new OpenGLTextureResource(refractionTexID, FBOwidth, FBOheight, 4));
-            refractionTex = UCharTexture2DPtr(new Texture2D<unsigned char>(FBOwidth, FBOheight, 4));
-            refractionTex->SetID(refractionTexID);
-            refractionTex->SetColorFormat(RGBA);
-            //depthbufferTex = ITextureResourcePtr(new OpenGLTextureResource(depthBuffer, FBOwidth, FBOheight, 1));
-            depthbufferTex = UCharTexture2DPtr(new Texture2D<unsigned char>(FBOwidth, FBOheight, 1));
-            depthbufferTex->SetID(depthBuffer);
-            depthbufferTex->SetColorFormat(DEPTH);
-            
+                                      GL_TEXTURE_2D, depthbufferTex->GetID(), 0);
 
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
             glBindTexture(GL_TEXTURE_2D, 0);

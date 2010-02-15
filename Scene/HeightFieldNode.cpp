@@ -175,10 +175,8 @@ namespace OpenEngine {
                 glBindTexture(GL_TEXTURE_2D, 0);
                 glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 
-                //normalmap = ITextureResourcePtr(new OpenGLTextureResource(normalTexId, depth, width));
                 normalmap = FloatTexture2DPtr(new Texture2D<float>(width, depth, 3));
                 normalmap->SetID(normalTexId);
-                normalmap->SetColorFormat(RGBA32F);
 
                 // Geomorph values buffer object
                 glGenBuffers(1, &geomorphBufferId);
