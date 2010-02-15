@@ -149,9 +149,10 @@ namespace OpenEngine {
                                          GL_RENDERBUFFER_EXT, depth);
                         
             // Setup texture to render reflection to
-            reflectionTex = UCharTexture2DPtr(new Texture2D<unsigned char>(FBOwidth, FBOheight, 4));
-            reflectionTex->SetColorFormat(RGBA);
+            reflectionTex = UCharTexture2DPtr(new Texture2D<unsigned char>(FBOwidth, FBOheight, 3));
+            reflectionTex->SetColorFormat(RGB);
             reflectionTex->SetMipmapping(false);
+            reflectionTex->SetWrapping(CLAMP_TO_EDGE);
             r.LoadTexture(reflectionTex);
 
             // attach the texture to FBO color attachment point
@@ -169,9 +170,10 @@ namespace OpenEngine {
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, refractionFboID);                        
                         
             // Setup texture to render refraction to
-            refractionTex = UCharTexture2DPtr(new Texture2D<unsigned char>(FBOwidth, FBOheight, 4));
-            refractionTex->SetColorFormat(RGBA);
+            refractionTex = UCharTexture2DPtr(new Texture2D<unsigned char>(FBOwidth, FBOheight, 3));
+            refractionTex->SetColorFormat(RGB);
             refractionTex->SetMipmapping(false);
+            refractionTex->SetWrapping(CLAMP_TO_EDGE);
             r.LoadTexture(refractionTex);
 
             // attach the texture to FBO color attachment point
@@ -183,6 +185,7 @@ namespace OpenEngine {
             depthbufferTex = UCharTexture2DPtr(new Texture2D<unsigned char>(FBOwidth, FBOheight, 1));
             depthbufferTex->SetColorFormat(DEPTH);
             depthbufferTex->SetMipmapping(false);
+            depthbufferTex->SetWrapping(CLAMP_TO_EDGE);
             r.LoadTexture(depthbufferTex);
 
             glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, 
