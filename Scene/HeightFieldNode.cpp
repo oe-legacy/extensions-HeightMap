@@ -193,7 +193,7 @@ namespace OpenEngine {
                 landscapeShader->Load();
                 TextureList texs = landscapeShader->GetTextures();
                 for (unsigned int i = 0; i < texs.size(); ++i)
-                    arg.renderer.LoadTexture(texs[i]);
+                    arg.renderer.LoadTexture(texs[i].get());
 
                 landscapeShader->ApplyShader();
 

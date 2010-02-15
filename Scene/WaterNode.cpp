@@ -151,7 +151,7 @@ namespace OpenEngine {
             reflectionTex->SetColorFormat(RGB);
             reflectionTex->SetMipmapping(false);
             reflectionTex->SetWrapping(CLAMP_TO_EDGE);
-            r.LoadTexture(reflectionTex);
+            r.LoadTexture(reflectionTex.get());
 
             // attach the texture to FBO color attachment point
             glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, 
@@ -172,7 +172,7 @@ namespace OpenEngine {
             refractionTex->SetColorFormat(RGB);
             refractionTex->SetMipmapping(false);
             refractionTex->SetWrapping(CLAMP_TO_EDGE);
-            r.LoadTexture(refractionTex);
+            r.LoadTexture(refractionTex.get());
 
             // attach the texture to FBO color attachment point
             glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, 
@@ -184,7 +184,7 @@ namespace OpenEngine {
             depthbufferTex->SetColorFormat(DEPTH);
             depthbufferTex->SetMipmapping(false);
             depthbufferTex->SetWrapping(CLAMP_TO_EDGE);
-            r.LoadTexture(depthbufferTex);
+            r.LoadTexture(depthbufferTex.get());
 
             glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, 
                                       GL_DEPTH_ATTACHMENT_EXT,
