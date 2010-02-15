@@ -12,7 +12,6 @@
 #include <Math/Math.h>
 #include <Meta/OpenGL.h>
 #include <Utils/TerrainUtils.h>
-#include <Renderers/OpenGL/TextureLoader.h>
 #include <Display/IViewingVolume.h>
 
 #include <Logging/Logger.h>
@@ -21,7 +20,6 @@
 
 #define USE_PATCHES true
 
-using namespace OpenEngine::Renderers::OpenGL;
 using namespace OpenEngine::Display;
 
 namespace OpenEngine {
@@ -195,9 +193,7 @@ namespace OpenEngine {
                 landscapeShader->Load();
                 TextureList texs = landscapeShader->GetTextures();
                 for (unsigned int i = 0; i < texs.size(); ++i)
-                    TextureLoader::LoadTextureResource(texs[i]);
-
-                TextureLoader::LoadTextureResource(normalmap, true, false);
+                    arg.renderer.LoadTexture(texs[i]);
 
                 landscapeShader->ApplyShader();
 

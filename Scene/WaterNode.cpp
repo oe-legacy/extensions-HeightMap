@@ -8,12 +8,10 @@
 //--------------------------------------------------------------------
 
 #include "WaterNode.h"
-#include <Renderers/OpenGL/TextureLoader.h>
 #include <Logging/Logger.h>
 #include <string.h>
 
 using namespace std;
-using namespace OpenEngine::Renderers::OpenGL;
 
 namespace OpenEngine {
     namespace Scene {
@@ -33,7 +31,7 @@ namespace OpenEngine {
                 waterShader->Load();
                 TextureList texs = waterShader->GetTextures();
                 for (unsigned int i = 0; i < texs.size(); ++i)
-                    TextureLoader::LoadTextureResource(texs[i]);
+                    arg.renderer.LoadTexture(texs[i]);
                 
                 waterShader->ApplyShader();
 
@@ -54,7 +52,7 @@ namespace OpenEngine {
 
                 waterShader->ReleaseShader();
             }else if (surface != NULL)
-                TextureLoader::LoadTextureResource(surface);
+                arg.renderer.LoadTexture(surface);
         }
 
         void WaterNode::Handle(ProcessEventArg arg){
