@@ -14,7 +14,7 @@
 #include <Core/IListener.h>
 #include <Renderers/IRenderer.h>
 #include <Resources/IShaderResource.h>
-#include <Resources/ITextureResource.h>
+#include <Resources/Texture2D.h>
 #include <Meta/OpenGL.h>
 
 using namespace OpenEngine::Resources;
@@ -54,9 +54,9 @@ namespace OpenEngine {
             int FBOwidth;
             GLuint reflectionFboID;
             GLuint refractionFboID;
-            ITextureResourcePtr depthbufferTex;
-            ITextureResourcePtr reflectionTex;
-            ITextureResourcePtr refractionTex;
+            UCharTexture2DPtr depthbufferTex;
+            UCharTexture2DPtr reflectionTex;
+            UCharTexture2DPtr refractionTex;
 
             IShaderResourcePtr waterShader;
             unsigned int elapsedTime;
@@ -89,10 +89,10 @@ namespace OpenEngine {
             int GetFBOHeight() const { return FBOheight; }
             int GetFBOWidth() const { return FBOwidth; }
             GLuint GetReflectionFboID() const { return reflectionFboID; }
-            ITextureResourcePtr GetReflectionTex() const { return reflectionTex; }
+            UCharTexture2DPtr GetReflectionTex() const { return reflectionTex; }
             GLuint GetRefractionFboID() const { return refractionFboID; }
-            ITextureResourcePtr GetRefractionTex() const { return refractionTex; }
-            ITextureResourcePtr GetRefractionDepthMap() const { return depthbufferTex; }
+            UCharTexture2DPtr GetRefractionTex() const { return refractionTex; }
+            UCharTexture2DPtr GetRefractionDepthMap() const { return depthbufferTex; }
             unsigned int GetElapsedTime() { return elapsedTime; }
 
             void SetReflectionScene(ISceneNode* r) { reflection = r; }

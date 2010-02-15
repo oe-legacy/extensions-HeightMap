@@ -13,7 +13,6 @@
 #include <Meta/OpenGL.h>
 #include <Utils/TerrainUtils.h>
 #include <Renderers/OpenGL/TextureLoader.h>
-#include <Resources/OpenGLTextureResource.h>
 #include <Display/IViewingVolume.h>
 
 #include <Logging/Logger.h>
@@ -28,7 +27,7 @@ using namespace OpenEngine::Display;
 namespace OpenEngine {
     namespace Scene {
         
-        HeightFieldNode::HeightFieldNode(ITextureResourcePtr tex)
+        HeightFieldNode::HeightFieldNode(UCharTexture2DPtr tex)
             : tex(tex) {
             tex->Load();
             heightScale = 1;
@@ -73,6 +72,7 @@ namespace OpenEngine {
         void HeightFieldNode::Render(IViewingVolume* view){
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indiceId);
             if (USE_PATCHES){
+                // Draw patches front to back.
                 Vector<3, float> dir = view->GetDirection().RotateVector(Vector<3, float>(0,0,1));
 
                 int xStart, xEnd, xStep, zStart, zEnd, zStep;
@@ -175,7 +175,10 @@ namespace OpenEngine {
                 glBindTexture(GL_TEXTURE_2D, 0);
                 glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 
-                normalmap = ITextureResourcePtr(new OpenGLTextureResource(normalTexId, depth, width));
+                //normalmap = ITextureResourcePtr(new OpenGLTextureResource(normalTexId, depth, width));
+                normalmap = FloatTexture2DPtr(new Texture2D<float>(width, depth, 3));
+                normalmap->SetID(normalTexId);
+                normalmap->SetColorFormat(RGBA32F);
 
                 // Geomorph values buffer object
                 glGenBuffers(1, &geomorphBufferId);
@@ -200,12 +203,20 @@ namespace OpenEngine {
 
                 landscapeShader->ApplyShader();
 
+                /*
+                 * Should be moved to main. Terrain shouldn't make any
+                 * assumptions on the texturing.
+                 *
+                 * Shader needs to store uniforms for this to work and
+                 * bind them to the gpu when applied. (Incoming)
+                 *
                 landscapeShader->SetUniform("snowStartHeight", (float)50);
                 landscapeShader->SetUniform("snowBlend", (float)20);
                 landscapeShader->SetUniform("grassStartHeight", (float)5);
                 landscapeShader->SetUniform("grassBlend", (float)5);
                 landscapeShader->SetUniform("sandStartHeight", (float)-10);
                 landscapeShader->SetUniform("sandBlend", (float)10);
+                */
 
                 landscapeShader->SetTexture("normalMap", normalmap);
 

@@ -10,7 +10,7 @@
 #ifndef _TERRAIN_UTIL_FUNCTIONS_H_
 #define _TERRAIN_UTIL_FUNCTIONS_H_
 
-#include <Resources/ITextureResource.h>
+#include <Resources/Texture2D.h>
 
 using namespace OpenEngine::Resources;
 
@@ -20,8 +20,23 @@ namespace OpenEngine {
     }
     namespace Utils {
 
-        ITextureResourcePtr CreateHeightMap();
+        /**
+         * Uses cosine to create a smooth and soothing terrain.
+         */
+        UCharTexture2DPtr CreateSmoothTerrain(unsigned int width, unsigned int height);
 
+        /**
+         * Will make the heightmap into a plateu. 'Steals' the margin
+         * of the pixels along the sides and uses them for the cliffs.
+         *
+         * If the transformation yields negative height, the terrain
+         * is moved up.
+         */
+        void MakePlateau(UCharTexture2DPtr terrain, float height, unsigned int margin);
+
+        /**
+         * Smoothens terrain.
+         */
         void SmoothTerrain(Scene::HeightFieldNode* heightfield, float persistence = 0.5);
         
     }

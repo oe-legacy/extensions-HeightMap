@@ -14,7 +14,7 @@
 #include <Core/IListener.h>
 #include <Renderers/IRenderer.h>
 #include <Resources/IShaderResource.h>
-#include <Resources/ITextureResource.h>
+#include <Resources/Texture2D.h>
 
 using namespace OpenEngine::Core;
 using namespace OpenEngine::Renderers;
@@ -97,13 +97,13 @@ namespace OpenEngine {
             float baseDistance;
             float invIncDistance;
 
-            ITextureResourcePtr tex;
-            ITextureResourcePtr normalmap;
+            UCharTexture2DPtr tex;
+            FloatTexture2DPtr normalmap;
             IShaderResourcePtr landscapeShader;
 
         public:
             HeightFieldNode() {}
-            HeightFieldNode(ITextureResourcePtr tex);
+            HeightFieldNode(UCharTexture2DPtr tex);
             ~HeightFieldNode();
 
             void Load();
@@ -148,7 +148,7 @@ namespace OpenEngine {
             float GetNormal(float x, float z) const;
 
             unsigned int GetVerticeBufferID() const { return verticeBufferId; }
-            ITextureResourcePtr GetNormalMapID() const { return normalmap; }
+            ITexture2DPtr GetNormalMapID() const { return normalmap; }
             unsigned int GetGeomorphBufferID() const { return geomorphBufferId; }
             unsigned int GetTexCoordBufferID() const { return texCoordBufferId; }
             unsigned int GetNormalMapCoordBufferID() const { return normalMapCoordBufferId; }

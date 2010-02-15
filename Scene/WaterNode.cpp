@@ -9,7 +9,6 @@
 
 #include "WaterNode.h"
 #include <Renderers/OpenGL/TextureLoader.h>
-#include <Resources/OpenGLTextureResource.h>
 #include <Logging/Logger.h>
 #include <string.h>
 
@@ -161,7 +160,10 @@ namespace OpenEngine {
             
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, FBOwidth, FBOheight, 0, GL_RGBA, GL_UNSIGNED_INT, NULL);
 
-            reflectionTex = ITextureResourcePtr(new OpenGLTextureResource(reflectionTexID, FBOwidth, FBOheight, 4));
+            //reflectionTex = ITextureResourcePtr(new OpenGLTextureResource(reflectionTexID, FBOwidth, FBOheight, 4));
+            reflectionTex = UCharTexture2DPtr(new Texture2D<unsigned char>(FBOwidth, FBOheight, 4));
+            reflectionTex->SetID(reflectionTexID);
+            reflectionTex->SetColorFormat(RGBA);
             
             // attach the texture to FBO color attachment point
             glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, 
@@ -212,8 +214,15 @@ namespace OpenEngine {
                                       GL_DEPTH_ATTACHMENT_EXT,
                                       GL_TEXTURE_2D, depthBuffer, 0);
 
-            refractionTex = ITextureResourcePtr(new OpenGLTextureResource(refractionTexID, FBOwidth, FBOheight, 4));
-            depthbufferTex = ITextureResourcePtr(new OpenGLTextureResource(depthBuffer, FBOwidth, FBOheight, 1));
+            //refractionTex = ITextureResourcePtr(new OpenGLTextureResource(refractionTexID, FBOwidth, FBOheight, 4));
+            refractionTex = UCharTexture2DPtr(new Texture2D<unsigned char>(FBOwidth, FBOheight, 4));
+            refractionTex->SetID(refractionTexID);
+            refractionTex->SetColorFormat(RGBA);
+            //depthbufferTex = ITextureResourcePtr(new OpenGLTextureResource(depthBuffer, FBOwidth, FBOheight, 1));
+            depthbufferTex = UCharTexture2DPtr(new Texture2D<unsigned char>(FBOwidth, FBOheight, 1));
+            depthbufferTex->SetID(depthBuffer);
+            depthbufferTex->SetColorFormat(DEPTH);
+            
 
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
             glBindTexture(GL_TEXTURE_2D, 0);

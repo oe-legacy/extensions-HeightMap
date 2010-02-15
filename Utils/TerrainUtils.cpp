@@ -9,7 +9,6 @@
 
 #include <Utils/TerrainUtils.h>
 
-#include <Resources/EmptyTextureResource.h>
 #include <Scene/HeightFieldNode.h>
 #include <Scene/HeightFieldPatchNode.h>
 #include <Math/Vector.h>
@@ -20,6 +19,16 @@ using namespace OpenEngine::Math;
 
 namespace OpenEngine {
     namespace Utils {
+
+        UCharTexture2DPtr CreateSmoothTerrain(unsigned int width, unsigned int height){
+            return UCharTexture2DPtr();
+        }
+
+        void MakePlateau(UCharTexture2DPtr terrain, float height, unsigned int margin){
+            // Use normals for guessing good places to erode?
+
+            // Use log and cosine to create the dropoff? Smoother drop :)
+        }
 
         void SmoothTerrain(HeightFieldNode* heightfield, float persistence){
             int depth = heightfield->GetVerticeDepth();
