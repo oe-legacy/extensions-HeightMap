@@ -1,6 +1,6 @@
 // Landscape node.
 // -------------------------------------------------------------------
-// Copyright (C) 2007 OpenEngine.dk (See AUTHORS) 
+// Copyright (C) 2009 OpenEngine.dk (See AUTHORS) 
 // 
 // This program is free software; It is covered by the GNU General 
 // Public License version 2 or any later version. 
@@ -25,7 +25,7 @@ using namespace OpenEngine::Display;
 namespace OpenEngine {
     namespace Scene {
         
-        HeightFieldNode::HeightFieldNode(UCharTexture2DPtr tex)
+        HeightFieldNode::HeightFieldNode(FloatTexture2DPtr tex)
             : tex(tex) {
             tex->Load();
             heightScale = 1;
@@ -571,7 +571,7 @@ namespace OpenEngine {
             geomorphValues = new float[numberOfVertices * 3];
             deltaValues = new char[numberOfVertices];
 
-            unsigned char* data = tex->GetData();
+            float* data = tex->GetData();
 
             // Fill the vertex array
             int d = tex->GetChannels() - 1;
@@ -586,7 +586,7 @@ namespace OpenEngine {
        
                     if (x < texWidth && z < texDepth){
                         // inside the heightmap
-                        float height = (float)data[d];
+                        float height = data[d];
                         d += tex->GetChannels();
                         vertice[1] = height * heightScale - waterlevel - heightScale / 2 + offset[1];
                     }else{

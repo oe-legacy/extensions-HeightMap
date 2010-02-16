@@ -97,13 +97,13 @@ namespace OpenEngine {
             float baseDistance;
             float invIncDistance;
 
-            UCharTexture2DPtr tex;
+            FloatTexture2DPtr tex;
             FloatTexture2DPtr normalmap;
             IShaderResourcePtr landscapeShader;
 
         public:
             HeightFieldNode() {}
-            HeightFieldNode(UCharTexture2DPtr tex);
+            HeightFieldNode(FloatTexture2DPtr tex);
             ~HeightFieldNode();
 
             void Load();
