@@ -7,7 +7,9 @@
 // See the GNU General Public License for more details (see LICENSE). 
 //--------------------------------------------------------------------
 
-#include "WaterNode.h"
+#include <Scene/WaterNode.h>
+
+#include <Utils/TerrainTexUtils.h>
 #include <Logging/Logger.h>
 #include <string.h>
 
@@ -41,8 +43,8 @@ namespace OpenEngine {
                     throw Exception(fboExt + " not supported");
                 
                 if (reflection){
-                    FBOwidth = 400;
-                    FBOheight = 300;
+                    FBOwidth = 800;
+                    FBOheight = 600;
                     
                     SetupReflectionFBO(arg.renderer);
                     //SetupRefractionFBO(arg.renderer);
