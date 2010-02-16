@@ -25,7 +25,7 @@ namespace OpenEngine {
          * http://www.lighthouse3d.com/opengl/terrain/index.php3?circles
          */
         FloatTexture2DPtr CreateSmoothTerrain(FloatTexture2DPtr tex, 
-                                              unsigned int steps, int radius, unsigned char disp){
+                                              unsigned int steps, int radius, float disp){
             tex->Load();
 
             int width = tex->GetWidth();
