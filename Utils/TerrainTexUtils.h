@@ -31,7 +31,7 @@ namespace OpenEngine {
             unsigned int h = t->GetHeight();
             unsigned int tc = t->GetChannels();
 
-            Texture2DPtr(T) tex = Texture2DPtr(T)(new Texture2D(T)(w, h, channels));
+            Texture2DPtr(T) tex = Texture2DPtr(T)(new Texture2D<T>(w, h, channels));
             tex->Load();
 
             for (unsigned int x = 0; x < w; ++x){

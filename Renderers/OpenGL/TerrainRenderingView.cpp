@@ -183,7 +183,7 @@ namespace OpenEngine {
                     shader->SetUniform("time", time / 8000000000.0f);
                     shader->SetUniform("time2", time / 4000000.0f);
                     float* pos = node->GetSun()->GetPos();
-                    shader->SetUniform("lightDir", Vector<3, float>(pos[0], pos[2], pos[1]).GetNormalize());
+                    shader->SetUniform("lightDir", Vector<3, float>(pos[0], pos[1], pos[2]).GetNormalize());
 
                     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
                     glEnableClientState(GL_NORMAL_ARRAY);
