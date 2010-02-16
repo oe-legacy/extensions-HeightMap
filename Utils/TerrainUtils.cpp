@@ -24,11 +24,15 @@ namespace OpenEngine {
         /**
          * http://www.lighthouse3d.com/opengl/terrain/index.php3?circles
          */
-        FloatTexture2DPtr CreateSmoothTerrain(int width, int height, 
+        FloatTexture2DPtr CreateSmoothTerrain(FloatTexture2DPtr tex, 
                                               unsigned int steps, int radius, unsigned char disp){
-            FloatTexture2DPtr ret = FloatTexture2DPtr(new FloatTexture2D(width, height, 1));
+            tex->Load();
+
+            int width = tex->GetWidth();
+            int height = tex->GetHeight();
 
             RandomGenerator ran;
+            ran.SeedWithTime();
 
             float d = disp / 2.0f;
 
@@ -36,12 +40,14 @@ namespace OpenEngine {
                 // Pick a random point
                 Vector<2, int> c = Vector<2, int>(ran.UniformInt(0, width), ran.UniformInt(0, height));
 
+                //logger.info << "Iteration: " << i << " yielded centrum " << c.ToString() << logger.end;
+
                 // Iterate through each point in the circle by
                 // iterating through a square around the circle.
-                int xStart = c[0] - radius < 0 ? 0 : c[1] - radius;
+                int xStart = c[0] - radius < 0 ? 0 : c[0] - radius;
                 int zStart = c[1] - radius < 0 ? 0 : c[1] - radius;
                 int xEnd = c[0] + radius > width-1 ? width-1 : c[0] + radius;
-                int zEnd = c[1] + radius > height-1 ? height-1 : c[0] + radius;
+                int zEnd = c[1] + radius > height-1 ? height-1 : c[1] + radius;
 
                 for (int x = xStart; x <= xEnd; ++x){
                     for (int z = zStart; z <= zEnd; ++z){
@@ -50,14 +56,14 @@ namespace OpenEngine {
                         if (dist <= radius){
                             float pd = dist / radius;
                             float displacement = d + cos(pd*PI) * d;
-                            ret->GetPixel(x, z)[0] += displacement;
+                            tex->GetPixel(x, z)[0] += displacement;
                         }
                     }   
                 }
 
             }
             
-            return ret;
+            return tex;
         }
 
         void MakePlateau(UCharTexture2DPtr terrain, float height, unsigned int margin){

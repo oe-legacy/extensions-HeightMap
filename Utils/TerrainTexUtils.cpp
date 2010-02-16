@@ -20,8 +20,6 @@ namespace OpenEngine {
             unsigned int height = tex->GetHeight();
             unsigned int channels = tex->GetChannels();
 
-            logger.info << "w: " << width << ", h: " << height << ", c: " << channels << logger.end;
-
             FloatTexture2DPtr ret = FloatTexture2DPtr(new FloatTexture2D(width, height, channels));
             ret->Load();
 

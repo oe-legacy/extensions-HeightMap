@@ -23,7 +23,7 @@ namespace OpenEngine {
         /**
          * Uses cosine to create a smooth and soothing terrain.
          */
-        FloatTexture2DPtr CreateSmoothTerrain(int width, int height, 
+        FloatTexture2DPtr CreateSmoothTerrain(FloatTexture2DPtr tex, 
                                               unsigned int steps = 1000, int radius = 10, unsigned char disp = 5);
         
         /**
