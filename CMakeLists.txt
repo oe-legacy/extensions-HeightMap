@@ -9,6 +9,7 @@ ADD_LIBRARY( ${EXTENSION_NAME}
   Scene/SunNode.cpp
   Scene/WaterNode.cpp
   Utils/TerrainUtils.cpp
+  Utils/TerrainTexUtils.cpp
 )
 
 TARGET_LINK_LIBRARIES( ${EXTENSION_NAME}
