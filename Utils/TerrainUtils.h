@@ -23,8 +23,9 @@ namespace OpenEngine {
         /**
          * Uses cosine to create a smooth and soothing terrain.
          */
-        UCharTexture2DPtr CreateSmoothTerrain(unsigned int width, unsigned int height);
-
+        FloatTexture2DPtr CreateSmoothTerrain(int width, int height, 
+                                              unsigned int steps = 1000, int radius = 10, unsigned char disp = 5);
+        
         /**
          * Will make the heightmap into a plateu. 'Steals' the margin
          * of the pixels along the sides and uses them for the cliffs.
