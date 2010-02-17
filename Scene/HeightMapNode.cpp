@@ -7,12 +7,13 @@
 // See the GNU General Public License for more details (see LICENSE). 
 //--------------------------------------------------------------------
 
-#include <Scene/HeightFieldNode.h>
-#include <Scene/HeightFieldPatchNode.h>
+#include <Scene/HeightMapNode.h>
+#include <Scene/HeightMapPatchNode.h>
 #include <Math/Math.h>
 #include <Meta/OpenGL.h>
 #include <Utils/TerrainUtils.h>
 #include <Display/IViewingVolume.h>
+#include <Display/Viewport.h>
 
 #include <Logging/Logger.h>
 
@@ -25,7 +26,7 @@ using namespace OpenEngine::Display;
 namespace OpenEngine {
     namespace Scene {
         
-        HeightFieldNode::HeightFieldNode(FloatTexture2DPtr tex)
+        HeightMapNode::HeightMapNode(FloatTexture2DPtr tex)
             : tex(tex) {
             tex->Load();
             heightScale = 1;
@@ -40,7 +41,7 @@ namespace OpenEngine {
             texCoords = NULL;
         }
 
-        HeightFieldNode::~HeightFieldNode(){
+        HeightMapNode::~HeightMapNode(){
             delete [] vertices;
             delete [] normals;
             delete [] geomorphValues;
@@ -53,7 +54,7 @@ namespace OpenEngine {
             delete [] patchNodes;
         }
         
-        void HeightFieldNode::Load() {
+        void HeightMapNode::Load() {
             InitArrays();
             if (USE_PATCHES)
                 SetupPatches();
@@ -61,13 +62,13 @@ namespace OpenEngine {
                 ComputeIndices();
         }
 
-        void HeightFieldNode::CalcLOD(IViewingVolume* view){
+        void HeightMapNode::CalcLOD(IViewingVolume* view){
             if (USE_PATCHES)
                 for (int i = 0; i < numberOfPatches; ++i)
                     patchNodes[i]->CalcLOD(view);
         }
 
-        void HeightFieldNode::Render(IViewingVolume* view){
+        void HeightMapNode::Render(IViewingVolume* view){
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indiceId);
             if (USE_PATCHES){
                 // Draw patches front to back.
@@ -107,20 +108,20 @@ namespace OpenEngine {
             }
         }
 
-        void HeightFieldNode::RenderBoundingGeometry(){
+        void HeightMapNode::RenderBoundingGeometry(){
             if (USE_PATCHES)
                 for (int i = 0; i < numberOfPatches; ++i)
                     patchNodes[i]->RenderBoundingGeometry();
         }
 
-        void HeightFieldNode::VisitSubNodes(ISceneNodeVisitor& visitor){
+        void HeightMapNode::VisitSubNodes(ISceneNodeVisitor& visitor){
             list<ISceneNode*>::iterator itr;
             for (itr = subNodes.begin(); itr != subNodes.end(); ++itr){
                 (*itr)->Accept(visitor);
             }
         }
 
-        void HeightFieldNode::Handle(RenderingEventArg arg){
+        void HeightMapNode::Handle(RenderingEventArg arg){
             Load();
 
             // Create vbos
@@ -198,8 +199,8 @@ namespace OpenEngine {
                 landscapeShader->ApplyShader();
 
                 /*
-                 * Should be moved to main. Terrain shouldn't make any
-                 * assumptions on the texturing.
+                 * Should be moved to a virtual function. Terrain
+                 * shouldn't make any assumptions on the texturing.
                  *
                  * Shader needs to store uniforms for this to work and
                  * bind them to the gpu when applied. (Incoming)
@@ -219,6 +220,8 @@ namespace OpenEngine {
             
             SetLODSwitchDistance(baseDistance, 1 / invIncDistance);
 
+            Initialize(arg);
+
             // Cleanup in ram
             delete [] geomorphValues;
             geomorphValues = NULL;
@@ -229,14 +232,18 @@ namespace OpenEngine {
             delete [] indices;
             indices = NULL;
         }
+
+        void HeightMapNode::Handle(ProcessEventArg arg){
+            Process(arg);
+        }
         
         // **** Get/Set methods ****
 
-        float HeightFieldNode::GetHeight(Vector<3, float> point) const{
+        float HeightMapNode::GetHeight(Vector<3, float> point) const{
             return GetHeight(point[0], point[2]);
         }
 
-        float HeightFieldNode::GetHeight(float x, float z) const{
+        float HeightMapNode::GetHeight(float x, float z) const{
             /**
              * http://en.wikipedia.org/wiki/Bilinear_interpolation
              */
@@ -262,11 +269,11 @@ namespace OpenEngine {
             return height;
         }
 
-        float HeightFieldNode::GetNormal(Vector<3, float> point) const{
+        float HeightMapNode::GetNormal(Vector<3, float> point) const{
             return GetNormal(point[0], point[2]);
         }
 
-        float HeightFieldNode::GetNormal(float x, float z) const{
+        float HeightMapNode::GetNormal(float x, float z) const{
             /**
              * http://en.wikipedia.org/wiki/Bilinear_interpolation
              */
@@ -292,11 +299,11 @@ namespace OpenEngine {
             return height;
         }
 
-        int HeightFieldNode::GetIndice(int x, int z){
+        int HeightMapNode::GetIndice(int x, int z){
             return CoordToIndex(x, z);
         }
 
-        float* HeightFieldNode::GetVertex(int x, int z){
+        float* HeightMapNode::GetVertex(int x, int z){
             if (x < 0)
                 x = 0;
             else if (x >= width)
@@ -309,7 +316,7 @@ namespace OpenEngine {
             return GetVertice(x, z);
         }
 
-        void HeightFieldNode::SetVertex(int x, int z, float value){
+        void HeightMapNode::SetVertex(int x, int z, float value){
             glBindBuffer(GL_ARRAY_BUFFER, verticeBufferId);
             float* vbo = (float*) glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 
@@ -383,18 +390,18 @@ namespace OpenEngine {
             glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);            
 
             // Update bounding box
-            HeightFieldPatchNode* mainNode = GetPatch(x, z);
+            HeightMapPatchNode* mainNode = GetPatch(x, z);
             mainNode->UpdateBoundingGeometry(value);
-            HeightFieldPatchNode* upperNode = GetPatch(x+1, z);
+            HeightMapPatchNode* upperNode = GetPatch(x+1, z);
             if (upperNode != mainNode) upperNode->UpdateBoundingGeometry(value);
-            HeightFieldPatchNode* rightNode = GetPatch(x, z+1);
+            HeightMapPatchNode* rightNode = GetPatch(x, z+1);
             if (rightNode != mainNode) rightNode->UpdateBoundingGeometry(value);
-            HeightFieldPatchNode* upperRightNode = GetPatch(x+1, z+1);
+            HeightMapPatchNode* upperRightNode = GetPatch(x+1, z+1);
             if (upperRightNode != mainNode) upperRightNode->UpdateBoundingGeometry(value);
 
         }
 
-        void HeightFieldNode::SetVertices(int x, int z, int w, int d, float* values){
+        void HeightMapNode::SetVertices(int x, int z, int w, int d, float* values){
 
             //          Above
             //        z
@@ -425,10 +432,10 @@ namespace OpenEngine {
                 }
 
             // Update the morphing height for all affected vertices
-            int morphLeft = xStart - HeightFieldPatchNode::MAX_DELTA < 0 ? 0 : xStart - HeightFieldPatchNode::MAX_DELTA;
-            int morphRight = xEnd + HeightFieldPatchNode::MAX_DELTA > width ? width : xEnd + HeightFieldPatchNode::MAX_DELTA;
-            int morphBelow = zStart - HeightFieldPatchNode::MAX_DELTA < 0 ? 0 : zStart - HeightFieldPatchNode::MAX_DELTA;;
-            int morphAbove = zEnd + HeightFieldPatchNode::MAX_DELTA > depth ? depth : zEnd + HeightFieldPatchNode::MAX_DELTA;
+            int morphLeft = xStart - HeightMapPatchNode::MAX_DELTA < 0 ? 0 : xStart - HeightMapPatchNode::MAX_DELTA;
+            int morphRight = xEnd + HeightMapPatchNode::MAX_DELTA > width ? width : xEnd + HeightMapPatchNode::MAX_DELTA;
+            int morphBelow = zStart - HeightMapPatchNode::MAX_DELTA < 0 ? 0 : zStart - HeightMapPatchNode::MAX_DELTA;;
+            int morphAbove = zEnd + HeightMapPatchNode::MAX_DELTA > depth ? depth : zEnd + HeightMapPatchNode::MAX_DELTA;
 
             for (int xi = morphLeft; xi < morphRight; ++xi)
                 for (int zi = morphBelow; zi < morphAbove; ++zi){
@@ -467,7 +474,7 @@ namespace OpenEngine {
             glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 
             // Update the bounding geometry
-            int patchSize = HeightFieldPatchNode::PATCH_EDGE_SQUARES;
+            int patchSize = HeightMapPatchNode::PATCH_EDGE_SQUARES;
             int xBoundingStart = (xStart / patchSize) * patchSize;
             int zBoundingStart = (zStart / patchSize) * patchSize;
             for (int xi = xBoundingStart; xi < xEnd; xi += patchSize)
@@ -476,7 +483,7 @@ namespace OpenEngine {
                 }
         }
 
-        Vector<3, float> HeightFieldNode::GetNormal(int x, int z){
+        Vector<3, float> HeightMapNode::GetNormal(int x, int z){
             
             Vector<3, float> normal = Vector<3, float>(0.0f);
             float vHeight = GetVertice(x, z)[1];
@@ -521,10 +528,10 @@ namespace OpenEngine {
          * @ base The base distance to the camera where the LOD is the highest.
          * @ dec The distance between each decrement in LOD.
          */
-        void HeightFieldNode::SetLODSwitchDistance(float base, float dec){
+        void HeightMapNode::SetLODSwitchDistance(float base, float dec){
             baseDistance = base;
             
-            float edgeLength = HeightFieldPatchNode::PATCH_EDGE_SQUARES * widthScale;
+            float edgeLength = HeightMapPatchNode::PATCH_EDGE_SQUARES * widthScale;
             if (dec * dec < edgeLength * edgeLength * 2){
                 invIncDistance = 1.0f / sqrt(edgeLength * edgeLength * 2);
                 logger.error << "Incremental LOD distance is too low, setting it to lowest value: " << 1.0f / invIncDistance << logger.end;
@@ -542,7 +549,7 @@ namespace OpenEngine {
             }
         }
 
-        void HeightFieldNode::SetTextureDetail(const float detail){
+        void HeightMapNode::SetTextureDetail(const float detail){
             texDetail = detail;
             if (texCoords)
                 SetupTerrainTexture();
@@ -550,12 +557,12 @@ namespace OpenEngine {
 
         // **** inline functions ****
 
-        void HeightFieldNode::InitArrays(){
+        void HeightMapNode::InitArrays(){
             int texWidth = tex->GetHeight();
             int texDepth = tex->GetWidth();
 
             // if texwidth/depth isn't expressible as n * patchwidth + 1 fix it.
-            int patchWidth = HeightFieldPatchNode::PATCH_EDGE_SQUARES;
+            int patchWidth = HeightMapPatchNode::PATCH_EDGE_SQUARES;
             int widthRest = (texWidth - 1) % patchWidth;
             width = widthRest ? texWidth + patchWidth - widthRest : texWidth;
 
@@ -610,7 +617,7 @@ namespace OpenEngine {
                     }
         }
 
-        void HeightFieldNode::SetupNormalMap(){
+        void HeightMapNode::SetupNormalMap(){
             for (int x = 0; x < width; ++x)
                 for (int z = 0; z < depth; ++z){
                     float* coord = GetNormalMapCoord(x, z);
@@ -621,7 +628,7 @@ namespace OpenEngine {
                 }
         }
 
-        void HeightFieldNode::SetupTerrainTexture(){
+        void HeightMapNode::SetupTerrainTexture(){
             for (int x = 0; x < width; ++x){
                 for (int z = 0; z < depth; ++z){
                     CalcTexCoords(x, z);
@@ -629,14 +636,14 @@ namespace OpenEngine {
             }
         }
 
-        void HeightFieldNode::CalcTexCoords(int x, int z){
+        void HeightMapNode::CalcTexCoords(int x, int z){
             float* texCoord = GetTexCoord(x, z);
             texCoord[1] = x * texDetail;
             texCoord[0] = z * texDetail;
         }
 
-        void HeightFieldNode::CalcVerticeLOD(){
-            for (int LOD = 1; LOD <= HeightFieldPatchNode::MAX_LODS; ++LOD){
+        void HeightMapNode::CalcVerticeLOD(){
+            for (int LOD = 1; LOD <= HeightMapPatchNode::MAX_LODS; ++LOD){
                 int delta = pow(2, LOD-1);
                 for (int x = 0; x < width; x += delta){
                     for (int z = 0; z < depth; z += delta){
@@ -647,11 +654,11 @@ namespace OpenEngine {
             }
         }
 
-        float HeightFieldNode::CalcGeomorphHeight(int x, int z){
+        float HeightMapNode::CalcGeomorphHeight(int x, int z){
             short delta = GetVerticeDelta(x, z);
 
             int dx, dz;
-            if (delta < HeightFieldPatchNode::MAX_DELTA){
+            if (delta < HeightMapPatchNode::MAX_DELTA){
                 dx = x % (delta * 2);
                 dz = z % (delta * 2);
             }else{
@@ -666,7 +673,7 @@ namespace OpenEngine {
             return (verticeNeighbour1[1] + verticeNeighbour2[1]) / 2 - vertice[1];
         }
 
-        void HeightFieldNode::ComputeIndices(){
+        void HeightMapNode::ComputeIndices(){
             int LOD = 4;
             int xs = (width-1) / LOD + 1;
             int zs = (depth-1) / LOD + 1;
@@ -694,17 +701,17 @@ namespace OpenEngine {
             }
         }
 
-        void HeightFieldNode::SetupPatches(){
+        void HeightMapNode::SetupPatches(){
             // Create the patches
-            int squares = HeightFieldPatchNode::PATCH_EDGE_SQUARES;
+            int squares = HeightMapPatchNode::PATCH_EDGE_SQUARES;
             patchGridWidth = (width-1) / squares;
             patchGridDepth = (depth-1) / squares;
             numberOfPatches = patchGridWidth * patchGridDepth;
-            patchNodes = new HeightFieldPatchNode*[numberOfPatches];
+            patchNodes = new HeightMapPatchNode*[numberOfPatches];
             int entry = 0;
             for (int x = 0; x < width - squares; x +=squares ){
                 for (int z = 0; z < depth - squares; z += squares){
-                    patchNodes[entry++] = new HeightFieldPatchNode(x, z, this);
+                    patchNodes[entry++] = new HeightMapPatchNode(x, z, this);
                 }
             }
 
@@ -722,7 +729,7 @@ namespace OpenEngine {
             // Setup indice buffer
             numberOfIndices = 0;
             for (int p = 0; p < numberOfPatches; ++p){
-                for (int l = 0; l < HeightFieldPatchNode::MAX_LODS; ++l){
+                for (int l = 0; l < HeightMapPatchNode::MAX_LODS; ++l){
                     for (int rl = 0; rl < 3; ++rl){
                         for (int ul = 0; ul < 3; ++ul){
                             LODstruct& lod = patchNodes[p]->GetLodStruct(l,rl,ul);
@@ -737,7 +744,7 @@ namespace OpenEngine {
 
             unsigned int i = 0;
             for (int p = 0; p < numberOfPatches; ++p){
-                for (int l = 0; l < HeightFieldPatchNode::MAX_LODS; ++l){
+                for (int l = 0; l < HeightMapPatchNode::MAX_LODS; ++l){
                     for (int rl = 0; rl < 3; ++rl){
                         for (int ul = 0; ul < 3; ++ul){
                             LODstruct& lod = patchNodes[p]->GetLodStruct(l,rl,ul);
@@ -751,7 +758,7 @@ namespace OpenEngine {
             // Setup shader uniforms used in geomorphing
             for (int x = 0; x < width - 1; ++x){
                 for (int z = 0; z < depth - 1; ++z){
-                    HeightFieldPatchNode* patch = GetPatch(x, z);
+                    HeightMapPatchNode* patch = GetPatch(x, z);
                     float* geomorph = GetGeomorphValues(x, z);
                     geomorph[0] = patch->GetCenter()[0];
                     geomorph[1] = patch->GetCenter()[2];
@@ -759,68 +766,68 @@ namespace OpenEngine {
             }
         }
         
-        int HeightFieldNode::CoordToIndex(const int x, const int z) const{
+        int HeightMapNode::CoordToIndex(const int x, const int z) const{
             return z + x * depth;
         }
         
-        float* HeightFieldNode::GetVertice(const int x, const int z) const{
+        float* HeightMapNode::GetVertice(const int x, const int z) const{
             int index = CoordToIndex(x, z);
             return GetVertice(index);
         }
 
-        float* HeightFieldNode::GetVertice(const int index) const{
+        float* HeightMapNode::GetVertice(const int index) const{
             return vertices + index * DIMENSIONS;
         }
         
-        float* HeightFieldNode::GetNormals(const int x, const int z) const{
+        float* HeightMapNode::GetNormals(const int x, const int z) const{
             int index = CoordToIndex(x, z);
             return GetNormals(index);
         }
 
-        float* HeightFieldNode::GetNormals(const int index) const{
+        float* HeightMapNode::GetNormals(const int index) const{
             return normals + index * 3;
         }
 
-        float* HeightFieldNode::GetTexCoord(const int x, const int z) const{
+        float* HeightMapNode::GetTexCoord(const int x, const int z) const{
             int index = CoordToIndex(x, z);
             return texCoords + index * TEXCOORDS;
         }
 
-        float* HeightFieldNode::GetNormalMapCoord(const int x, const int z) const{
+        float* HeightMapNode::GetNormalMapCoord(const int x, const int z) const{
             int index = CoordToIndex(x, z);
             return normalMapCoords + index * TEXCOORDS;
         }
 
-        float* HeightFieldNode::GetGeomorphValues(const int x, const int z) const{
+        float* HeightMapNode::GetGeomorphValues(const int x, const int z) const{
             int index = CoordToIndex(x, z);
             return geomorphValues + index * 3;
         }
 
-        float& HeightFieldNode::GetVerticeLOD(const int x, const int z) const{
+        float& HeightMapNode::GetVerticeLOD(const int x, const int z) const{
             int index = CoordToIndex(x, z);
             return GetVerticeLOD(index);
         }
 
-        float& HeightFieldNode::GetVerticeLOD(const int index) const{
+        float& HeightMapNode::GetVerticeLOD(const int index) const{
             return (geomorphValues + index * 3)[2];
         }
 
-        char& HeightFieldNode::GetVerticeDelta(const int x, const int z) const{
+        char& HeightMapNode::GetVerticeDelta(const int x, const int z) const{
             int index = CoordToIndex(x, z);
             return GetVerticeDelta(index);
         }
 
-        char& HeightFieldNode::GetVerticeDelta(const int index) const{
+        char& HeightMapNode::GetVerticeDelta(const int index) const{
             return deltaValues[index];
         }
 
-        int HeightFieldNode::GetPatchIndex(const int x, const int z) const{
-            int patchX = (x-1) / HeightFieldPatchNode::PATCH_EDGE_SQUARES;
-            int patchZ = (z-1) / HeightFieldPatchNode::PATCH_EDGE_SQUARES;
+        int HeightMapNode::GetPatchIndex(const int x, const int z) const{
+            int patchX = (x-1) / HeightMapPatchNode::PATCH_EDGE_SQUARES;
+            int patchZ = (z-1) / HeightMapPatchNode::PATCH_EDGE_SQUARES;
             return patchZ + patchX * patchGridDepth;
         }
 
-        HeightFieldPatchNode* HeightFieldNode::GetPatch(const int x, const int z) const{
+        HeightMapPatchNode* HeightMapNode::GetPatch(const int x, const int z) const{
             int index = GetPatchIndex(x, z);
             return patchNodes[index];
         }

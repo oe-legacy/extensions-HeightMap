@@ -8,7 +8,7 @@
 //--------------------------------------------------------------------
 
 #include "TerrainRenderingView.h"
-#include <Scene/HeightFieldNode.h>
+#include <Scene/HeightMapNode.h>
 #include <Scene/SunNode.h>
 #include <Scene/WaterNode.h>
 #include <Math/Vector.h>
@@ -25,7 +25,7 @@ namespace OpenEngine {
                 RenderingView(viewport) {
             }
 
-            void TerrainRenderingView::VisitHeightFieldNode(HeightFieldNode* node) {
+            void TerrainRenderingView::VisitHeightMapNode(HeightMapNode* node) {
                 glEnable(GL_CULL_FACE);
 
                 SunNode* sun = node->GetSun();
@@ -42,7 +42,7 @@ namespace OpenEngine {
 
                 glBindBuffer(GL_ARRAY_BUFFER, node->GetVerticeBufferID());
                 glEnableClientState(GL_VERTEX_ARRAY);
-                glVertexPointer(HeightFieldNode::DIMENSIONS, GL_FLOAT, 0, 0);
+                glVertexPointer(HeightMapNode::DIMENSIONS, GL_FLOAT, 0, 0);
 
                 IShaderResourcePtr shader = node->GetLandscapeShader();
                 if (shader){
@@ -56,12 +56,12 @@ namespace OpenEngine {
                     // Setup Texture coords
                     glBindBuffer(GL_ARRAY_BUFFER, node->GetTexCoordBufferID());
                     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                    glTexCoordPointer(HeightFieldNode::TEXCOORDS, GL_FLOAT, 0, 0);
+                    glTexCoordPointer(HeightMapNode::TEXCOORDS, GL_FLOAT, 0, 0);
 
                     glClientActiveTexture(GL_TEXTURE1);
                     glBindBuffer(GL_ARRAY_BUFFER, node->GetNormalMapCoordBufferID());
                     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                    glTexCoordPointer(HeightFieldNode::TEXCOORDS, GL_FLOAT, 0, 0);
+                    glTexCoordPointer(HeightMapNode::TEXCOORDS, GL_FLOAT, 0, 0);
 
                     // Setup uniforms
                     float* dir = sun->GetPos();
@@ -72,7 +72,11 @@ namespace OpenEngine {
 
                 node->CalcLOD(viewport.GetViewingVolume());
 
+                node->PreRender(viewport);
+
                 node->Render(viewport.GetViewingVolume());
+
+                node->PostRender(viewport);
 
                 glDisableClientState(GL_VERTEX_ARRAY);
                 glDisableClientState(GL_NORMAL_ARRAY);

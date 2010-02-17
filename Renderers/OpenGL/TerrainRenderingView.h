@@ -23,7 +23,7 @@ using namespace OpenEngine::Renderers;
  public:
      TerrainRenderingView(Viewport& viewport);
      
-     void VisitHeightFieldNode(HeightFieldNode* node);
+     void VisitHeightMapNode(HeightMapNode* node);
      void VisitSunNode(SunNode* node);
      void VisitWaterNode(WaterNode* node);
 

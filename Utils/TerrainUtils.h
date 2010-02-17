@@ -16,7 +16,7 @@ using namespace OpenEngine::Resources;
 
 namespace OpenEngine {
     namespace Scene {
-        class HeightFieldNode;
+        class HeightMapNode;
     }
     namespace Utils {
 
@@ -38,7 +38,7 @@ namespace OpenEngine {
         /**
          * Smoothens terrain.
          */
-        void SmoothTerrain(Scene::HeightFieldNode* heightfield, float persistence = 0.5);
+        void SmoothTerrain(Scene::HeightMapNode* heightfield, float persistence = 0.5);
         
     }
 }

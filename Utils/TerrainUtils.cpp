@@ -9,8 +9,8 @@
 
 #include <Utils/TerrainUtils.h>
 
-#include <Scene/HeightFieldNode.h>
-#include <Scene/HeightFieldPatchNode.h>
+#include <Scene/HeightMapNode.h>
+#include <Scene/HeightMapPatchNode.h>
 #include <Math/Vector.h>
 #include <Math/RandomGenerator.h>
 #include <Logging/Logger.h>
@@ -72,7 +72,7 @@ namespace OpenEngine {
             // Use log and cosine to create the dropoff? Smoother drop :)
         }
 
-        void SmoothTerrain(HeightFieldNode* heightfield, float persistence){
+        void SmoothTerrain(HeightMapNode* heightfield, float persistence){
             int depth = heightfield->GetVerticeDepth();
             int width = heightfield->GetVerticeWidth();
 

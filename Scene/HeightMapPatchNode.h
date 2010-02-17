@@ -20,7 +20,7 @@ namespace OpenEngine {
         class IViewingVolume;
     }
     namespace Scene {
-        class HeightFieldNode;
+        class HeightMapNode;
 
         struct LODstruct {
             int numberOfIndices;
@@ -28,8 +28,8 @@ namespace OpenEngine {
             void* indiceBufferOffset;
         };
         
-        class HeightFieldPatchNode : public ISceneNode {
-            OE_SCENE_NODE(HeightFieldPatchNode, ISceneNode)
+        class HeightMapPatchNode : public ISceneNode {
+            OE_SCENE_NODE(HeightMapPatchNode, ISceneNode)
 
         public:
             static const int PATCH_EDGE_SQUARES = 32;
@@ -41,7 +41,7 @@ namespace OpenEngine {
             enum LODrelation { LOWER = 0, SAME = 1, HIGHER = 2 };
             
         private:
-            HeightFieldNode* terrain;
+            HeightMapNode* terrain;
 
             int LOD;
             float geomorphingScale;
@@ -54,16 +54,16 @@ namespace OpenEngine {
 
             LODstruct LODs[MAX_LODS][3][3];
 
-            HeightFieldPatchNode* upperNeighbour;
+            HeightMapPatchNode* upperNeighbour;
             int upperLOD;
             
-            HeightFieldPatchNode* rightNeighbour;
+            HeightMapPatchNode* rightNeighbour;
             int rightLOD;
 
         public:            
-            HeightFieldPatchNode() {}
-            HeightFieldPatchNode(int xStart, int zStart, HeightFieldNode* t);
-            ~HeightFieldPatchNode();
+            HeightMapPatchNode() {}
+            HeightMapPatchNode(int xStart, int zStart, HeightMapNode* t);
+            ~HeightMapPatchNode();
 
             void UpdateBoundingGeometry();
             void UpdateBoundingGeometry(float height);
@@ -77,8 +77,8 @@ namespace OpenEngine {
 
             // *** Get/Set methods ***
 
-            void SetUpperNeighbor(HeightFieldPatchNode* u) {upperNeighbour = u; }
-            void SetRightNeighbor(HeightFieldPatchNode* r) {rightNeighbour = r; }
+            void SetUpperNeighbor(HeightMapPatchNode* u) {upperNeighbour = u; }
+            void SetRightNeighbor(HeightMapPatchNode* r) {rightNeighbour = r; }
             int GetLOD() const { return LOD; }
             float GetGeomorphingScale() const { return geomorphingScale; }
             LODstruct& GetLodStruct(const int lod, const int rightlod, const int upperlod) { return (LODs[lod][rightlod][upperlod]); }

@@ -15,6 +15,7 @@
 #include <Renderers/IRenderer.h>
 #include <Resources/IShaderResource.h>
 #include <Resources/Texture2D.h>
+#include <Display/Viewport.h>
 
 using namespace OpenEngine::Core;
 using namespace OpenEngine::Renderers;
@@ -26,7 +27,7 @@ namespace OpenEngine {
     }
     namespace Scene {
         class SunNode;
-        class HeightFieldPatchNode;
+        class HeightMapPatchNode;
 
         /**
          * A class for creating landscapes through heightmaps
@@ -44,14 +45,16 @@ namespace OpenEngine {
          *  -+----->Z
          *    WIDTH
          */
-        class HeightFieldNode : public ISceneNode, public IListener<RenderingEventArg> {
-            OE_SCENE_NODE(HeightFieldNode, ISceneNode)
+        class HeightMapNode : public ISceneNode, 
+                              public IListener<RenderingEventArg>, 
+                              public IListener<ProcessEventArg> {
+            OE_SCENE_NODE(HeightMapNode, ISceneNode)
 
         public:
             static const int DIMENSIONS = 4;
             static const int TEXCOORDS = 2;
 
-        private:
+        protected:
             int numberOfVertices;
 
             float* vertices;
@@ -91,7 +94,7 @@ namespace OpenEngine {
 
             // Patch variables
             int patchGridWidth, patchGridDepth, numberOfPatches;
-            HeightFieldPatchNode** patchNodes;
+            HeightMapPatchNode** patchNodes;
 
             // Distances for changing the LOD
             float baseDistance;
@@ -102,9 +105,9 @@ namespace OpenEngine {
             IShaderResourcePtr landscapeShader;
 
         public:
-            HeightFieldNode() {}
-            HeightFieldNode(FloatTexture2DPtr tex);
-            ~HeightFieldNode();
+            HeightMapNode() {}
+            HeightMapNode(FloatTexture2DPtr tex);
+            ~HeightMapNode();
 
             void Load();
 
@@ -115,6 +118,34 @@ namespace OpenEngine {
             void VisitSubNodes(ISceneNodeVisitor& visitor);
 
             void Handle(RenderingEventArg arg);
+            void Handle(ProcessEventArg arg);
+
+            // Virtual HeightMap framework methods
+
+            /**
+             * Used to initialize specialization variables.
+             *
+             * Called after the renderer has been initialized and the
+             * shader (if any) has been initialized.
+             */
+            virtual void Initialize(RenderingEventArg arg) {}
+            /**
+             * Called whenever a process renderer event is fired.
+             *
+             * Can be used to update specialization variables, fx time.
+             */
+            virtual void Process(ProcessEventArg arg) {}
+            /**
+             * PreRender is called just before Render.  
+             * At this point the shader is applied and can be updated.
+             */
+            virtual void PreRender(Display::Viewport view) {}
+            /**
+             * PostRender is called just after Render.  
+             * Should mostly be used for cleaning up after PreRender
+             * is necessary.
+             */
+            virtual void PostRender(Display::Viewport view) {}
 
             // *** Get/Set methods ***
 
@@ -218,7 +249,7 @@ namespace OpenEngine {
             inline char& GetVerticeDelta(const int x, const int z) const;
             inline char& GetVerticeDelta(const int index) const;
             inline int GetPatchIndex(const int x, const int z) const;
-            inline HeightFieldPatchNode* GetPatch(const int x, const int z) const;
+            inline HeightMapPatchNode* GetPatch(const int x, const int z) const;
         };
     }
 } 
