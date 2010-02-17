@@ -30,7 +30,9 @@ namespace OpenEngine {
 
                 SunNode* sun = node->GetSun();
                 if (sun){
-                    glLightfv(GL_LIGHT0, GL_POSITION, sun->GetPos());
+                    float pos[3];
+                    sun->GetPos().ToArray(pos);
+                    glLightfv(GL_LIGHT0, GL_POSITION, pos);
                     float color[4];
                     sun->GetAmbient().ToArray(color);
                     glLightfv(GL_LIGHT0, GL_AMBIENT, color);
@@ -64,8 +66,9 @@ namespace OpenEngine {
                     glTexCoordPointer(HeightMapNode::TEXCOORDS, GL_FLOAT, 0, 0);
 
                     // Setup uniforms
-                    float* dir = sun->GetPos();
-                    shader->SetUniform("lightDir", Vector<3, float>(dir[0], dir[1], dir[2]).GetNormalize());
+                    //float* dir = sun->GetPos();
+                    //shader->SetUniform("lightDir", Vector<3, float>(dir[0], dir[1], dir[2]).GetNormalize());
+                    shader->SetUniform("lightDir", sun->GetPos().GetNormalize());
 
                     shader->SetUniform("viewPos", viewport.GetViewingVolume()->GetPosition());
                 }
@@ -95,7 +98,7 @@ namespace OpenEngine {
             }
 
             void TerrainRenderingView::VisitSunNode(SunNode* node) {
-                float* coords = node->GetPos();
+                Vector<3, float> coords = node->GetPos();
 
                 GLboolean t = glIsEnabled(GL_TEXTURE_2D);
                 GLboolean l = glIsEnabled(GL_LIGHTING);
@@ -163,7 +166,9 @@ namespace OpenEngine {
                         reflection->Accept(*this);
                     }
 
-                    glLightfv(GL_LIGHT0, GL_POSITION, node->GetSun()->GetPos());
+                    float pos[3];
+                    node->GetSun()->GetPos().ToArray(pos);
+                    glLightfv(GL_LIGHT0, GL_POSITION, pos);
 
                     glEnableClientState(GL_VERTEX_ARRAY);
                     glVertexPointer(3, GL_FLOAT, 0, node->GetBottomVerticeArray());
@@ -182,8 +187,9 @@ namespace OpenEngine {
                     float time = (float)node->GetElapsedTime();
                     shader->SetUniform("time", time / 8000000000.0f);
                     shader->SetUniform("time2", time / 4000000.0f);
-                    float* pos = node->GetSun()->GetPos();
-                    shader->SetUniform("lightDir", Vector<3, float>(pos[0], pos[1], pos[2]).GetNormalize());
+                    //float* pos = node->GetSun()->GetPos();
+                    //shader->SetUniform("lightDir", Vector<3, float>(pos[0], pos[1], pos[2]).GetNormalize());
+                    shader->SetUniform("lightDir", node->GetSun()->GetPos().GetNormalize());
 
                     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
                     glEnableClientState(GL_NORMAL_ARRAY);

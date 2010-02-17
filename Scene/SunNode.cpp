@@ -14,23 +14,21 @@
 namespace OpenEngine {
     namespace Scene {
 
-        SunNode::SunNode(float* dir){
-            origo = new float[3];
-            origo[0] = 0; origo[1] = 0; origo[2] = 0;
+        SunNode::SunNode(Vector<3, float> dir){
+            origo = Vector<3, float>(0.0f);
             Init(dir, origo);
         }
 
-        SunNode::SunNode(float* dir, float* origo){
+        SunNode::SunNode(Vector<3, float> dir, Vector<3, float> origo){
             Init(dir, origo);
         }
 
-        void SunNode::Init(float* dir, float* o){
+        void SunNode::Init(Vector<3, float> dir, Vector<3, float> o){
             baseDiffuse = Vector<4, float>(1.0);
             baseSpecular = Vector<4, float>(1.0, 1.0, 0.7, 1);
             ambient = Vector<4, float>(0.2, 0.2, 0.2, 0.0);
             direction = dir;
             origo = o;
-            coords = new float[3];
             time = 0;
             timeModifier = 50000000;
             Move(time);

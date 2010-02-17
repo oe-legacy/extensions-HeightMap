@@ -24,9 +24,12 @@ namespace OpenEngine {
             OE_SCENE_NODE(sunNode, ISceneNode)
             
         private:
-            float* coords;
-            float* origo;
-            float* direction;
+            //float* coords;
+            //float* origo;
+            //float* direction;
+            Vector<3, float> coords;
+            Vector<3, float> origo;
+            Vector<3, float> direction;
 
             Vector<4, float> ambient;
             Vector<4, float> diffuse;
@@ -39,10 +42,10 @@ namespace OpenEngine {
 
         public:
             SunNode(){coords[0] = 0; coords[1] = 0; coords[2] = 0; }
-            SunNode(float* coords);
-            SunNode(float* coords, float* origo);
+            SunNode(Vector<3, float> coords);
+            SunNode(Vector<3, float> coords, Vector<3, float> origo);
 
-            float* GetPos() { return coords; }
+            Vector<3, float> GetPos() { return coords; }
 
             void SetTime(unsigned int time) { this->time = time; }
             void SetTimeModifier(float timeMod) { timeModifier = timeMod; }
@@ -61,7 +64,7 @@ namespace OpenEngine {
             void Handle(ProcessEventArg arg);
 
         private:
-            void Init(float* coords, float* origo);
+            void Init(Vector<3, float> coords, Vector<3, float> origo);
         };
         
     }
