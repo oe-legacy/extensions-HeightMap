@@ -143,14 +143,14 @@ namespace OpenEngine {
              *
              * @return The normal at the given point.
              */
-            float GetNormal(Vector<3, float> point) const;
+            Vector<3, float> GetNormal(Vector<3, float> point) const;
             /**
              * Takes as argument an x- and z-coord in worldspace and
              * returns the normal of the heightmap at that point.
              *
              * @return The normal at the given point.
              */
-            float GetNormal(float x, float z) const;
+            Vector<3, float> GetNormal(float x, float z) const;
 
             unsigned int GetVerticeBufferID() const { return verticeBufferId; }
             unsigned int GetGeomorphBufferID() const { return geomorphBufferId; }
