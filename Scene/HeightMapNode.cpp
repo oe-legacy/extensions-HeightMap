@@ -68,11 +68,13 @@ namespace OpenEngine {
                     patchNodes[i]->CalcLOD(view);
         }
 
-        void HeightMapNode::Render(IViewingVolume* view){
+        void HeightMapNode::Render(Viewport view){
+            PreRender(view);
+
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indiceId);
             if (USE_PATCHES){
                 // Draw patches front to back.
-                Vector<3, float> dir = view->GetDirection().RotateVector(Vector<3, float>(0,0,1));
+                Vector<3, float> dir = view.GetViewingVolume()->GetDirection().RotateVector(Vector<3, float>(0,0,1));
 
                 int xStart, xEnd, xStep, zStart, zEnd, zStep;
                 if (dir[0] < 0){
@@ -106,6 +108,8 @@ namespace OpenEngine {
             }else{
                 glDrawElements(GL_TRIANGLE_STRIP, numberOfIndices, GL_UNSIGNED_INT, 0);
             }
+
+            PostRender(view);
         }
 
         void HeightMapNode::RenderBoundingGeometry(){

@@ -54,9 +54,9 @@ namespace OpenEngine {
             int FBOwidth;
             GLuint reflectionFboID;
             GLuint refractionFboID;
-            UCharTexture2DPtr depthbufferTex;
-            UCharTexture2DPtr reflectionTex;
-            UCharTexture2DPtr refractionTex;
+            ITexture2DPtr depthbufferTex;
+            ITexture2DPtr reflectionTex;
+            ITexture2DPtr refractionTex;
 
             IShaderResourcePtr waterShader;
             unsigned int elapsedTime;
@@ -89,10 +89,10 @@ namespace OpenEngine {
             int GetFBOHeight() const { return FBOheight; }
             int GetFBOWidth() const { return FBOwidth; }
             GLuint GetReflectionFboID() const { return reflectionFboID; }
-            UCharTexture2DPtr GetReflectionTex() const { return reflectionTex; }
+            ITexture2DPtr GetReflectionTex() const { return reflectionTex; }
             GLuint GetRefractionFboID() const { return refractionFboID; }
-            UCharTexture2DPtr GetRefractionTex() const { return refractionTex; }
-            UCharTexture2DPtr GetRefractionDepthMap() const { return depthbufferTex; }
+            ITexture2DPtr GetRefractionTex() const { return refractionTex; }
+            ITexture2DPtr GetRefractionDepthMap() const { return depthbufferTex; }
             unsigned int GetElapsedTime() { return elapsedTime; }
 
             void SetReflectionScene(ISceneNode* r) { reflection = r; }

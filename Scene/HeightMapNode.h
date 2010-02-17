@@ -112,7 +112,7 @@ namespace OpenEngine {
             void Load();
 
             void CalcLOD(Display::IViewingVolume* view);
-            void Render(Display::IViewingVolume* view);
+            void Render(Display::Viewport view);
             void RenderBoundingGeometry();
 
             void VisitSubNodes(ISceneNodeVisitor& visitor);
@@ -120,32 +120,6 @@ namespace OpenEngine {
             void Handle(RenderingEventArg arg);
             void Handle(ProcessEventArg arg);
 
-            // Virtual HeightMap framework methods
-
-            /**
-             * Used to initialize specialization variables.
-             *
-             * Called after the renderer has been initialized and the
-             * shader (if any) has been initialized.
-             */
-            virtual void Initialize(RenderingEventArg arg) {}
-            /**
-             * Called whenever a process renderer event is fired.
-             *
-             * Can be used to update specialization variables, fx time.
-             */
-            virtual void Process(ProcessEventArg arg) {}
-            /**
-             * PreRender is called just before Render.  
-             * At this point the shader is applied and can be updated.
-             */
-            virtual void PreRender(Display::Viewport view) {}
-            /**
-             * PostRender is called just after Render.  
-             * Should mostly be used for cleaning up after PreRender
-             * is necessary.
-             */
-            virtual void PostRender(Display::Viewport view) {}
 
             // *** Get/Set methods ***
 
@@ -215,6 +189,34 @@ namespace OpenEngine {
             IShaderResourcePtr GetLandscapeShader() const { return landscapeShader; }
 
         protected:
+            // Virtual HeightMap framework methods
+
+            /**
+             * Used to initialize specialization variables.
+             *
+             * Called after the renderer has been initialized and the
+             * shader (if any) has been initialized.
+             */
+            virtual void Initialize(RenderingEventArg arg) {}
+            /**
+             * Called whenever a process renderer event is fired.
+             *
+             * Can be used to update specialization variables, fx time.
+             */
+            virtual void Process(ProcessEventArg arg) {}
+            /**
+             * PreRender is called just before Render.  
+             * At this point the shader is applied and can be updated.
+             */
+            virtual void PreRender(Display::Viewport view) {}
+            /**
+             * PostRender is called just after Render.  
+             * Should mostly be used for cleaning up after PreRender
+             * is necessary.
+             */
+            virtual void PostRender(Display::Viewport view) {}
+
+            // Setup methods
             inline void InitArrays();
             inline void SetupNormalMap();
             inline void SetupTerrainTexture();

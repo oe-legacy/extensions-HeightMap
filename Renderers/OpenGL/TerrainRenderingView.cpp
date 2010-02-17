@@ -72,11 +72,7 @@ namespace OpenEngine {
 
                 node->CalcLOD(viewport.GetViewingVolume());
 
-                node->PreRender(viewport);
-
-                node->Render(viewport.GetViewingVolume());
-
-                node->PostRender(viewport);
+                node->Render(viewport);
 
                 glDisableClientState(GL_VERTEX_ARRAY);
                 glDisableClientState(GL_NORMAL_ARRAY);

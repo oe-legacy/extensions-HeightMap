@@ -25,4 +25,5 @@ TARGET_LINK_LIBRARIES( ${EXTENSION_NAME}
 
 TARGET_LINK_LIBRARIES(Extensions_HeightMap
   OpenEngine_Scene
+  OpenEngine_Display
 )
