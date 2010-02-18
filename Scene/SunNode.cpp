@@ -11,6 +11,8 @@
 #include <Math/Math.h>
 #include <Logging/Logger.h>
 
+using namespace std;
+
 namespace OpenEngine {
     namespace Scene {
 
@@ -24,6 +26,7 @@ namespace OpenEngine {
         }
 
         void SunNode::Init(Vector<3, float> dir, Vector<3, float> o){
+            geometry = false;
             baseDiffuse = Vector<4, float>(1.0);
             baseSpecular = Vector<4, float>(1.0, 1.0, 0.7, 1);
             ambient = Vector<4, float>(0.2, 0.2, 0.2, 0.0);
@@ -58,6 +61,13 @@ namespace OpenEngine {
                 specular = Vector<4, float>(0.0);
             else
                 specular = baseSpecular;
+        }
+
+        void SunNode::VisitSubNodes(ISceneNodeVisitor& visitor){
+            list<ISceneNode*>::iterator itr;
+            for (itr = subNodes.begin(); itr != subNodes.end(); ++itr){
+                (*itr)->Accept(visitor);
+            }
         }
 
         void SunNode::Handle(ProcessEventArg arg){

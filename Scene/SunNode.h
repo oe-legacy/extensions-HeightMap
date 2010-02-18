@@ -24,9 +24,6 @@ namespace OpenEngine {
             OE_SCENE_NODE(sunNode, ISceneNode)
             
         private:
-            //float* coords;
-            //float* origo;
-            //float* direction;
             Vector<3, float> coords;
             Vector<3, float> origo;
             Vector<3, float> direction;
@@ -39,6 +36,8 @@ namespace OpenEngine {
 
             unsigned int time;
             float timeModifier;
+            
+            bool geometry;
 
         public:
             SunNode(){coords[0] = 0; coords[1] = 0; coords[2] = 0; }
@@ -59,9 +58,12 @@ namespace OpenEngine {
 
             void Move(unsigned int dt);
 
-            void VisitSubNodes(ISceneNodeVisitor& visitor) {};
+            void VisitSubNodes(ISceneNodeVisitor& visitor);
 
             void Handle(ProcessEventArg arg);
+
+            void SetRenderGeometry(bool g) { geometry = g; }
+            bool renderGeometry() { return geometry;}
 
         private:
             void Init(Vector<3, float> coords, Vector<3, float> origo);

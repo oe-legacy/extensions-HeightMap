@@ -93,28 +93,30 @@ namespace OpenEngine {
                 node->GetSpecular().ToArray(color);
                 glLightfv(GL_LIGHT0, GL_SPECULAR, color);
 
-                Vector<3, float> coords = node->GetPos();
-
-                GLboolean t = glIsEnabled(GL_TEXTURE_2D);
-                GLboolean l = glIsEnabled(GL_LIGHTING);
-                glDisable(GL_TEXTURE_2D);
-                glDisable(GL_LIGHTING);               
-
-                glPushMatrix();
-                glTranslatef(coords[0], coords[1], coords[2]);
-                glColor3f(1, 0.8, 0);
-                GLUquadricObj* qobj = gluNewQuadric();
-                glLineWidth(1);
-                gluQuadricNormals(qobj, GLU_SMOOTH);
-                gluQuadricDrawStyle(qobj, GLU_FILL);
-                gluQuadricOrientation(qobj, GLU_INSIDE);
-                gluSphere(qobj, 35, 10, 10); 
-                gluDeleteQuadric(qobj);
-                glPopMatrix();
-                
-                // reset state
-                if (t) glEnable(GL_TEXTURE_2D);
-                if (l) glEnable(GL_LIGHTING);
+                if (node->renderGeometry()){
+                    Vector<3, float> coords = node->GetPos();
+                    
+                    GLboolean t = glIsEnabled(GL_TEXTURE_2D);
+                    GLboolean l = glIsEnabled(GL_LIGHTING);
+                    glDisable(GL_TEXTURE_2D);
+                    glDisable(GL_LIGHTING);               
+                    
+                    glPushMatrix();
+                    glTranslatef(coords[0], coords[1], coords[2]);
+                    glColor3f(1, 0.8, 0);
+                    GLUquadricObj* qobj = gluNewQuadric();
+                    glLineWidth(1);
+                    gluQuadricNormals(qobj, GLU_SMOOTH);
+                    gluQuadricDrawStyle(qobj, GLU_FILL);
+                    gluQuadricOrientation(qobj, GLU_INSIDE);
+                    gluSphere(qobj, 35, 10, 10); 
+                    gluDeleteQuadric(qobj);
+                    glPopMatrix();
+                    
+                    // reset state
+                    if (t) glEnable(GL_TEXTURE_2D);
+                    if (l) glEnable(GL_LIGHTING);
+                }
             }
 
             void TerrainRenderingView::VisitWaterNode(WaterNode* node) {
