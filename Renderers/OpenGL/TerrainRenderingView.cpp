@@ -66,10 +66,7 @@ namespace OpenEngine {
                     glTexCoordPointer(HeightMapNode::TEXCOORDS, GL_FLOAT, 0, 0);
 
                     // Setup uniforms
-                    //float* dir = sun->GetPos();
-                    //shader->SetUniform("lightDir", Vector<3, float>(dir[0], dir[1], dir[2]).GetNormalize());
                     shader->SetUniform("lightDir", sun->GetPos().GetNormalize());
-
                     shader->SetUniform("viewPos", viewport.GetViewingVolume()->GetPosition());
                 }
 
@@ -78,7 +75,6 @@ namespace OpenEngine {
                 node->Render(viewport);
 
                 glDisableClientState(GL_VERTEX_ARRAY);
-                glDisableClientState(GL_NORMAL_ARRAY);
                 if (shader){
                     shader->ReleaseShader();
                     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
