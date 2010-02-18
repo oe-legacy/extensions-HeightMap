@@ -252,11 +252,11 @@ namespace OpenEngine {
              * http://en.wikipedia.org/wiki/Bilinear_interpolation
              */
             
-            // x and z normalized with respect to the scaling.
-            // @TODO If a translation is ever used it should go here aswell.
-            x /= widthScale;
-            z /= widthScale;
-            
+            // x and z normalized with respect to the scaling and
+            // translation from offset.
+            x = (x - offset.Get(0)) / widthScale;
+            z = (z - offset.Get(2)) / widthScale;
+
             // The indices into the array
             int X = floor(x);
             int Z = floor(z);
@@ -282,11 +282,11 @@ namespace OpenEngine {
              * http://en.wikipedia.org/wiki/Bilinear_interpolation
              */
             
-            // x and z normalized with respect to the scaling.
-            // @TODO If a translation is ever used it should go here aswell.
-            x /= widthScale;
-            z /= widthScale;
-            
+            // x and z normalized with respect to the scaling and
+            // translation from offset.
+            x = (x - offset.Get(0)) / widthScale;
+            z = (z - offset.Get(2)) / widthScale;
+
             // The indices into the array
             int X = floor(x);
             int Z = floor(z);
