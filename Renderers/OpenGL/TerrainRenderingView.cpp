@@ -92,6 +92,7 @@ namespace OpenEngine {
                 glLightfv(GL_LIGHT0, GL_DIFFUSE, color);
                 node->GetSpecular().ToArray(color);
                 glLightfv(GL_LIGHT0, GL_SPECULAR, color);
+                glEnable(GL_LIGHT0);
 
                 if (node->renderGeometry()){
                     Vector<3, float> coords = node->GetPos();
@@ -117,6 +118,8 @@ namespace OpenEngine {
                     if (t) glEnable(GL_TEXTURE_2D);
                     if (l) glEnable(GL_LIGHTING);
                 }
+
+                node->VisitSubNodes(*this);
             }
 
             void TerrainRenderingView::VisitWaterNode(WaterNode* node) {
