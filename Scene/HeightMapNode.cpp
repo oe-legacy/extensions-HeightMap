@@ -18,6 +18,7 @@
 #include <Logging/Logger.h>
 
 #include <algorithm>
+#include <cstring>
 
 #define USE_PATCHES true
 
@@ -25,7 +26,7 @@ using namespace OpenEngine::Display;
 
 namespace OpenEngine {
     namespace Scene {
-        
+
         HeightMapNode::HeightMapNode(FloatTexture2DPtr tex)
             : tex(tex) {
             tex->Load();

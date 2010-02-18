@@ -82,7 +82,8 @@ namespace OpenEngine {
             }
 
             void TerrainRenderingView::VisitSunNode(SunNode* node) {
-                float pos[3];
+                float pos[4];
+                pos[3] = 1.0;
                 node->GetPos().ToArray(pos);
                 glLightfv(GL_LIGHT0, GL_POSITION, pos);
                 float color[4];

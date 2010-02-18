@@ -12,8 +12,9 @@
 #include <Meta/OpenGL.h>
 #include <Display/IViewingVolume.h>
 #include <Logging/Logger.h>
-
 #include <math.h>
+
+#include <cstring>
 
 using namespace OpenEngine::Display;
 
