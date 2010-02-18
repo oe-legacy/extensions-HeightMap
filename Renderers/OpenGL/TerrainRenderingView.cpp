@@ -28,20 +28,6 @@ namespace OpenEngine {
             void TerrainRenderingView::VisitHeightMapNode(HeightMapNode* node) {
                 glEnable(GL_CULL_FACE);
 
-                SunNode* sun = node->GetSun();
-                if (sun){
-                    float pos[3];
-                    sun->GetPos().ToArray(pos);
-                    glLightfv(GL_LIGHT0, GL_POSITION, pos);
-                    float color[4];
-                    sun->GetAmbient().ToArray(color);
-                    glLightfv(GL_LIGHT0, GL_AMBIENT, color);
-                    sun->GetDiffuse().ToArray(color);
-                    glLightfv(GL_LIGHT0, GL_DIFFUSE, color);
-                    sun->GetSpecular().ToArray(color);
-                    glLightfv(GL_LIGHT0, GL_SPECULAR, color);
-                }
-
                 glBindBuffer(GL_ARRAY_BUFFER, node->GetVerticeBufferID());
                 glEnableClientState(GL_VERTEX_ARRAY);
                 glVertexPointer(HeightMapNode::DIMENSIONS, GL_FLOAT, 0, 0);
@@ -66,7 +52,9 @@ namespace OpenEngine {
                     glTexCoordPointer(HeightMapNode::TEXCOORDS, GL_FLOAT, 0, 0);
 
                     // Setup uniforms
-                    shader->SetUniform("lightDir", sun->GetPos().GetNormalize());
+                    SunNode* sun = node->GetSun();
+                    if (sun)
+                        shader->SetUniform("lightDir", sun->GetPos().GetNormalize());
                     shader->SetUniform("viewPos", viewport.GetViewingVolume()->GetPosition());
                 }
 
@@ -94,6 +82,17 @@ namespace OpenEngine {
             }
 
             void TerrainRenderingView::VisitSunNode(SunNode* node) {
+                float pos[3];
+                node->GetPos().ToArray(pos);
+                glLightfv(GL_LIGHT0, GL_POSITION, pos);
+                float color[4];
+                node->GetAmbient().ToArray(color);
+                glLightfv(GL_LIGHT0, GL_AMBIENT, color);
+                node->GetDiffuse().ToArray(color);
+                glLightfv(GL_LIGHT0, GL_DIFFUSE, color);
+                node->GetSpecular().ToArray(color);
+                glLightfv(GL_LIGHT0, GL_SPECULAR, color);
+
                 Vector<3, float> coords = node->GetPos();
 
                 GLboolean t = glIsEnabled(GL_TEXTURE_2D);
