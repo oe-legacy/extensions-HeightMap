@@ -39,6 +39,8 @@ namespace OpenEngine {
             invIncDistance = 1.0f / 100.0f;
 
             texCoords = NULL;
+
+            landscapeShader = IShaderResourcePtr();
         }
 
         HeightMapNode::~HeightMapNode(){
@@ -158,28 +160,11 @@ namespace OpenEngine {
             if (landscapeShader != NULL) {
                 // Init shader used buffer objects
 
-                // normal map pbo
-                glGenBuffers(1, &normalsBufferId);
-                glBindBuffer(GL_PIXEL_UNPACK_BUFFER, normalsBufferId);
-                glBufferData(GL_PIXEL_UNPACK_BUFFER, 
-                             sizeof(GLfloat) * numberOfVertices * 3,
-                             normals, GL_STATIC_DRAW);
-
                 // Create the image to hold the normal map
-                unsigned int normalTexId;
-                glGenTextures(1, &normalTexId);
-                glBindTexture(GL_TEXTURE_2D, normalTexId);
-                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S, GL_REPEAT);
-                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T, GL_REPEAT);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, depth, width, 0, GL_RGB, GL_FLOAT, NULL);
-
-                glBindTexture(GL_TEXTURE_2D, 0);
-                glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-
-                normalmap = FloatTexture2DPtr(new Texture2D<float>(width, depth, 3));
-                normalmap->SetID(normalTexId);
+                normalmap = FloatTexture2DPtr(new Texture2D<float>(width, depth, 3, normals));
+                normalmap->SetColorFormat(RGB32F);
+                normalmap->SetMipmapping(false);
+                arg.renderer.LoadTexture(normalmap.get());
 
                 // Geomorph values buffer object
                 glGenBuffers(1, &geomorphBufferId);
@@ -365,6 +350,7 @@ namespace OpenEngine {
             glBindBuffer(GL_ARRAY_BUFFER, 0);
 
             // Update shadows
+            /*
             int shadowLeft = x < 2 ? 0 : x - 1;
             int shadowRight = x + 3 > width ? width : x + 2;
             int shadowBelow = z < 2 ? 0 : z - 1;
@@ -390,6 +376,7 @@ namespace OpenEngine {
             glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
             glBindTexture(GL_TEXTURE_2D, 0);
             glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);            
+            */
 
             // Update bounding box
             HeightMapPatchNode* mainNode = GetPatch(x, z);
@@ -449,6 +436,7 @@ namespace OpenEngine {
             glBindBuffer(GL_ARRAY_BUFFER, 0);
 
             // Update the shadows
+            /*
             int shadowLeft = xStart < 2 ? 0 : xStart - 1;
             int shadowRight = xEnd + 3 > width ? width : xEnd + 2;
             int shadowBelow = zStart < 2 ? 0 : zStart - 1;
@@ -474,6 +462,7 @@ namespace OpenEngine {
             glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
             glBindTexture(GL_TEXTURE_2D, 0);
             glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+            */
 
             // Update the bounding geometry
             int patchSize = HeightMapPatchNode::PATCH_EDGE_SQUARES;

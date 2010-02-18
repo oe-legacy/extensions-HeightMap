@@ -61,7 +61,6 @@ namespace OpenEngine {
             unsigned int verticeBufferId;
 
             float* normals;
-            unsigned int normalsBufferId;
 
             float* texCoords;
             unsigned int texCoordBufferId;
