@@ -24,6 +24,15 @@ namespace OpenEngine {
                                  UCharTexture2DPtr t4 = UCharTexture2DPtr());
 
         template <class T>
+        void Empty(Texture2DPtr(T) t){
+            t->Load();
+            for (unsigned int x = 0; x < t->GetWidth(); ++x)
+                for (unsigned int z = 0; z < t->GetWidth(); ++z)
+                    for (unsigned int c = 0; c < t->GetChannels(); ++c)
+                        t->GetPixel(x, z)[c] = 0;
+        }
+
+        template <class T>
         Texture2DPtr(T) ChangeChannels(Texture2DPtr(T) t, unsigned int channels){
             t->Load();
             
