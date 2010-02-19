@@ -129,6 +129,8 @@ namespace OpenEngine {
         }
 
         void HeightMapNode::Handle(RenderingEventArg arg){
+            Initialize(arg);
+
             Load();
 
             // Create vbos
@@ -165,7 +167,7 @@ namespace OpenEngine {
                 normalmap = FloatTexture2DPtr(new Texture2D<float>(width, depth, 3, normals));
                 normalmap->SetColorFormat(RGB32F);
                 normalmap->SetMipmapping(false);
-                arg.renderer.LoadTexture(normalmap.get());
+                landscapeShader->SetTexture("normalMap", normalmap);
 
                 // Geomorph values buffer object
                 glGenBuffers(1, &geomorphBufferId);
@@ -185,32 +187,9 @@ namespace OpenEngine {
                 TextureList texs = landscapeShader->GetTextures();
                 for (unsigned int i = 0; i < texs.size(); ++i)
                     arg.renderer.LoadTexture(texs[i].get());
-
-                landscapeShader->ApplyShader();
-
-                /*
-                 * Should be moved to a virtual function. Terrain
-                 * shouldn't make any assumptions on the texturing.
-                 *
-                 * Shader needs to store uniforms for this to work and
-                 * bind them to the gpu when applied. (Incoming)
-                 *
-                landscapeShader->SetUniform("snowStartHeight", (float)50);
-                landscapeShader->SetUniform("snowBlend", (float)20);
-                landscapeShader->SetUniform("grassStartHeight", (float)5);
-                landscapeShader->SetUniform("grassBlend", (float)5);
-                landscapeShader->SetUniform("sandStartHeight", (float)-10);
-                landscapeShader->SetUniform("sandBlend", (float)10);
-                */
-
-                landscapeShader->SetTexture("normalMap", normalmap);
-
-                landscapeShader->ReleaseShader();
             }
             
             SetLODSwitchDistance(baseDistance, 1 / invIncDistance);
-
-            Initialize(arg);
 
             // Cleanup in ram
             delete [] geomorphValues;
@@ -531,14 +510,8 @@ namespace OpenEngine {
                 invIncDistance = 1.0f / dec;
 
             // Update uniforms
-            if (landscapeShader != NULL) {
-                landscapeShader->ApplyShader();
-
-                landscapeShader->SetUniform("baseDistance", baseDistance);
-                landscapeShader->SetUniform("invIncDistance", invIncDistance);
-
-                landscapeShader->ReleaseShader();
-            }
+            landscapeShader->SetUniform("baseDistance", baseDistance);
+            landscapeShader->SetUniform("invIncDistance", invIncDistance);
         }
 
         void HeightMapNode::SetTextureDetail(const float detail){

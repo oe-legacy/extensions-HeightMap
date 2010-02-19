@@ -30,19 +30,12 @@ namespace OpenEngine {
 
         void WaterNode::Handle(RenderingEventArg arg){
             if (waterShader != NULL){
-                waterShader->Load();
-                TextureList texs = waterShader->GetTextures();
-                for (unsigned int i = 0; i < texs.size(); ++i)
-                    arg.renderer.LoadTexture(texs[i]);
-                
-                waterShader->ApplyShader();
-
-                // Check if framebuffering is supported
-                const std::string fboExt = "GL_EXT_framebuffer_object";
-                if (glewGetExtension(fboExt.c_str()) != GL_TRUE )
-                    throw Exception(fboExt + " not supported");
-                
                 if (reflection){
+                    // Check if framebuffering is supported
+                    const std::string fboExt = "GL_EXT_framebuffer_object";
+                    if (glewGetExtension(fboExt.c_str()) != GL_TRUE )
+                        throw Exception(fboExt + " not supported");
+                    
                     FBOwidth = 800;
                     FBOheight = 600;
                     
@@ -52,7 +45,11 @@ namespace OpenEngine {
                     waterShader->SetTexture("reflection", reflectionTex);
                 }
 
-                waterShader->ReleaseShader();
+                waterShader->Load();
+                TextureList texs = waterShader->GetTextures();
+                for (unsigned int i = 0; i < texs.size(); ++i)
+                    arg.renderer.LoadTexture(texs[i].get());
+                
             }else if (surface != NULL)
                 arg.renderer.LoadTexture(surface);
         }

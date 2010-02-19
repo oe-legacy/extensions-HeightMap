@@ -193,8 +193,8 @@ namespace OpenEngine {
             /**
              * Used to initialize specialization variables.
              *
-             * Called after the renderer has been initialized and the
-             * shader (if any) has been initialized.
+             * Called after the renderer has been initalized, but
+             * before the HeightMap or it's shader has been loaded.
              */
             virtual void Initialize(RenderingEventArg arg) {}
             /**
