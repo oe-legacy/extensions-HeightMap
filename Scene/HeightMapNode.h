@@ -13,9 +13,15 @@
 #include <Scene/ISceneNode.h>
 #include <Core/IListener.h>
 #include <Renderers/IRenderer.h>
-#include <Resources/IShaderResource.h>
 #include <Resources/Texture2D.h>
 #include <Display/Viewport.h>
+
+namespace OpenEngine {
+    namespace Resources {
+        class IShaderResource;
+        typedef boost::shared_ptr<IShaderResource> IShaderResourcePtr;
+    }
+}
 
 using namespace OpenEngine::Core;
 using namespace OpenEngine::Renderers;

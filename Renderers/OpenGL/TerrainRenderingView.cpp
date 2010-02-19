@@ -8,6 +8,8 @@
 //--------------------------------------------------------------------
 
 #include "TerrainRenderingView.h"
+
+#include <Resources/IShaderResource.h>
 #include <Scene/HeightMapNode.h>
 #include <Scene/SunNode.h>
 #include <Scene/WaterNode.h>

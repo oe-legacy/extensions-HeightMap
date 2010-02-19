@@ -9,6 +9,7 @@
 
 #include <Scene/HeightMapNode.h>
 #include <Scene/HeightMapPatchNode.h>
+#include <Resources/IShaderResource.h>
 #include <Math/Math.h>
 #include <Meta/OpenGL.h>
 #include <Utils/TerrainUtils.h>

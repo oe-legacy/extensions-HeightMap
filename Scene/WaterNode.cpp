@@ -9,6 +9,7 @@
 
 #include <Scene/WaterNode.h>
 
+#include <Resources/IShaderResource.h>
 #include <Utils/TerrainTexUtils.h>
 #include <Logging/Logger.h>
 #include <string.h>
