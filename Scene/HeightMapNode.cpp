@@ -167,7 +167,7 @@ namespace OpenEngine {
                 normalmap = FloatTexture2DPtr(new Texture2D<float>(width, depth, 3, normals));
                 normalmap->SetColorFormat(RGB32F);
                 normalmap->SetMipmapping(false);
-                landscapeShader->SetTexture("normalMap", normalmap);
+                landscapeShader->SetTexture("normalMap", (ITexture2DPtr)normalmap);
 
                 // Geomorph values buffer object
                 glGenBuffers(1, &geomorphBufferId);

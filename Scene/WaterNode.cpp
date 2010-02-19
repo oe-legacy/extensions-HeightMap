@@ -42,7 +42,7 @@ namespace OpenEngine {
                     SetupReflectionFBO(arg.renderer);
                     //SetupRefractionFBO(arg.renderer);
 
-                    waterShader->SetTexture("reflection", reflectionTex);
+                    waterShader->SetTexture("reflection", (ITexture2DPtr)reflectionTex);
                 }
 
                 waterShader->Load();
