@@ -10,7 +10,6 @@
 #include <Utils/TerrainUtils.h>
 
 #include <Scene/HeightMapNode.h>
-#include <Scene/HeightMapPatchNode.h>
 #include <Math/Vector.h>
 #include <Math/RandomGenerator.h>
 #include <Logging/Logger.h>
@@ -39,8 +38,6 @@ namespace OpenEngine {
             for (unsigned int i = 0; i < steps; ++i){
                 // Pick a random point
                 Vector<2, int> c = Vector<2, int>(ran.UniformInt(0, width), ran.UniformInt(0, height));
-
-                //logger.info << "Iteration: " << i << " yielded centrum " << c.ToString() << logger.end;
 
                 // Iterate through each point in the circle by
                 // iterating through a square around the circle.

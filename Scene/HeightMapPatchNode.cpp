@@ -22,7 +22,7 @@ namespace OpenEngine {
     namespace Scene {
         
         HeightMapPatchNode::HeightMapPatchNode(int xStart, int zStart, HeightMapNode* t)
-            : terrain(t), LOD(MAX_LODS-1), xStart(xStart), zStart(zStart),
+            : terrain(t), LOD(1), geomorphingScale(1), visible(false), xStart(xStart), zStart(zStart),
               upperNeighbour(NULL), rightNeighbour(NULL){
             
             xEnd = xStart + PATCH_EDGE_VERTICES;
@@ -103,10 +103,11 @@ namespace OpenEngine {
             float distance = (viewPos - patchCenter).GetLength();
 
             float baseDistance = terrain->GetLODBaseDistance();
+
             float invIncDistance = terrain->GetLODInverseIncDistance();
 
             distance -= baseDistance;
-            
+
             geomorphingScale = distance * invIncDistance;
 
             if (geomorphingScale < 1)
