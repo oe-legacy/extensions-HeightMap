@@ -68,6 +68,7 @@ namespace OpenEngine {
                 glDisableClientState(GL_VERTEX_ARRAY);
                 if (shader){
                     shader->ReleaseShader();
+                    glDisableClientState(GL_NORMAL_ARRAY);
                     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
                     glClientActiveTexture(GL_TEXTURE0);
                     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
