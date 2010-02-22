@@ -39,11 +39,11 @@ namespace OpenEngine {
 
             return ret;
         }        
-
-        UIntTexture2DPtr Combine(UCharTexture2DPtr t1,
-                                 UCharTexture2DPtr t2,
-                                 UCharTexture2DPtr t3, 
-                                 UCharTexture2DPtr t4){
+        
+        UIntTexture2DPtr Merge(UCharTexture2DPtr t1,
+                               UCharTexture2DPtr t2,
+                               UCharTexture2DPtr t3, 
+                               UCharTexture2DPtr t4){
             // Check that the dimensions are the same. 
 
             //@TODO could be replaced by some sort of interpolation of
@@ -52,11 +52,12 @@ namespace OpenEngine {
             unsigned int width = t1->GetWidth();
             unsigned int height = t1->GetHeight();
             
+#ifdef OE_SAFE
             if (width != t2->GetWidth() ||
                 height != t2->GetHeight()){
-                logger.warning << "Trying to combine textures of different dimensions. Aborting." << logger.end;
-                return UIntTexture2DPtr();
+                throw Exception("Trying to combine textures of different dimensions. Aborting.");
             }
+#endif
             
             UIntTexture2DPtr ret = UIntTexture2DPtr(new UIntTexture2D(width, height, 2));
 

@@ -18,10 +18,12 @@ namespace OpenEngine {
     namespace Utils {
         FloatTexture2DPtr ConvertTex(UCharTexture2DPtr tex);
 
-        UIntTexture2DPtr Combine(UCharTexture2DPtr t1, 
-                                 UCharTexture2DPtr t2 = UCharTexture2DPtr(), 
-                                 UCharTexture2DPtr t3 = UCharTexture2DPtr(), 
-                                 UCharTexture2DPtr t4 = UCharTexture2DPtr());
+        
+
+        UIntTexture2DPtr Merge(UCharTexture2DPtr t1, 
+                               UCharTexture2DPtr t2 = UCharTexture2DPtr(), 
+                               UCharTexture2DPtr t3 = UCharTexture2DPtr(), 
+                               UCharTexture2DPtr t4 = UCharTexture2DPtr());
 
         template <class T>
         void Empty(Texture2DPtr(T) t){
@@ -30,6 +32,24 @@ namespace OpenEngine {
                 for (unsigned int z = 0; z < t->GetWidth(); ++z)
                     for (unsigned int c = 0; c < t->GetChannels(); ++c)
                         t->GetPixel(x, z)[c] = 0;
+        }
+
+        template <class T>
+        void MoveChannel(Texture2DPtr(T) from, Texture2DPtr(T) to, unsigned int cFrom, unsigned int cTo){
+            unsigned int width = from->GetWidth();
+            unsigned int height = from->GetHeight();
+
+#ifdef OE_SAFE
+            if (width != to->GetWidth() ||
+                height != to->GetHeight()){
+                throw Exception("Trying to combine textures of different dimensions. Aborting.");
+            }
+#endif
+            for (unsigned int x = 0; x < width; ++x){
+                for (unsigned int y = 0; y < height; ++y){
+                    from->GetPixel()[cFrom] = to->GetPixel()[cTo];
+                }
+            }
         }
 
         template <class T>

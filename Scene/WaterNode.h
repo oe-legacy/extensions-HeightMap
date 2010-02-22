@@ -48,7 +48,8 @@ namespace OpenEngine {
             float* texCoords;
 
             float texDetail;
-            ITextureResourcePtr surface;
+            ITexture2DPtr surface;
+            UCharTexture2DPtr normaldudvmap;
 
             Vector<3, float> center;
             float diameter;
@@ -103,7 +104,8 @@ namespace OpenEngine {
 
             void SetReflectionScene(ISceneNode* r) { reflection = r; }
             ISceneNode* GetReflectionScene() const { return reflection; }
-            void SetSurfaceTexture(ITextureResourcePtr tex, float pixelsPrEdge);
+            void SetNormalDudvMap(UCharTexture2DPtr normal, UCharTexture2DPtr dudv);
+            void SetSurfaceTexture(ITexture2DPtr tex, float pixelsPrEdge);
             ITextureResourcePtr GetSurfaceTexture() { return surface; }
             void SetWaterShader(IShaderResourcePtr water, float pixelsPrEdge);
             IShaderResourcePtr GetWaterShader() { return waterShader; }

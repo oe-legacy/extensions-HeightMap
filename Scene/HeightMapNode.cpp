@@ -114,6 +114,27 @@ namespace OpenEngine {
             }
 
             PostRender(view);
+
+            /*
+            landscapeShader->ReleaseShader();
+            glBegin(GL_LINES);
+            for (int x = 0; x < width; ++x){
+                for (int z = 0; z < depth; ++z){
+                    float* v = GetVertice(x, z);
+                    float* n = GetNormals(x, z);
+                    glColor3f(1, 0, 0);
+                    glVertex3fv(v);
+                    glVertex3f(v[0] + n[0], v[1] + n[1], v[2] + n[2]);
+                    glColor3f(0, 1, 0);
+                    glVertex3fv(v);
+                    glVertex3f(v[0] - n[1] / 2, v[1] + n[0], v[2]);
+                    glColor3f(0, 0, 1);
+                    glVertex3fv(v);
+                    glVertex3f(v[0], v[1] + n[2], v[2] - n[1] / 2);
+                }
+            }
+            glEnd();
+            */
         }
 
         void HeightMapNode::RenderBoundingGeometry(){

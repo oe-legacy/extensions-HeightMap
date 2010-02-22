@@ -92,11 +92,8 @@ namespace OpenEngine {
         }
         
         void HeightMapPatchNode::CalcLOD(IViewingVolume* view){
-            if (!view->IsVisible(boundingBox)){
-                visible = false;
-                return;
-            }
-            visible = true;
+            visible = view->IsVisible(boundingBox);
+            if (!visible) return;
 
             Vector<3, float> viewPos = view->GetPosition();
             

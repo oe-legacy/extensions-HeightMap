@@ -82,6 +82,7 @@ namespace OpenEngine {
                     node->RenderBoundingGeometry();
 
                 node->VisitSubNodes(*this);
+
             }
 
             void TerrainRenderingView::VisitSunNode(SunNode* node) {

@@ -46,6 +46,9 @@ namespace OpenEngine {
                     waterShader->SetTexture("reflection", (ITexture2DPtr)reflectionTex);
                 }
 
+                if (normaldudvmap != NULL)
+                    waterShader->SetTexture("normaldudvmap", (ITexture2DPtr)normaldudvmap);
+
                 waterShader->Load();
                 TextureList texs = waterShader->GetTextures();
                 for (unsigned int i = 0; i < texs.size(); ++i)
@@ -63,6 +66,29 @@ namespace OpenEngine {
             surface = tex; 
             texDetail = pixelsPrUnit;
             SetupTexCoords();
+        }
+
+        void WaterNode::SetNormalDudvMap(UCharTexture2DPtr normal, UCharTexture2DPtr dudv){
+            if (normal != NULL && dudv != NULL){
+                normal->Load();
+                dudv->Load();
+                
+                // Combine the textures
+                unsigned int width = normal->GetWidth();
+                unsigned int height = normal->GetHeight();
+                
+                normaldudvmap = UCharTexture2DPtr(new UCharTexture2D(width, height, 4));
+                normaldudvmap->SetColorFormat(RGBA);
+                normaldudvmap->Load();
+                
+                for (unsigned int x = 0; x < width; ++x)
+                    for (unsigned int z = 0; z < height; ++z){
+                        normaldudvmap->GetPixel(x,z)[0] = normal->GetPixel(x,z)[0];
+                        normaldudvmap->GetPixel(x,z)[1] = normal->GetPixel(x,z)[1];
+                        normaldudvmap->GetPixel(x,z)[2] = dudv->GetPixel(x,z)[0];
+                        normaldudvmap->GetPixel(x,z)[3] = dudv->GetPixel(x,z)[1];
+                    }
+            }
         }
 
         void WaterNode::SetWaterShader(IShaderResourcePtr water, float pixelsPrUnit){
