@@ -79,6 +79,7 @@ namespace OpenEngine {
                 
                 normaldudvmap = UCharTexture2DPtr(new UCharTexture2D(width, height, 4));
                 normaldudvmap->SetColorFormat(RGBA);
+                normaldudvmap->SetCompression(false);
                 normaldudvmap->Load();
                 
                 for (unsigned int x = 0; x < width; ++x)
