@@ -177,6 +177,7 @@ namespace OpenEngine {
             reflectionTex = UCharTexture2DPtr(new Texture2D<unsigned char>(FBOwidth, FBOheight, 3));
             reflectionTex->SetColorFormat(RGB);
             reflectionTex->SetMipmapping(false);
+            reflectionTex->SetCompression(false);
             reflectionTex->SetWrapping(CLAMP_TO_EDGE);
             r.LoadTexture(reflectionTex.get());
 
@@ -198,6 +199,7 @@ namespace OpenEngine {
             refractionTex = UCharTexture2DPtr(new Texture2D<unsigned char>(FBOwidth, FBOheight, 3));
             refractionTex->SetColorFormat(RGB);
             refractionTex->SetMipmapping(false);
+            refractionTex->SetCompression(false);
             refractionTex->SetWrapping(CLAMP_TO_EDGE);
             r.LoadTexture(refractionTex.get());
 
@@ -210,6 +212,7 @@ namespace OpenEngine {
             depthbufferTex = UCharTexture2DPtr(new Texture2D<unsigned char>(FBOwidth, FBOheight, 1));
             depthbufferTex->SetColorFormat(DEPTH);
             depthbufferTex->SetMipmapping(false);
+            depthbufferTex->SetCompression(false);
             depthbufferTex->SetWrapping(CLAMP_TO_EDGE);
             r.LoadTexture(depthbufferTex.get());
 
