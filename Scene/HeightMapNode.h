@@ -15,19 +15,22 @@
 #include <Renderers/IRenderer.h>
 #include <Resources/Texture2D.h>
 #include <Display/Viewport.h>
-
-namespace OpenEngine {
-    namespace Resources {
-        class IShaderResource;
-        typedef boost::shared_ptr<IShaderResource> IShaderResourcePtr;
-    }
-}
+#include <Resources/IndexBufferObject.h>
 
 using namespace OpenEngine::Core;
 using namespace OpenEngine::Renderers;
 using namespace OpenEngine::Resources;
+using namespace OpenEngine::Geometry;
 
 namespace OpenEngine {
+    namespace Geometry {
+        class Mesh;
+        typedef boost::shared_ptr<Mesh> MeshPtr;
+    }
+    namespace Resources {
+        class IShaderResource;
+        typedef boost::shared_ptr<IShaderResource> IShaderResourcePtr;
+    }
     namespace Display {
         class IViewingVolume;
     }
@@ -63,27 +66,16 @@ namespace OpenEngine {
         protected:
             int numberOfVertices;
 
-            float* vertices;
-            unsigned int verticeBufferId;
+            Float4BufferObjectPtr vertexBuffer;
+            Float2BufferObjectPtr texCoordBuffer;
+            Float2BufferObjectPtr normalMapCoordBuffer;
+            Float3BufferObjectPtr geomorphBuffer; // {PatchCenterX, PatchCenterZ, LOD}
 
-            float* normals;
-
-            float* texCoords;
-            unsigned int texCoordBufferId;
-
-            float* normalMapCoords;
-            unsigned int normalMapCoordBufferId;
-
-            float* geomorphValues; // {PatchCenterX, PatchCenterZ, LOD}
-            unsigned int geomorphBufferId;
+            MeshPtr mesh;
 
             char* deltaValues;
 
-            //char
-
-            unsigned int numberOfIndices;
-            unsigned int indiceId;
-            unsigned int* indices;
+            IndexBufferObjectPtr indexBuffer;
 
             int width;
             int depth;
@@ -107,6 +99,7 @@ namespace OpenEngine {
 
             FloatTexture2DPtr tex;
             FloatTexture2DPtr normalmap;
+            float* normals;
             IShaderResourcePtr landscapeShader;
 
         public:
@@ -157,13 +150,13 @@ namespace OpenEngine {
              */
             Vector<3, float> GetNormal(float x, float z) const;
 
-            unsigned int GetVerticeBufferID() const { return verticeBufferId; }
-            unsigned int GetGeomorphBufferID() const { return geomorphBufferId; }
-            unsigned int GetTexCoordBufferID() const { return texCoordBufferId; }
-            unsigned int GetNormalMapCoordBufferID() const { return normalMapCoordBufferId; }
-            unsigned int GetIndiceID() const { return indiceId; }
-            unsigned int GetNumberOfIndices() const { return numberOfIndices; }
+            IBufferObjectPtr GetVertexBuffer() const { return vertexBuffer; }
+            IBufferObjectPtr GetGeomorphBuffer() const { return geomorphBuffer; }
+            IBufferObjectPtr GetTexCoordBuffer() const { return texCoordBuffer; }
+            IBufferObjectPtr GetNormalMapCoordBuffer() const { return normalMapCoordBuffer; }
+            IndexBufferObjectPtr GetIndexBuffer() const { return indexBuffer; }
             int GetNumberOfVertices() const { return numberOfVertices; }
+            MeshPtr GetMesh() const { return mesh; }
 
             int GetIndice(int x, int z);
             float* GetVertex(int x, int z);

@@ -30,9 +30,7 @@ namespace OpenEngine {
             void TerrainRenderingView::VisitHeightMapNode(HeightMapNode* node) {
                 glEnable(GL_CULL_FACE);
 
-                glBindBuffer(GL_ARRAY_BUFFER, node->GetVerticeBufferID());
-                glEnableClientState(GL_VERTEX_ARRAY);
-                glVertexPointer(HeightMapNode::DIMENSIONS, GL_FLOAT, 0, 0);
+                this->ApplyMesh(node->GetMesh().get());
 
                 IShaderResourcePtr shader = node->GetLandscapeShader();
                 if (shader){
@@ -43,39 +41,17 @@ namespace OpenEngine {
                     shader->SetUniform("viewPos", viewport.GetViewingVolume()->GetPosition());
 
                     shader->ApplyShader();
-
-                    // Pass geomorphvalues via the normal array
-                    glBindBuffer(GL_ARRAY_BUFFER, node->GetGeomorphBufferID());
-                    glEnableClientState(GL_NORMAL_ARRAY);
-                    glNormalPointer(GL_FLOAT, 0, 0);
-
-                    // Setup Texture coords
-                    glBindBuffer(GL_ARRAY_BUFFER, node->GetTexCoordBufferID());
-                    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                    glTexCoordPointer(HeightMapNode::TEXCOORDS, GL_FLOAT, 0, 0);
-
-                    glClientActiveTexture(GL_TEXTURE1);
-                    glBindBuffer(GL_ARRAY_BUFFER, node->GetNormalMapCoordBufferID());
-                    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                    glTexCoordPointer(HeightMapNode::TEXCOORDS, GL_FLOAT, 0, 0);
-
                 }
 
                 node->CalcLOD(viewport.GetViewingVolume());
 
                 node->Render(viewport);
 
-                glDisableClientState(GL_VERTEX_ARRAY);
+                ApplyMesh(NULL);
+
                 if (shader){
                     shader->ReleaseShader();
-                    glDisableClientState(GL_NORMAL_ARRAY);
-                    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-                    glClientActiveTexture(GL_TEXTURE0);
-                    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
                 }
-
-                glBindBuffer(GL_ARRAY_BUFFER, 0);
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
                 glDisable(GL_CULL_FACE);
 

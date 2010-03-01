@@ -15,6 +15,7 @@
 #include <Utils/TerrainUtils.h>
 #include <Display/IViewingVolume.h>
 #include <Display/Viewport.h>
+#include <Geometry/Mesh.h>
 
 #include <Logging/Logger.h>
 
@@ -40,20 +41,14 @@ namespace OpenEngine {
             baseDistance = 1;
             invIncDistance = 1.0f / 100.0f;
 
-            texCoords = NULL;
+            texCoordBuffer.reset();
 
             landscapeShader = IShaderResourcePtr();
         }
 
         HeightMapNode::~HeightMapNode(){
-            delete [] vertices;
             delete [] normals;
-            delete [] geomorphValues;
-            delete [] texCoords;
-            delete [] normalMapCoords;
-            delete [] indices;
             delete [] deltaValues;
-            delete [] indices;
 
             delete [] patchNodes;
         }
@@ -75,7 +70,7 @@ namespace OpenEngine {
         void HeightMapNode::Render(Viewport view){
             PreRender(view);
 
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indiceId);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer->GetID());
             if (USE_PATCHES){
                 // Draw patches front to back.
                 Vector<3, float> dir = view.GetViewingVolume()->GetDirection().RotateVector(Vector<3, float>(0,0,1));
@@ -110,7 +105,7 @@ namespace OpenEngine {
                     }
                 }
             }else{
-                glDrawElements(GL_TRIANGLE_STRIP, numberOfIndices, GL_UNSIGNED_INT, 0);
+                glDrawElements(GL_TRIANGLE_STRIP, indexBuffer->GetSize(), GL_UNSIGNED_INT, 0);
             }
 
             PostRender(view);
@@ -157,31 +152,10 @@ namespace OpenEngine {
 
             // Create vbos
 
-            // Vertice buffer object
-            glGenBuffers(1, &verticeBufferId);
-            glBindBuffer(GL_ARRAY_BUFFER, verticeBufferId);
-            glBufferData(GL_ARRAY_BUFFER, 
-                         sizeof(GLfloat) * numberOfVertices * DIMENSIONS,
-                         vertices, GL_STATIC_DRAW);
+            arg.renderer.BindBufferObject(vertexBuffer.get());
+            arg.renderer.BindBufferObject(texCoordBuffer.get());
+            arg.renderer.BindBufferObject(indexBuffer.get());
             
-            // Tex Coord buffer object
-            glGenBuffers(1, &texCoordBufferId);
-            glBindBuffer(GL_ARRAY_BUFFER, texCoordBufferId);
-            glBufferData(GL_ARRAY_BUFFER, 
-                         sizeof(GLfloat) * numberOfVertices * TEXCOORDS,
-                         texCoords, GL_STATIC_DRAW);
-
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-            // Create indice buffer
-            glGenBuffers(1, &indiceId);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indiceId);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                         sizeof(GLuint) * numberOfIndices,
-                         indices, GL_STATIC_DRAW);
-            
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
             if (landscapeShader != NULL) {
                 // Init shader used buffer objects
 
@@ -193,36 +167,34 @@ namespace OpenEngine {
                 landscapeShader->SetTexture("normalMap", (ITexture2DPtr)normalmap);
 
                 // Geomorph values buffer object
-                glGenBuffers(1, &geomorphBufferId);
-                glBindBuffer(GL_ARRAY_BUFFER, geomorphBufferId);
-                glBufferData(GL_ARRAY_BUFFER, 
-                             sizeof(GLfloat) * numberOfVertices * 3,
-                             geomorphValues, GL_STATIC_DRAW);                
+                arg.renderer.BindBufferObject(geomorphBuffer.get());
 
                 // normal map Coord buffer object
-                glGenBuffers(1, &normalMapCoordBufferId);
-                glBindBuffer(GL_ARRAY_BUFFER, normalMapCoordBufferId);
-                glBufferData(GL_ARRAY_BUFFER, 
-                             sizeof(GLfloat) * numberOfVertices * TEXCOORDS,
-                             normalMapCoords, GL_STATIC_DRAW);
+                arg.renderer.BindBufferObject(normalMapCoordBuffer.get());
+
+                IBufferObjectList texCoords;
+                texCoords.push_back(texCoordBuffer);
+                texCoords.push_back(normalMapCoordBuffer);
+                mesh = MeshPtr(new Mesh(vertexBuffer, geomorphBuffer, texCoords));
 
                 landscapeShader->Load();
                 TextureList texs = landscapeShader->GetTextures();
                 for (unsigned int i = 0; i < texs.size(); ++i)
                     arg.renderer.LoadTexture(texs[i].get());
+            }else{
+                // Create a non shader mesh
+                IBufferObjectList texCoords;
+                texCoords.push_back(texCoordBuffer);
+                mesh = MeshPtr(new Mesh(vertexBuffer, IBufferObjectPtr() , texCoords));
             }
             
             SetLODSwitchDistance(baseDistance, 1 / invIncDistance);
 
             // Cleanup in ram
-            delete [] geomorphValues;
-            geomorphValues = NULL;
-            delete [] texCoords;
-            texCoords = NULL;
-            delete [] normalMapCoords;
-            normalMapCoords = NULL;
-            delete [] indices;
-            indices = NULL;
+            indexBuffer->Unload();
+            texCoordBuffer->Unload();
+            geomorphBuffer->Unload();
+            normalMapCoordBuffer->Unload();
         }
 
         void HeightMapNode::Handle(ProcessEventArg arg){
@@ -307,7 +279,7 @@ namespace OpenEngine {
         }
 
         void HeightMapNode::SetVertex(int x, int z, float value){
-            glBindBuffer(GL_ARRAY_BUFFER, verticeBufferId);
+            glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer->GetID());
             float* vbo = (float*) glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 
             // Update height for the moved vertice affected.
@@ -415,7 +387,7 @@ namespace OpenEngine {
             int xEnd = (x + w >= width) ? width : x + w;
             int zEnd = (z + d >= depth) ? depth : z + d;
             
-            glBindBuffer(GL_ARRAY_BUFFER, verticeBufferId);
+            glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer->GetID());
             float* vbo = (float*) glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
             for (int xi = xStart; xi < xEnd; ++xi)
                 for (int zi = zStart; zi < zEnd; ++zi){
@@ -539,7 +511,7 @@ namespace OpenEngine {
 
         void HeightMapNode::SetTextureDetail(const float detail){
             texDetail = detail;
-            if (texCoords)
+            if (texCoordBuffer != NULL)
                 SetupTerrainTexture();
         }
 
@@ -559,11 +531,15 @@ namespace OpenEngine {
 
             numberOfVertices = width * depth;
 
-            vertices = new float[numberOfVertices * DIMENSIONS];
+            vertexBuffer = Float4BufferObjectPtr(new BufferObject<4, float>(numberOfVertices));
+            vertexBuffer->Load();
             normals = new float[numberOfVertices * 3];
-            texCoords = new float[numberOfVertices * TEXCOORDS];
-            normalMapCoords = new float[numberOfVertices * TEXCOORDS];
-            geomorphValues = new float[numberOfVertices * 3];
+            texCoordBuffer = Float2BufferObjectPtr(new BufferObject<2, float>(numberOfVertices));
+            texCoordBuffer->Load();
+            normalMapCoordBuffer = Float2BufferObjectPtr(new BufferObject<2, float>(numberOfVertices));
+            normalMapCoordBuffer->Load();
+            geomorphBuffer = Float3BufferObjectPtr(new BufferObject<3, float>(numberOfVertices));
+            geomorphBuffer->Load();
             deltaValues = new char[numberOfVertices];
 
             float* data = tex->GetData();
@@ -590,6 +566,9 @@ namespace OpenEngine {
                     }
                 }
             }
+
+            // Release the heightmap.
+            tex.reset();
             
             SetupNormalMap();
             SetupTerrainTexture();
@@ -665,8 +644,10 @@ namespace OpenEngine {
             int LOD = 4;
             int xs = (width-1) / LOD + 1;
             int zs = (depth-1) / LOD + 1;
-            numberOfIndices = 2 * ((xs - 1) * zs + xs - 2);
-            indices = new unsigned int[numberOfIndices];
+            unsigned int numberOfIndices = 2 * ((xs - 1) * zs + xs - 2);
+            indexBuffer = IndexBufferObjectPtr(new IndexBufferObject(numberOfIndices));
+            indexBuffer->Load();
+            unsigned int* indices = indexBuffer->GetData();;
 
             unsigned int i = 0;
             for (int x = 0; x < width - 1; x += LOD){
@@ -715,7 +696,7 @@ namespace OpenEngine {
             }
 
             // Setup indice buffer
-            numberOfIndices = 0;
+            unsigned int numberOfIndices = 0;
             for (int p = 0; p < numberOfPatches; ++p){
                 for (int l = 0; l < HeightMapPatchNode::MAX_LODS; ++l){
                     for (int rl = 0; rl < 3; ++rl){
@@ -728,7 +709,10 @@ namespace OpenEngine {
                 }
             }
 
-            indices = new unsigned int[numberOfIndices];
+            indexBuffer = IndexBufferObjectPtr(new IndexBufferObject(numberOfIndices));
+            indexBuffer->Load();
+            unsigned int* indices = indexBuffer->GetData();;
+            //indices = new unsigned int[numberOfIndices];
 
             unsigned int i = 0;
             for (int p = 0; p < numberOfPatches; ++p){
@@ -764,7 +748,7 @@ namespace OpenEngine {
         }
 
         float* HeightMapNode::GetVertice(const int index) const{
-            return vertices + index * DIMENSIONS;
+            return vertexBuffer->GetData() + index * DIMENSIONS;
         }
         
         float* HeightMapNode::GetNormals(const int x, const int z) const{
@@ -778,17 +762,17 @@ namespace OpenEngine {
 
         float* HeightMapNode::GetTexCoord(const int x, const int z) const{
             int index = CoordToIndex(x, z);
-            return texCoords + index * TEXCOORDS;
+            return texCoordBuffer->GetData() + index * texCoordBuffer->GetDimension();
         }
 
         float* HeightMapNode::GetNormalMapCoord(const int x, const int z) const{
             int index = CoordToIndex(x, z);
-            return normalMapCoords + index * TEXCOORDS;
+            return normalMapCoordBuffer->GetData() + index * normalMapCoordBuffer->GetDimension();
         }
 
         float* HeightMapNode::GetGeomorphValues(const int x, const int z) const{
             int index = CoordToIndex(x, z);
-            return geomorphValues + index * 3;
+            return geomorphBuffer->GetData() + index * 3;
         }
 
         float& HeightMapNode::GetVerticeLOD(const int x, const int z) const{
@@ -797,7 +781,7 @@ namespace OpenEngine {
         }
 
         float& HeightMapNode::GetVerticeLOD(const int index) const{
-            return (geomorphValues + index * 3)[2];
+            return (geomorphBuffer->GetData() + index * 3)[2];
         }
 
         char& HeightMapNode::GetVerticeDelta(const int x, const int z) const{
