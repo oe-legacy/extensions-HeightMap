@@ -15,6 +15,9 @@
 #include <Scene/WaterNode.h>
 #include <Math/Vector.h>
 #include <Logging/Logger.h>
+#include <Geometry/Mesh.h>
+
+using namespace OpenEngine::Geometry;
 
 namespace OpenEngine {
     namespace Renderers {
@@ -44,6 +47,9 @@ namespace OpenEngine {
                 }
 
                 node->CalcLOD(viewport.GetViewingVolume());
+                
+                IndexBufferObjectPtr indices = node->GetIndexBuffer();
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices->GetID());
 
                 node->Render(viewport);
 
@@ -52,6 +58,8 @@ namespace OpenEngine {
                 if (shader){
                     shader->ReleaseShader();
                 }
+                
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
                 glDisable(GL_CULL_FACE);
 

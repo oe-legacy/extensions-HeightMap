@@ -70,7 +70,6 @@ namespace OpenEngine {
         void HeightMapNode::Render(Viewport view){
             PreRender(view);
 
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer->GetID());
             if (USE_PATCHES){
                 // Draw patches front to back.
                 Vector<3, float> dir = view.GetViewingVolume()->GetDirection().RotateVector(Vector<3, float>(0,0,1));
@@ -712,7 +711,6 @@ namespace OpenEngine {
             indexBuffer = IndexBufferObjectPtr(new IndexBufferObject(numberOfIndices));
             indexBuffer->Load();
             unsigned int* indices = indexBuffer->GetData();;
-            //indices = new unsigned int[numberOfIndices];
 
             unsigned int i = 0;
             for (int p = 0; p < numberOfPatches; ++p){
