@@ -16,6 +16,10 @@
 using namespace OpenEngine::Geometry;
 
 namespace OpenEngine {
+    namespace Resources {
+        class IndexBufferObject;
+        typedef boost::shared_ptr<IndexBufferObject> IndexBufferObjectPtr;
+    }
     namespace Display{
         class IViewingVolume;
     }
@@ -52,6 +56,7 @@ namespace OpenEngine {
             Geometry::Box boundingBox;
             Vector<3, float> min, max;
 
+            Resources::IndexBufferObjectPtr indexBuffer;
             LODstruct LODs[MAX_LODS][3][3];
 
             HeightMapPatchNode* upperNeighbour;
@@ -77,6 +82,7 @@ namespace OpenEngine {
 
             // *** Get/Set methods ***
 
+            void SetIndexBuffer(IndexBufferObjectPtr i) { indexBuffer = i; }
             void SetUpperNeighbor(HeightMapPatchNode* u) {upperNeighbour = u; }
             void SetRightNeighbor(HeightMapPatchNode* r) {rightNeighbour = r; }
             int GetLOD() const { return LOD; }

@@ -13,10 +13,12 @@
 #include <Display/IViewingVolume.h>
 #include <Logging/Logger.h>
 #include <math.h>
+#include <Resources/IndexBufferObject.h>
 
 #include <cstring>
 
 using namespace OpenEngine::Display;
+using namespace OpenEngine::Resources;
 
 namespace OpenEngine {
     namespace Scene {
@@ -24,7 +26,7 @@ namespace OpenEngine {
         HeightMapPatchNode::HeightMapPatchNode(int xStart, int zStart, HeightMapNode* t)
             : terrain(t), LOD(1), geomorphingScale(1), visible(false), xStart(xStart), zStart(zStart),
               upperNeighbour(NULL), rightNeighbour(NULL){
-            
+
             xEnd = xStart + PATCH_EDGE_VERTICES;
             zEnd = zStart + PATCH_EDGE_VERTICES;
             xEndMinusOne = xEnd - 1;
@@ -122,7 +124,10 @@ namespace OpenEngine {
                 
                 unsigned int numberOfIndices = LODs[LOD][rightLODdiff][upperLODdiff].numberOfIndices;
                 void* offset = LODs[LOD][rightLODdiff][upperLODdiff].indiceBufferOffset;
-                glDrawElements(GL_TRIANGLE_STRIP, numberOfIndices, GL_UNSIGNED_INT, offset);
+                if (indexBuffer->GetID() != 0)
+                    glDrawElements(GL_TRIANGLE_STRIP, numberOfIndices, GL_UNSIGNED_INT, offset);
+                else
+                    glDrawElements(GL_TRIANGLE_STRIP, numberOfIndices, GL_UNSIGNED_INT, indexBuffer->GetData() + (unsigned long)offset);
             }
         }
 

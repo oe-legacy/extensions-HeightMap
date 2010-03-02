@@ -33,7 +33,8 @@ namespace OpenEngine {
             void TerrainRenderingView::VisitHeightMapNode(HeightMapNode* node) {
                 glEnable(GL_CULL_FACE);
 
-                this->ApplyMesh(node->GetMesh().get());
+                MeshPtr mesh = node->GetMesh();
+                this->ApplyMesh(mesh.get());
 
                 IShaderResourcePtr shader = node->GetLandscapeShader();
                 if (shader){
@@ -67,7 +68,6 @@ namespace OpenEngine {
                     node->RenderBoundingGeometry();
 
                 node->VisitSubNodes(*this);
-
             }
 
             void TerrainRenderingView::VisitSunNode(SunNode* node) {

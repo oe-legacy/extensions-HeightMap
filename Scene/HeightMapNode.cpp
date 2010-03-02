@@ -104,7 +104,10 @@ namespace OpenEngine {
                     }
                 }
             }else{
-                glDrawElements(GL_TRIANGLE_STRIP, indexBuffer->GetSize(), GL_UNSIGNED_INT, 0);
+                if (indexBuffer->GetID() != 0)
+                    glDrawElements(GL_TRIANGLE_STRIP, indexBuffer->GetSize(), GL_UNSIGNED_INT, 0);
+                else
+                    glDrawElements(GL_TRIANGLE_STRIP, indexBuffer->GetSize(), GL_UNSIGNED_INT, indexBuffer->GetVoidDataPtr());
             }
 
             PostRender(view);
@@ -189,11 +192,15 @@ namespace OpenEngine {
             
             SetLODSwitchDistance(baseDistance, 1 / invIncDistance);
 
-            // Cleanup in ram
-            indexBuffer->Unload();
-            texCoordBuffer->Unload();
-            geomorphBuffer->Unload();
-            normalMapCoordBuffer->Unload();
+            // Cleanup in ram if the objects have been bound
+            if (indexBuffer->GetID() != 0)
+                indexBuffer->Unload();
+            if (texCoordBuffer->GetID() != 0)
+                texCoordBuffer->Unload();
+            if (geomorphBuffer->GetID() != 0)
+                geomorphBuffer->Unload();
+            if (normalMapCoordBuffer->GetID() != 0)
+                normalMapCoordBuffer->Unload();
         }
 
         void HeightMapNode::Handle(ProcessEventArg arg){
@@ -645,6 +652,7 @@ namespace OpenEngine {
             int zs = (depth-1) / LOD + 1;
             unsigned int numberOfIndices = 2 * ((xs - 1) * zs + xs - 2);
             indexBuffer = IndexBufferObjectPtr(new IndexBufferObject(numberOfIndices));
+            
             indexBuffer->Load();
             unsigned int* indices = indexBuffer->GetData();;
 
@@ -714,6 +722,7 @@ namespace OpenEngine {
 
             unsigned int i = 0;
             for (int p = 0; p < numberOfPatches; ++p){
+                patchNodes[p]->SetIndexBuffer(indexBuffer);
                 for (int l = 0; l < HeightMapPatchNode::MAX_LODS; ++l){
                     for (int rl = 0; rl < 3; ++rl){
                         for (int ul = 0; ul < 3; ++ul){
@@ -724,7 +733,7 @@ namespace OpenEngine {
                     }
                 }
             }
-                        
+
             // Setup shader uniforms used in geomorphing
             for (int x = 0; x < width - 1; ++x){
                 for (int z = 0; z < depth - 1; ++z){
