@@ -709,7 +709,7 @@ namespace OpenEngine {
                     for (int rl = 0; rl < 3; ++rl){
                         for (int ul = 0; ul < 3; ++ul){
                             LODstruct& lod = patchNodes[p]->GetLodStruct(l,rl,ul);
-                            lod.indiceBufferOffset = (void*)(numberOfIndices * sizeof(GLuint));
+                            lod.indiceBufferOffset = numberOfIndices;
                             numberOfIndices += lod.numberOfIndices;
                         }
                     }

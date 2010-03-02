@@ -29,7 +29,7 @@ namespace OpenEngine {
         struct LODstruct {
             int numberOfIndices;
             unsigned int* indices;
-            void* indiceBufferOffset;
+            unsigned int indiceBufferOffset;
         };
         
         class HeightMapPatchNode : public ISceneNode {

@@ -123,11 +123,11 @@ namespace OpenEngine {
                 int upperLODdiff = upperNeighbour != NULL ? upperNeighbour->GetLOD() - LOD + 1 : 1;
                 
                 unsigned int numberOfIndices = LODs[LOD][rightLODdiff][upperLODdiff].numberOfIndices;
-                void* offset = LODs[LOD][rightLODdiff][upperLODdiff].indiceBufferOffset;
+                unsigned int offset = LODs[LOD][rightLODdiff][upperLODdiff].indiceBufferOffset;
                 if (indexBuffer->GetID() != 0)
-                    glDrawElements(GL_TRIANGLE_STRIP, numberOfIndices, GL_UNSIGNED_INT, offset);
+                    glDrawElements(GL_TRIANGLE_STRIP, numberOfIndices, GL_UNSIGNED_INT, (void*)(offset * sizeof(GLuint)));
                 else
-                    glDrawElements(GL_TRIANGLE_STRIP, numberOfIndices, GL_UNSIGNED_INT, indexBuffer->GetData() + (unsigned long)offset);
+                    glDrawElements(GL_TRIANGLE_STRIP, numberOfIndices, GL_UNSIGNED_INT, indexBuffer->GetData() + offset);
             }
         }
 
