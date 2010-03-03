@@ -10,7 +10,6 @@
 #include <Utils/TerrainUtils.h>
 
 #include <Scene/HeightMapNode.h>
-#include <Math/Vector.h>
 #include <Math/RandomGenerator.h>
 #include <Logging/Logger.h>
 
@@ -63,43 +62,91 @@ namespace OpenEngine {
             return tex;
         }
 
-        void MakePlateau(UCharTexture2DPtr terrain, float height, unsigned int margin){
+        FloatTexture2DPtr MakePlateau(FloatTexture2DPtr tex, float disp, unsigned int margin){
+            tex->Load();
+            
+            int width = tex->GetWidth();
+            int height = tex->GetHeight();
+
+            float d = disp / 2.0f;
             // Use normals for guessing good places to erode?
 
             // Use log and cosine to create the dropoff? Smoother drop :)
+
+            // Check margin is not higher than half height or width.
+
+            // Move the cornors.
+
+            for (unsigned int x = 0; x < margin; ++x)
+                for (unsigned int z = 0; z < margin; ++z){
+                    float pdz = (float) z / (2 * margin);
+                    float displacementz = d + cos(pdz*2*PI) * d;
+
+                    float pdx = (float) x / (2 * margin);
+                    float displacementx = d + cos(pdx*2*PI) * d;
+                    float displacement = std::max(displacementx, displacementz);
+
+                    tex->GetPixel(x, z)[0] += displacement;
+
+                    tex->GetPixel(x, height - z - 1)[0] += displacement;
+
+                    tex->GetPixel(width - x - 1, height - z - 1)[0] += displacement;
+
+                    tex->GetPixel(width - x - 1, z)[0] += displacement;
+                }
+
+            // Move the sides
+            for (unsigned int x = margin; x < height - margin; ++x)
+                for (unsigned int z = 0; z < margin; ++z){
+                    float pd = (float) z / margin;
+                    float displacement = d + cos(pd*PI) * d;
+                    tex->GetPixel(x, z)[0] += displacement;
+
+                    tex->GetPixel(x, height - z - 1)[0] += displacement;
+                }
+
+            for (unsigned int z = margin; z < width - margin; ++z)
+                for (unsigned int x = 0; x < margin; ++x){
+                    float pd = (float) x / (2 * margin);
+                    float displacement = d + cos(pd*2*PI) * d;
+                    tex->GetPixel(x, z)[0] += displacement;
+
+                    tex->GetPixel(width - x - 1, z)[0] += displacement;
+                }
+
+
+            return tex;
         }
 
-        void SmoothTerrain(HeightMapNode* heightfield, float persistence){
-            int depth = heightfield->GetVerticeDepth();
-            int width = heightfield->GetVerticeWidth();
-
-            int numberOfVertices = depth * width;
-
-            float temp[numberOfVertices];
-
-            // Calculate the average values
-            for (int x = 0; x < depth; ++x){
-                for (int z = 0; z < width; ++z){
-                    float y = heightfield->GetVertex(x, z)[1];
-                    float averageY = 0;
-                    for (int i = -1; i <= 1; ++i)
-                        for (int j = -1; j <= 1; ++j)
-                            averageY = heightfield->GetVertex(x + i, z + j)[1];
-
-                    int indice = heightfield->GetIndice(x, z);
-                    temp[indice] = persistence * y + (1 - persistence) * averageY;
-                }
-            }
+        FloatTexture2DPtr CreateBubble(FloatTexture2DPtr tex, 
+                                       Vector<2, int> c,
+                                       int radius, float disp){
+            tex->Load();
             
-            // Set the values
-            for (int x = 0; x < depth; ++x){
-                for (int z = 0; z < width; ++z){
-                    float* vertex = heightfield->GetVertex(x, z);
-                    int indice = heightfield->GetIndice(x, z);
-                    vertex[1] = temp[indice];
+            int width = tex->GetWidth();
+            int height = tex->GetHeight();
+            
+            float d = disp / 2.0f;
+
+            int xStart = c[0] - radius < 0 ? 0 : c[0] - radius;
+            int zStart = c[1] - radius < 0 ? 0 : c[1] - radius;
+            int xEnd = c[0] + radius > width-1 ? width-1 : c[0] + radius;
+            int zEnd = c[1] + radius > height-1 ? height-1 : c[1] + radius;
+
+            for (int x = xStart; x <= xEnd; ++x){
+                for (int z = zStart; z <= zEnd; ++z){
+                    Vector<2, int> p = Vector<2, int>(x, z);
+                    float dist = (p - c).GetLength();
+                    if (dist <= radius){
+                        float pd = dist / radius;
+                        float displacement = d + cos(pd*PI) * d;
+                        tex->GetPixel(x, z)[0] += displacement;
+                    }
                 }
             }
+
+            return tex;
         }
-        
+
     }
 }

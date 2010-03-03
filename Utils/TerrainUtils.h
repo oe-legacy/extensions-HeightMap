@@ -11,6 +11,7 @@
 #define _TERRAIN_UTIL_FUNCTIONS_H_
 
 #include <Resources/Texture2D.h>
+#include <Math/Vector.h>
 
 using namespace OpenEngine::Resources;
 
@@ -33,12 +34,15 @@ namespace OpenEngine {
          * If the transformation yields negative height, the terrain
          * is moved up.
          */
-        void MakePlateau(UCharTexture2DPtr terrain, float height, unsigned int margin);
+        FloatTexture2DPtr MakePlateau(FloatTexture2DPtr terrain, float disp, unsigned int margin);
 
         /**
-         * Smoothens terrain.
+         * Creates a bubble at (x, y) with the given radius and height
+         * displacement..
          */
-        void SmoothTerrain(Scene::HeightMapNode* heightfield, float persistence = 0.5);
+        FloatTexture2DPtr CreateBubble(FloatTexture2DPtr tex, 
+                                       Math::Vector<2, int> center,
+                                       int radius = 10, float disp = 5);
         
     }
 }
