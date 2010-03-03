@@ -149,6 +149,22 @@ namespace OpenEngine {
              * @return The normal at the given point.
              */
             Vector<3, float> GetNormal(float x, float z) const;
+            /**
+             * Takes as argument a 3D vector in worldspace, a
+             * direction and returns the direction reflected of the
+             * heightmap at that point.
+             *
+             * @return The reflected direction  at the given point.
+             */
+            Vector<3, float> GetReflectedDirection(Vector<3, float> point, Vector<3, float> direction) const;
+            /**
+             * Takes as argument an x- and z-coord in worldspace, a
+             * direction and returns the direction reflected of the
+             * heightmap at that point.
+             *
+             * @return The reflected direction  at the given point.
+             */
+            Vector<3, float> GetReflectedDirection(float x, float z, Vector<3, float> direction) const;
 
             IBufferObjectPtr GetVertexBuffer() const { return vertexBuffer; }
             IBufferObjectPtr GetGeomorphBuffer() const { return geomorphBuffer; }

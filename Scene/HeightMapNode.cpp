@@ -212,7 +212,6 @@ namespace OpenEngine {
         float HeightMapNode::GetHeight(Vector<3, float> point) const{
             return GetHeight(point[0], point[2]);
         }
-
         float HeightMapNode::GetHeight(float x, float z) const{
             /**
              * http://en.wikipedia.org/wiki/Bilinear_interpolation
@@ -242,7 +241,6 @@ namespace OpenEngine {
         Vector<3, float> HeightMapNode::GetNormal(Vector<3, float> point) const{
             return GetNormal(point[0], point[2]);
         }
-
         Vector<3, float> HeightMapNode::GetNormal(float x, float z) const{
             /**
              * http://en.wikipedia.org/wiki/Bilinear_interpolation
@@ -261,10 +259,28 @@ namespace OpenEngine {
             float dZ = z - Z;
 
             // Bilinear interpolation of the heights.
-            return Vector<3, float>(GetNormals(X, Z)) * (1-dX) * (1-dZ) +
+            Vector<3, float> normal = Vector<3, float>(GetNormals(X, Z)) * (1-dX) * (1-dZ) +
                 Vector<3, float>(GetNormals(X+1, Z)) * dX * (1-dZ) +
                 Vector<3, float>(GetNormals(X, Z+1)) * (1-dX) * dZ +
                 Vector<3, float>(GetNormals(X+1, Z+1)) * dX * dZ;
+            
+            return normal.GetNormalize();
+        }
+
+        Vector<3, float> HeightMapNode::GetReflectedDirection(Vector<3, float> point, Vector<3, float> dir) const{
+            return GetReflectedDirection(point[0], point[2], dir);
+        }
+        Vector<3, float> HeightMapNode::GetReflectedDirection(float x, float z, Vector<3, float> dir) const{
+            /**
+             * http://www.lighthouse3d.com/opengl/glsl/index.php?ogldir2
+             */
+
+            Vector<3, float> normal = GetNormal(x, z);
+            Vector<3, float> direction = dir.GetNormalize();
+
+            Vector<3, float> reflect = -2.0f * normal * (normal * direction) + direction;
+            
+            return reflect;
         }
 
         int HeightMapNode::GetIndice(int x, int z){
