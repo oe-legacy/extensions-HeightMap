@@ -25,6 +25,47 @@ namespace OpenEngine {
                                UCharTexture2DPtr t3 = UCharTexture2DPtr(), 
                                UCharTexture2DPtr t4 = UCharTexture2DPtr());
 
+        /**
+         * Box bluring. Runs in time O(texSize^2 * 2halfsize). While
+         * linear time is possible for box bluring, specialized
+         * functions would be needed to handle overflow.
+         */
+        template <class T>
+        void BoxBlur(Texture2DPtr(T) tex, int halfsize = 1){
+            unsigned int width = tex->GetWidth();
+            unsigned int height = tex->GetHeight();
+            unsigned char channels = tex->GetChannels();
+
+            Texture2D<T> temp = Texture2D<T>(width, height, channels);
+            temp.Load();
+
+            for (unsigned int x = 0; x < width; ++x){
+                for (unsigned int y = 0; y < height; ++y){
+                    T* pixel = temp.GetPixel(x, y);
+                    for (unsigned char c = 0; c < channels; ++c){
+                        pixel[c] = 0;
+                        for (int X = -halfsize; X <= halfsize; ++X){
+                            pixel[c] += tex->GetPixel(x + X, y)[c];
+                        }
+                        pixel[c] /= (halfsize * 2 + 1);
+                    }
+                }
+            }
+
+            for (unsigned int x = 0; x < width; ++x){
+                for (unsigned int y = 0; y < height; ++y){
+                    T* pixel = tex->GetPixel(x, y);
+                    for (unsigned char c = 0; c < channels; ++c){
+                        pixel[c] = 0;
+                        for (int Y = -halfsize; Y <= halfsize; ++Y){
+                            pixel[c] += temp.GetPixel(x, y + Y)[c];
+                        }
+                        pixel[c] /= (halfsize * 2 + 1);
+                    }
+                }
+            }
+        }
+
         template <class T>
         void Empty(Texture2DPtr(T) t){
             t->Load();
@@ -34,48 +75,6 @@ namespace OpenEngine {
                         t->GetPixel(x, z)[c] = 0;
         }
 
-        template <class T>
-        void MoveChannel(Texture2DPtr(T) from, Texture2DPtr(T) to, unsigned int cFrom, unsigned int cTo){
-            unsigned int width = from->GetWidth();
-            unsigned int height = from->GetHeight();
-
-#ifdef OE_SAFE
-            if (width != to->GetWidth() ||
-                height != to->GetHeight()){
-                throw Exception("Trying to combine textures of different dimensions. Aborting.");
-            }
-#endif
-            for (unsigned int x = 0; x < width; ++x){
-                for (unsigned int y = 0; y < height; ++y){
-                    from->GetPixel()[cFrom] = to->GetPixel()[cTo];
-                }
-            }
-        }
-
-        template <class T>
-        Texture2DPtr(T) ChangeChannels(Texture2DPtr(T) t, unsigned int channels){
-            t->Load();
-            
-            unsigned int w = t->GetWidth();
-            unsigned int h = t->GetHeight();
-            unsigned int tc = t->GetChannels();
-
-            Texture2DPtr(T) tex = Texture2DPtr(T)(new Texture2D<T>(w, h, channels));
-            tex->Load();
-
-            for (unsigned int x = 0; x < w; ++x){
-                for (unsigned int z = 0; z < h; ++z){
-                    for (unsigned int c = 0; c < channels; ++c){
-                        if (c < tc)
-                            tex->GetPixel(x, z)[c] = t->GetPixel(x, z)[c];
-                        else
-                            tex->GetPixel(x, z)[c] = 0;
-                    }
-                }
-            }
-
-            return tex;
-        }
     }
 }
 
