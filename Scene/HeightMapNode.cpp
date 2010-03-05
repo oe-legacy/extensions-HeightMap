@@ -43,7 +43,7 @@ namespace OpenEngine {
 
             texCoordBuffer.reset();
 
-            landscapeShader = IShaderResourcePtr();
+            landscapeShader.reset();
         }
 
         HeightMapNode::~HeightMapNode(){
@@ -153,11 +153,10 @@ namespace OpenEngine {
             Load();
 
             // Create vbos
-
             arg.renderer.BindBufferObject(vertexBuffer.get());
             arg.renderer.BindBufferObject(texCoordBuffer.get());
             arg.renderer.BindBufferObject(indexBuffer.get());
-            
+
             if (landscapeShader != NULL) {
                 // Init shader used buffer objects
 
@@ -189,8 +188,8 @@ namespace OpenEngine {
                 texCoords.push_back(texCoordBuffer);
                 mesh = MeshPtr(new Mesh(vertexBuffer, IBufferObjectPtr() , texCoords));
             }
-            
-            SetLODSwitchDistance(baseDistance, 1 / invIncDistance);
+
+            SetLODSwitchDistance(baseDistance, 1 / invIncDistance);            
 
             // Cleanup in ram if the objects have been bound
             if (indexBuffer->GetID() != 0)
@@ -527,8 +526,10 @@ namespace OpenEngine {
                 invIncDistance = 1.0f / dec;
 
             // Update uniforms
-            landscapeShader->SetUniform("baseDistance", baseDistance);
-            landscapeShader->SetUniform("invIncDistance", invIncDistance);
+            if (landscapeShader != NULL){
+                landscapeShader->SetUniform("baseDistance", baseDistance);
+                landscapeShader->SetUniform("invIncDistance", invIncDistance);
+            }
         }
 
         void HeightMapNode::SetTextureDetail(const float detail){
@@ -595,7 +596,7 @@ namespace OpenEngine {
             SetupNormalMap();
             SetupTerrainTexture();
 
-            if (landscapeShader != NULL)
+            if (landscapeShader != NULL){
                 CalcVerticeLOD();
                 for (int x = 0; x < width; ++x)
                     for (int z = 0; z < depth; ++z){
@@ -604,6 +605,7 @@ namespace OpenEngine {
                         float* vertice = GetVertice(x, z);
                         vertice[3] = CalcGeomorphHeight(x, z);
                     }
+            }
         }
 
         void HeightMapNode::SetupNormalMap(){
@@ -667,8 +669,8 @@ namespace OpenEngine {
             int xs = (width-1) / LOD + 1;
             int zs = (depth-1) / LOD + 1;
             unsigned int numberOfIndices = 2 * ((xs - 1) * zs + xs - 2);
+
             indexBuffer = IndexBufferObjectPtr(new IndexBufferObject(numberOfIndices));
-            
             indexBuffer->Load();
             unsigned int* indices = indexBuffer->GetData();;
 
