@@ -71,6 +71,10 @@ namespace OpenEngine {
             Float2DataBlockPtr normalMapCoordBuffer;
             Float3DataBlockPtr geomorphBuffer; // {PatchCenterX, PatchCenterZ, LOD}
 
+            float* normals;
+            FloatTexture2DPtr normalmap;
+            Float3DataBlockPtr normalBuffer;
+
             GeometrySetPtr geom;
 
             char* deltaValues;
@@ -98,8 +102,6 @@ namespace OpenEngine {
             float invIncDistance;
 
             FloatTexture2DPtr tex;
-            FloatTexture2DPtr normalmap;
-            float* normals;
             IShaderResourcePtr landscapeShader;
 
         public:

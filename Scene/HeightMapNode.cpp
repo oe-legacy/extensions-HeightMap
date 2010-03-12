@@ -186,7 +186,8 @@ namespace OpenEngine {
                 // Create a non shader geometry set
                 IDataBlockList texCoords;
                 texCoords.push_back(texCoordBuffer);
-                geom = GeometrySetPtr(new GeometrySet(vertexBuffer, IDataBlockPtr() , texCoords));
+                normalBuffer = Float3DataBlockPtr(new DataBlock<3, float>(normals, numberOfVertices));
+                geom = GeometrySetPtr(new GeometrySet(vertexBuffer, normalBuffer, texCoords));
             }
 
             SetLODSwitchDistance(baseDistance, 1 / invIncDistance);
