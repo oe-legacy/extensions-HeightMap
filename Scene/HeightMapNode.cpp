@@ -646,22 +646,26 @@ namespace OpenEngine {
         }
 
         float HeightMapNode::CalcGeomorphHeight(int x, int z){
-            short delta = GetVerticeDelta(x, z);
-
-            int dx, dz;
-            if (delta < HeightMapPatchNode::MAX_DELTA){
-                dx = x % (delta * 2);
-                dz = z % (delta * 2);
-            }else{
-                dx = 0;
-                dz = 0;
+            if (landscapeShader == NULL)
+                return 1.0f;
+            else{
+                short delta = GetVerticeDelta(x, z);
+                
+                int dx, dz;
+                if (delta < HeightMapPatchNode::MAX_DELTA){
+                    dx = x % (delta * 2);
+                    dz = z % (delta * 2);
+                }else{
+                    dx = 0;
+                    dz = 0;
+                }
+                
+                float* vertice = GetVertice(x, z);
+                float* verticeNeighbour1 = GetVertice(x + dx, z + dz);
+                float* verticeNeighbour2 = GetVertice(x - dx, z - dz);
+                
+                return (verticeNeighbour1[1] + verticeNeighbour2[1]) / 2 - vertice[1];
             }
-
-            float* vertice = GetVertice(x, z);
-            float* verticeNeighbour1 = GetVertice(x + dx, z + dz);
-            float* verticeNeighbour2 = GetVertice(x - dx, z - dz);
-
-            return (verticeNeighbour1[1] + verticeNeighbour2[1]) / 2 - vertice[1];
         }
 
         void HeightMapNode::ComputeIndices(){
@@ -773,7 +777,7 @@ namespace OpenEngine {
         }
 
         float* HeightMapNode::GetVertice(const int index) const{
-            return vertexBuffer->GetData() + index * DIMENSIONS;
+            return vertexBuffer->GetData() + index * vertexBuffer->GetDimension();
         }
         
         float* HeightMapNode::GetNormals(const int x, const int z) const{
