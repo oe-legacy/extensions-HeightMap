@@ -24,8 +24,8 @@ using namespace OpenEngine::Geometry;
 
 namespace OpenEngine {
     namespace Geometry {
-        class Mesh;
-        typedef boost::shared_ptr<Mesh> MeshPtr;
+        class GeometrySet;
+        typedef boost::shared_ptr<GeometrySet> GeometrySetPtr;
     }
     namespace Resources {
         class IShaderResource;
@@ -71,7 +71,7 @@ namespace OpenEngine {
             Float2DataBlockPtr normalMapCoordBuffer;
             Float3DataBlockPtr geomorphBuffer; // {PatchCenterX, PatchCenterZ, LOD}
 
-            MeshPtr mesh;
+            GeometrySetPtr geom;
 
             char* deltaValues;
 
@@ -172,7 +172,7 @@ namespace OpenEngine {
             IDataBlockPtr GetNormalMapCoordBuffer() const { return normalMapCoordBuffer; }
             DataIndicesPtr GetDataIndices() const { return indexBuffer; }
             int GetNumberOfVertices() const { return numberOfVertices; }
-            MeshPtr GetMesh() const { return mesh; }
+            GeometrySetPtr GetGeometrySet() const { return geom; }
 
             int GetIndice(int x, int z);
             float* GetVertex(int x, int z);

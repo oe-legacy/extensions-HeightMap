@@ -15,7 +15,7 @@
 #include <Scene/WaterNode.h>
 #include <Math/Vector.h>
 #include <Logging/Logger.h>
-#include <Geometry/Mesh.h>
+#include <Geometry/GeometrySet.h>
 
 using namespace OpenEngine::Geometry;
 
@@ -35,11 +35,11 @@ namespace OpenEngine {
                 
                 glEnable(GL_CULL_FACE);
 
-                MeshPtr mesh = node->GetMesh();
-                this->ApplyMesh(mesh.get());
+                GeometrySetPtr mesh = node->GetGeometrySet();
+                this->ApplyGeometrySet(mesh.get());
 
                 IShaderResourcePtr shader = node->GetLandscapeShader();
-                if (shader){
+                if (this->renderShader && shader){
                     // Setup uniforms
                     SunNode* sun = node->GetSun();
                     if (sun)
@@ -57,7 +57,7 @@ namespace OpenEngine {
                 // Replace with a patch iterator
                 node->Render(viewport);
 
-                ApplyMesh(NULL);
+                ApplyGeometrySet(NULL);
 
                 if (shader){
                     shader->ReleaseShader();

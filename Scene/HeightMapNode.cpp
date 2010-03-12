@@ -15,7 +15,7 @@
 #include <Utils/TerrainUtils.h>
 #include <Display/IViewingVolume.h>
 #include <Display/Viewport.h>
-#include <Geometry/Mesh.h>
+#include <Geometry/GeometrySet.h>
 
 #include <Logging/Logger.h>
 
@@ -176,17 +176,17 @@ namespace OpenEngine {
                 IDataBlockList texCoords;
                 texCoords.push_back(texCoordBuffer);
                 texCoords.push_back(normalMapCoordBuffer);
-                mesh = MeshPtr(new Mesh(vertexBuffer, geomorphBuffer, texCoords));
+                geom = GeometrySetPtr(new GeometrySet(vertexBuffer, geomorphBuffer, texCoords));
 
                 landscapeShader->Load();
                 TextureList texs = landscapeShader->GetTextures();
                 for (unsigned int i = 0; i < texs.size(); ++i)
                     arg.renderer.LoadTexture(texs[i].get());
             }else{
-                // Create a non shader mesh
+                // Create a non shader geometry set
                 IDataBlockList texCoords;
                 texCoords.push_back(texCoordBuffer);
-                mesh = MeshPtr(new Mesh(vertexBuffer, IDataBlockPtr() , texCoords));
+                geom = GeometrySetPtr(new GeometrySet(vertexBuffer, IDataBlockPtr() , texCoords));
             }
 
             SetLODSwitchDistance(baseDistance, 1 / invIncDistance);
@@ -757,12 +757,14 @@ namespace OpenEngine {
             }
 
             // Setup shader uniforms used in geomorphing
-            for (int x = 0; x < width - 1; ++x){
-                for (int z = 0; z < depth - 1; ++z){
-                    HeightMapPatchNode* patch = GetPatch(x, z);
-                    float* geomorph = GetGeomorphValues(x, z);
-                    geomorph[0] = patch->GetCenter()[0];
-                    geomorph[1] = patch->GetCenter()[2];
+            if (landscapeShader != NULL){
+                for (int x = 0; x < width - 1; ++x){
+                    for (int z = 0; z < depth - 1; ++z){
+                        HeightMapPatchNode* patch = GetPatch(x, z);
+                        float* geomorph = GetGeomorphValues(x, z);
+                        geomorph[0] = patch->GetCenter()[0];
+                        geomorph[1] = patch->GetCenter()[2];
+                    }
                 }
             }
         }
