@@ -32,7 +32,9 @@ namespace OpenEngine {
 
         class SunNode;
 
-        class WaterNode : public ISceneNode, public IListener<RenderingEventArg>, public IListener<ProcessEventArg> {
+        class WaterNode : public ISceneNode, 
+                          public IListener<RenderingEventArg>, 
+                          public IListener<ProcessEventArg> {
             OE_SCENE_NODE(WaterNode, ISceneNode)
 
         private:

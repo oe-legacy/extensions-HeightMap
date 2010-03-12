@@ -8,6 +8,7 @@ ADD_LIBRARY( ${EXTENSION_NAME}
   Scene/HeightMapPatchNode.cpp
   Scene/SunNode.cpp
   Scene/WaterNode.cpp
+#  Scene/Skybox.cpp
   Utils/TerrainUtils.cpp
   Utils/TerrainTexUtils.cpp
 )

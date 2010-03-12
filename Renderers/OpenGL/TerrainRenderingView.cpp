@@ -49,7 +49,7 @@ namespace OpenEngine {
 
                 node->CalcLOD(viewport.GetViewingVolume());
                 
-                IndexBufferObjectPtr indices = node->GetIndexBuffer();
+                DataIndicesPtr indices = node->GetDataIndices();
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices->GetID());
 
                 node->Render(viewport);

@@ -15,7 +15,7 @@
 #include <Renderers/IRenderer.h>
 #include <Resources/Texture2D.h>
 #include <Display/Viewport.h>
-#include <Resources/IndexBufferObject.h>
+#include <Resources/DataIndices.h>
 
 using namespace OpenEngine::Core;
 using namespace OpenEngine::Renderers;
@@ -66,16 +66,16 @@ namespace OpenEngine {
         protected:
             int numberOfVertices;
 
-            Float4BufferObjectPtr vertexBuffer;
-            Float2BufferObjectPtr texCoordBuffer;
-            Float2BufferObjectPtr normalMapCoordBuffer;
-            Float3BufferObjectPtr geomorphBuffer; // {PatchCenterX, PatchCenterZ, LOD}
+            Float4DataBlockPtr vertexBuffer;
+            Float2DataBlockPtr texCoordBuffer;
+            Float2DataBlockPtr normalMapCoordBuffer;
+            Float3DataBlockPtr geomorphBuffer; // {PatchCenterX, PatchCenterZ, LOD}
 
             MeshPtr mesh;
 
             char* deltaValues;
 
-            IndexBufferObjectPtr indexBuffer;
+            DataIndicesPtr indexBuffer;
 
             int width;
             int depth;
@@ -166,11 +166,11 @@ namespace OpenEngine {
              */
             Vector<3, float> GetReflectedDirection(float x, float z, Vector<3, float> direction) const;
 
-            IBufferObjectPtr GetVertexBuffer() const { return vertexBuffer; }
-            IBufferObjectPtr GetGeomorphBuffer() const { return geomorphBuffer; }
-            IBufferObjectPtr GetTexCoordBuffer() const { return texCoordBuffer; }
-            IBufferObjectPtr GetNormalMapCoordBuffer() const { return normalMapCoordBuffer; }
-            IndexBufferObjectPtr GetIndexBuffer() const { return indexBuffer; }
+            IDataBlockPtr GetVertexBuffer() const { return vertexBuffer; }
+            IDataBlockPtr GetGeomorphBuffer() const { return geomorphBuffer; }
+            IDataBlockPtr GetTexCoordBuffer() const { return texCoordBuffer; }
+            IDataBlockPtr GetNormalMapCoordBuffer() const { return normalMapCoordBuffer; }
+            DataIndicesPtr GetDataIndices() const { return indexBuffer; }
             int GetNumberOfVertices() const { return numberOfVertices; }
             MeshPtr GetMesh() const { return mesh; }
 

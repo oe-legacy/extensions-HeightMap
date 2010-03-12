@@ -153,9 +153,9 @@ namespace OpenEngine {
             Load();
 
             // Create vbos
-            arg.renderer.BindBufferObject(vertexBuffer.get());
-            arg.renderer.BindBufferObject(texCoordBuffer.get());
-            arg.renderer.BindBufferObject(indexBuffer.get());
+            arg.renderer.BindDataBlock(vertexBuffer.get());
+            arg.renderer.BindDataBlock(texCoordBuffer.get());
+            arg.renderer.BindDataBlock(indexBuffer.get());
 
             if (landscapeShader != NULL) {
                 // Init shader used buffer objects
@@ -168,12 +168,12 @@ namespace OpenEngine {
                 landscapeShader->SetTexture("normalMap", (ITexture2DPtr)normalmap);
 
                 // Geomorph values buffer object
-                arg.renderer.BindBufferObject(geomorphBuffer.get());
+                arg.renderer.BindDataBlock(geomorphBuffer.get());
 
                 // normal map Coord buffer object
-                arg.renderer.BindBufferObject(normalMapCoordBuffer.get());
+                arg.renderer.BindDataBlock(normalMapCoordBuffer.get());
 
-                IBufferObjectList texCoords;
+                IDataBlockList texCoords;
                 texCoords.push_back(texCoordBuffer);
                 texCoords.push_back(normalMapCoordBuffer);
                 mesh = MeshPtr(new Mesh(vertexBuffer, geomorphBuffer, texCoords));
@@ -184,12 +184,12 @@ namespace OpenEngine {
                     arg.renderer.LoadTexture(texs[i].get());
             }else{
                 // Create a non shader mesh
-                IBufferObjectList texCoords;
+                IDataBlockList texCoords;
                 texCoords.push_back(texCoordBuffer);
-                mesh = MeshPtr(new Mesh(vertexBuffer, IBufferObjectPtr() , texCoords));
+                mesh = MeshPtr(new Mesh(vertexBuffer, IDataBlockPtr() , texCoords));
             }
 
-            SetLODSwitchDistance(baseDistance, 1 / invIncDistance);            
+            SetLODSwitchDistance(baseDistance, 1 / invIncDistance);
 
             // Cleanup in ram if the objects have been bound
             if (indexBuffer->GetID() != 0)
@@ -554,14 +554,14 @@ namespace OpenEngine {
 
             numberOfVertices = width * depth;
 
-            vertexBuffer = Float4BufferObjectPtr(new BufferObject<4, float>(numberOfVertices));
+            vertexBuffer = Float4DataBlockPtr(new DataBlock<4, float>(numberOfVertices));
             vertexBuffer->Load();
             normals = new float[numberOfVertices * 3];
-            texCoordBuffer = Float2BufferObjectPtr(new BufferObject<2, float>(numberOfVertices));
+            texCoordBuffer = Float2DataBlockPtr(new DataBlock<2, float>(numberOfVertices));
             texCoordBuffer->Load();
-            normalMapCoordBuffer = Float2BufferObjectPtr(new BufferObject<2, float>(numberOfVertices));
+            normalMapCoordBuffer = Float2DataBlockPtr(new DataBlock<2, float>(numberOfVertices));
             normalMapCoordBuffer->Load();
-            geomorphBuffer = Float3BufferObjectPtr(new BufferObject<3, float>(numberOfVertices));
+            geomorphBuffer = Float3DataBlockPtr(new DataBlock<3, float>(numberOfVertices));
             geomorphBuffer->Load();
             deltaValues = new char[numberOfVertices];
 
@@ -670,7 +670,7 @@ namespace OpenEngine {
             int zs = (depth-1) / LOD + 1;
             unsigned int numberOfIndices = 2 * ((xs - 1) * zs + xs - 2);
 
-            indexBuffer = IndexBufferObjectPtr(new IndexBufferObject(numberOfIndices));
+            indexBuffer = DataIndicesPtr(new DataIndices(numberOfIndices));
             indexBuffer->Load();
             unsigned int* indices = indexBuffer->GetData();;
 
@@ -734,13 +734,13 @@ namespace OpenEngine {
                 }
             }
 
-            indexBuffer = IndexBufferObjectPtr(new IndexBufferObject(numberOfIndices));
+            indexBuffer = DataIndicesPtr(new DataIndices(numberOfIndices));
             indexBuffer->Load();
             unsigned int* indices = indexBuffer->GetData();;
 
             unsigned int i = 0;
             for (int p = 0; p < numberOfPatches; ++p){
-                patchNodes[p]->SetIndexBuffer(indexBuffer);
+                patchNodes[p]->SetDataIndices(indexBuffer);
                 for (int l = 0; l < HeightMapPatchNode::MAX_LODS; ++l){
                     for (int rl = 0; rl < 3; ++rl){
                         for (int ul = 0; ul < 3; ++ul){

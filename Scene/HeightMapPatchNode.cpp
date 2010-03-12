@@ -13,7 +13,7 @@
 #include <Display/IViewingVolume.h>
 #include <Logging/Logger.h>
 #include <math.h>
-#include <Resources/IndexBufferObject.h>
+#include <Resources/DataIndices.h>
 
 #include <cstring>
 

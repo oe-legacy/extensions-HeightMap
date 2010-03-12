@@ -17,8 +17,8 @@ using namespace OpenEngine::Geometry;
 
 namespace OpenEngine {
     namespace Resources {
-        class IndexBufferObject;
-        typedef boost::shared_ptr<IndexBufferObject> IndexBufferObjectPtr;
+        class DataIndices;
+        typedef boost::shared_ptr<DataIndices> DataIndicesPtr;
     }
     namespace Display{
         class IViewingVolume;
@@ -36,10 +36,10 @@ namespace OpenEngine {
             OE_SCENE_NODE(HeightMapPatchNode, ISceneNode)
 
         public:
-            static const int PATCH_EDGE_SQUARES = 64;
+            static const int PATCH_EDGE_SQUARES = 96;
             static const int PATCH_EDGE_VERTICES = PATCH_EDGE_SQUARES + 1;
-            static const int MAX_LODS = 4;
-            static const int MAX_DELTA = 8; //pow(2, MAX_LODS-1);
+            static const int MAX_LODS = 3;
+            static const int MAX_DELTA = 4; //pow(2, MAX_LODS-1);
             static const int MIN_LOD = 1;
 
             enum LODrelation { LOWER = 0, SAME = 1, HIGHER = 2 };
@@ -56,7 +56,7 @@ namespace OpenEngine {
             Geometry::Box boundingBox;
             Vector<3, float> min, max;
 
-            Resources::IndexBufferObjectPtr indexBuffer;
+            Resources::DataIndicesPtr indexBuffer;
             LODstruct LODs[MAX_LODS][3][3];
 
             HeightMapPatchNode* upperNeighbour;
@@ -82,7 +82,7 @@ namespace OpenEngine {
 
             // *** Get/Set methods ***
 
-            void SetIndexBuffer(IndexBufferObjectPtr i) { indexBuffer = i; }
+            void SetDataIndices(DataIndicesPtr i) { indexBuffer = i; }
             void SetUpperNeighbor(HeightMapPatchNode* u) {upperNeighbour = u; }
             void SetRightNeighbor(HeightMapPatchNode* r) {rightNeighbour = r; }
             int GetLOD() const { return LOD; }
