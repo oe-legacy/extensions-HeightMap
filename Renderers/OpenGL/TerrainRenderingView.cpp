@@ -31,6 +31,8 @@ namespace OpenEngine {
             }
 
             void TerrainRenderingView::VisitHeightMapNode(HeightMapNode* node) {
+                bool bufferSupport = renderer->BufferSupport();
+                
                 glEnable(GL_CULL_FACE);
 
                 MeshPtr mesh = node->GetMesh();
@@ -50,8 +52,9 @@ namespace OpenEngine {
                 node->CalcLOD(viewport.GetViewingVolume());
                 
                 DataIndicesPtr indices = node->GetDataIndices();
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices->GetID());
+                if (bufferSupport) glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices->GetID());
 
+                // Replace with a patch iterator
                 node->Render(viewport);
 
                 ApplyMesh(NULL);
@@ -60,7 +63,7 @@ namespace OpenEngine {
                     shader->ReleaseShader();
                 }
                 
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+                if (bufferSupport) glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
                 glDisable(GL_CULL_FACE);
 
