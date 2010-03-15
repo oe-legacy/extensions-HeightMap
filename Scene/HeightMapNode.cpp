@@ -187,20 +187,12 @@ namespace OpenEngine {
                 IDataBlockList texCoords;
                 texCoords.push_back(texCoordBuffer);
                 normalBuffer = Float3DataBlockPtr(new DataBlock<3, float>(normals, numberOfVertices));
+                arg.renderer.BindDataBlock(normalBuffer.get());
+                normalBuffer->SetUnloadPolicy(UNLOAD_EXPLICIT);
                 geom = GeometrySetPtr(new GeometrySet(vertexBuffer, normalBuffer, texCoords));
             }
 
             SetLODSwitchDistance(baseDistance, 1 / invIncDistance);
-
-            // Cleanup in ram if the objects have been bound
-            if (indexBuffer->GetID() != 0)
-                indexBuffer->Unload();
-            if (texCoordBuffer->GetID() != 0)
-                texCoordBuffer->Unload();
-            if (geomorphBuffer->GetID() != 0)
-                geomorphBuffer->Unload();
-            if (normalMapCoordBuffer->GetID() != 0)
-                normalMapCoordBuffer->Unload();
         }
 
         void HeightMapNode::Handle(ProcessEventArg arg){
@@ -555,18 +547,19 @@ namespace OpenEngine {
 
             numberOfVertices = width * depth;
 
-            vertexBuffer = Float4DataBlockPtr(new DataBlock<4, float>(numberOfVertices));
-            vertexBuffer->Load();
+            float* data = new float[4 * numberOfVertices];
+            vertexBuffer = Float4DataBlockPtr(new DataBlock<4, float>(data, numberOfVertices));
+            vertexBuffer->SetUnloadPolicy(UNLOAD_EXPLICIT);
             normals = new float[numberOfVertices * 3];
-            texCoordBuffer = Float2DataBlockPtr(new DataBlock<2, float>(numberOfVertices));
-            texCoordBuffer->Load();
-            normalMapCoordBuffer = Float2DataBlockPtr(new DataBlock<2, float>(numberOfVertices));
-            normalMapCoordBuffer->Load();
-            geomorphBuffer = Float3DataBlockPtr(new DataBlock<3, float>(numberOfVertices));
-            geomorphBuffer->Load();
+            data = new float[2 * numberOfVertices];
+            texCoordBuffer = Float2DataBlockPtr(new DataBlock<2, float>(data, numberOfVertices));
+            data = new float[2 * numberOfVertices];
+            normalMapCoordBuffer = Float2DataBlockPtr(new DataBlock<2, float>(data, numberOfVertices));
+            data = new float[3 * numberOfVertices];
+            geomorphBuffer = Float3DataBlockPtr(new DataBlock<3, float>(data, numberOfVertices));
             deltaValues = new char[numberOfVertices];
 
-            float* data = tex->GetData();
+            data = tex->GetData();
 
             // Fill the vertex array
             int d = tex->GetChannels() - 1;
@@ -675,9 +668,8 @@ namespace OpenEngine {
             int zs = (depth-1) / LOD + 1;
             unsigned int numberOfIndices = 2 * ((xs - 1) * zs + xs - 2);
 
-            indexBuffer = DataIndicesPtr(new DataIndices(numberOfIndices));
-            indexBuffer->Load();
-            unsigned int* indices = indexBuffer->GetData();;
+            unsigned int* indices = new unsigned int[numberOfIndices];
+            indexBuffer = DataIndicesPtr(new DataIndices(indices, numberOfIndices));
 
             unsigned int i = 0;
             for (int x = 0; x < width - 1; x += LOD){
@@ -739,9 +731,8 @@ namespace OpenEngine {
                 }
             }
 
-            indexBuffer = DataIndicesPtr(new DataIndices(numberOfIndices));
-            indexBuffer->Load();
-            unsigned int* indices = indexBuffer->GetData();;
+            unsigned int* indices = new unsigned int[numberOfIndices];
+            indexBuffer = DataIndicesPtr(new DataIndices(indices, numberOfIndices));
 
             unsigned int i = 0;
             for (int p = 0; p < numberOfPatches; ++p){
