@@ -18,7 +18,7 @@ using namespace OpenEngine::Geometry;
 namespace OpenEngine {
     namespace Resources {
         class DataIndices;
-        typedef boost::shared_ptr<DataIndices> DataIndicesPtr;
+        typedef boost::shared_ptr<DataIndices > DataIndicesPtr;
     }
     namespace Display{
         class IViewingVolume;

@@ -15,7 +15,7 @@
 #include <Renderers/IRenderer.h>
 #include <Resources/Texture2D.h>
 #include <Display/Viewport.h>
-#include <Resources/DataIndices.h>
+#include <Resources/DataBlock.h>
 
 using namespace OpenEngine::Core;
 using namespace OpenEngine::Renderers;
