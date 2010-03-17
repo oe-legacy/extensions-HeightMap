@@ -86,6 +86,7 @@ namespace OpenEngine {
             void SetUpperNeighbor(HeightMapPatchNode* u) {upperNeighbour = u; }
             void SetRightNeighbor(HeightMapPatchNode* r) {rightNeighbour = r; }
             int GetLOD() const { return LOD; }
+            inline bool IsVisible() const { return visible; }
             float GetGeomorphingScale() const { return geomorphingScale; }
             LODstruct& GetLodStruct(const int lod, const int rightlod, const int upperlod) { return (LODs[lod][rightlod][upperlod]); }
             Vector<3, float> GetCenter() const { return patchCenter; }
