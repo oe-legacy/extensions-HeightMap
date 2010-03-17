@@ -187,8 +187,8 @@ namespace OpenEngine {
                 IDataBlockList texCoords;
                 texCoords.push_back(texCoordBuffer);
                 normalBuffer = Float3DataBlockPtr(new DataBlock<3, float>(normals, numberOfVertices));
-                arg.renderer.BindDataBlock(normalBuffer.get());
                 normalBuffer->SetUnloadPolicy(UNLOAD_EXPLICIT);
+                arg.renderer.BindDataBlock(normalBuffer.get());
                 geom = GeometrySetPtr(new GeometrySet(vertexBuffer, normalBuffer, texCoords));
             }
 
