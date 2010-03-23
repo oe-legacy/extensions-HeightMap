@@ -36,7 +36,7 @@ namespace OpenEngine {
                 glEnable(GL_CULL_FACE);
 
                 GeometrySetPtr mesh = node->GetGeometrySet();
-                this->ApplyGeometrySet(mesh.get());
+                this->ApplyGeometrySet(mesh);
 
                 IShaderResourcePtr shader = node->GetLandscapeShader();
                 if (this->renderShader && shader){
@@ -57,7 +57,7 @@ namespace OpenEngine {
                 // Replace with a patch iterator
                 node->Render(viewport);
 
-                ApplyGeometrySet(NULL);
+                ApplyGeometrySet(GeometrySetPtr());
 
                 if (shader){
                     shader->ReleaseShader();
