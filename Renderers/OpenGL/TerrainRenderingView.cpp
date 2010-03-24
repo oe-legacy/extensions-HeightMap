@@ -35,8 +35,8 @@ namespace OpenEngine {
                 
                 glEnable(GL_CULL_FACE);
 
-                GeometrySetPtr mesh = node->GetGeometrySet();
-                this->ApplyGeometrySet(mesh);
+                GeometrySetPtr geom = node->GetGeometrySet();
+                this->ApplyGeometrySet(geom);
 
                 IShaderResourcePtr shader = node->GetLandscapeShader();
                 if (this->renderShader && shader){

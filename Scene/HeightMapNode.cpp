@@ -186,7 +186,7 @@ namespace OpenEngine {
                 // Create a non shader geometry set
                 IDataBlockList texCoords;
                 texCoords.push_back(texCoordBuffer);
-                normalBuffer = Float3DataBlockPtr(new DataBlock<3, float>(normals, numberOfVertices));
+                normalBuffer = Float3DataBlockPtr(new DataBlock<3, float>(numberOfVertices, normals));
                 normalBuffer->SetUnloadPolicy(UNLOAD_EXPLICIT);
                 arg.renderer.BindDataBlock(normalBuffer.get());
                 geom = GeometrySetPtr(new GeometrySet(vertexBuffer, normalBuffer, texCoords));
@@ -547,19 +547,15 @@ namespace OpenEngine {
 
             numberOfVertices = width * depth;
 
-            float* data = new float[4 * numberOfVertices];
-            vertexBuffer = Float4DataBlockPtr(new DataBlock<4, float>(data, numberOfVertices));
+            vertexBuffer = Float4DataBlockPtr(new DataBlock<4, float>(numberOfVertices));
             vertexBuffer->SetUnloadPolicy(UNLOAD_EXPLICIT);
             normals = new float[numberOfVertices * 3];
-            data = new float[2 * numberOfVertices];
-            texCoordBuffer = Float2DataBlockPtr(new DataBlock<2, float>(data, numberOfVertices));
-            data = new float[2 * numberOfVertices];
-            normalMapCoordBuffer = Float2DataBlockPtr(new DataBlock<2, float>(data, numberOfVertices));
-            data = new float[3 * numberOfVertices];
-            geomorphBuffer = Float3DataBlockPtr(new DataBlock<3, float>(data, numberOfVertices));
+            texCoordBuffer = Float2DataBlockPtr(new DataBlock<2, float>(numberOfVertices));
+            normalMapCoordBuffer = Float2DataBlockPtr(new DataBlock<2, float>(numberOfVertices));
+            geomorphBuffer = Float3DataBlockPtr(new DataBlock<3, float>(numberOfVertices));
             deltaValues = new char[numberOfVertices];
 
-            data = tex->GetData();
+            float* data = tex->GetData();
 
             // Fill the vertex array
             int d = tex->GetChannels() - 1;
@@ -668,8 +664,8 @@ namespace OpenEngine {
             int zs = (depth-1) / LOD + 1;
             unsigned int numberOfIndices = 2 * ((xs - 1) * zs + xs - 2);
 
-            unsigned int* indices = new unsigned int[numberOfIndices];
-            indexBuffer = DataIndicesPtr(new DataIndices(indices, numberOfIndices));
+            indexBuffer = DataIndicesPtr(new DataIndices(numberOfIndices));
+            unsigned int* indices = indexBuffer->GetData();
 
             unsigned int i = 0;
             for (int x = 0; x < width - 1; x += LOD){
@@ -731,8 +727,8 @@ namespace OpenEngine {
                 }
             }
 
-            unsigned int* indices = new unsigned int[numberOfIndices];
-            indexBuffer = DataIndicesPtr(new DataIndices(indices, numberOfIndices));
+            indexBuffer = DataIndicesPtr(new DataIndices(numberOfIndices));
+            unsigned int* indices = indexBuffer->GetData();
 
             unsigned int i = 0;
             for (int p = 0; p < numberOfPatches; ++p){
