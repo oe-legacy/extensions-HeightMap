@@ -51,7 +51,7 @@ namespace OpenEngine {
 
                 node->CalcLOD(viewport.GetViewingVolume());
                 
-                DataIndicesPtr indices = node->GetDataIndices();
+                IndicesPtr indices = node->GetIndices();
                 if (bufferSupport) glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices->GetID());
 
                 // Replace with a patch iterator

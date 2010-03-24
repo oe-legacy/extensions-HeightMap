@@ -664,7 +664,7 @@ namespace OpenEngine {
             int zs = (depth-1) / LOD + 1;
             unsigned int numberOfIndices = 2 * ((xs - 1) * zs + xs - 2);
 
-            indexBuffer = DataIndicesPtr(new DataIndices(numberOfIndices));
+            indexBuffer = IndicesPtr(new Indices(numberOfIndices));
             unsigned int* indices = indexBuffer->GetData();
 
             unsigned int i = 0;
@@ -727,7 +727,7 @@ namespace OpenEngine {
                 }
             }
 
-            indexBuffer = DataIndicesPtr(new DataIndices(numberOfIndices));
+            indexBuffer = IndicesPtr(new Indices(numberOfIndices));
             unsigned int* indices = indexBuffer->GetData();
 
             unsigned int i = 0;

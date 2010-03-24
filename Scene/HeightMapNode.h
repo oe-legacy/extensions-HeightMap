@@ -79,7 +79,7 @@ namespace OpenEngine {
 
             char* deltaValues;
 
-            DataIndicesPtr indexBuffer;
+            IndicesPtr indexBuffer;
 
             int width;
             int depth;
@@ -172,7 +172,7 @@ namespace OpenEngine {
             IDataBlockPtr GetGeomorphBuffer() const { return geomorphBuffer; }
             IDataBlockPtr GetTexCoordBuffer() const { return texCoordBuffer; }
             IDataBlockPtr GetNormalMapCoordBuffer() const { return normalMapCoordBuffer; }
-            DataIndicesPtr GetDataIndices() const { return indexBuffer; }
+            IndicesPtr    GetIndices() const { return indexBuffer; }
             int GetNumberOfVertices() const { return numberOfVertices; }
             GeometrySetPtr GetGeometrySet() const { return geom; }
 
