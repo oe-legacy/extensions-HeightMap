@@ -33,8 +33,6 @@ namespace OpenEngine {
             void TerrainRenderingView::VisitHeightMapNode(HeightMapNode* node) {
                 bool bufferSupport = renderer->BufferSupport();
                 
-                glEnable(GL_CULL_FACE);
-
                 GeometrySetPtr geom = node->GetGeometrySet();
                 this->ApplyGeometrySet(geom);
 
@@ -64,8 +62,6 @@ namespace OpenEngine {
                 }
                 
                 if (bufferSupport) glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-                glDisable(GL_CULL_FACE);
 
                 if (renderTangent)
                     node->RenderBoundingGeometry();
