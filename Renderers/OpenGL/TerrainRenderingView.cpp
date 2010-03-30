@@ -155,6 +155,8 @@ namespace OpenEngine {
                         reflection->Accept(*this);
                     }
 
+                    ApplyGeometrySet(GeometrySetPtr());
+
                     float pos[3];
                     node->GetSun()->GetPos().ToArray(pos);
                     glLightfv(GL_LIGHT0, GL_POSITION, pos);
@@ -223,19 +225,6 @@ namespace OpenEngine {
                     glDisable(GL_TEXTURE_2D);
                     glDisableClientState(GL_VERTEX_ARRAY);
                     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-                }
-
-                if (renderSoftNormal){
-                    float* vert = node->GetWaterVerticeArray();
-                    float* norm = node->GetWaterNormalArray();
-                    glColor3f(1, 0, 0);
-                    glBegin(GL_LINES);
-                    for (int i = 0; i < node->GetNumberOfVertices();++i){
-                        int j = i * 3;
-                        glVertex3f(vert[j], vert[j+1], vert[j+2]);
-                        glVertex3f(vert[j] + norm[j], vert[j+1] + norm[j+1], vert[j+2] + norm[j+2]);
-                    }
-                    glEnd();
                 }
             }
         }
