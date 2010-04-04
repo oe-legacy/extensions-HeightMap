@@ -559,7 +559,8 @@ namespace OpenEngine {
 
             // Fill the vertex array
             int d = tex->GetChannels() - 1;
-            for (int x = 0; x < width; ++x){
+            //for (int x = 0; x < width; ++x){
+            for (int x = width-1; x >= 0; --x){
                 for (int z = 0; z < depth; ++z){
                     float* vertice = GetVertice(x, z);
                      

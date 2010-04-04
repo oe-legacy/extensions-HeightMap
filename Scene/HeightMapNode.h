@@ -120,6 +120,7 @@ namespace OpenEngine {
             void Handle(RenderingEventArg arg);
             void Handle(ProcessEventArg arg);
 
+            FloatTexture2DPtr GetTex() {return tex;}
 
             // *** Get/Set methods ***
 

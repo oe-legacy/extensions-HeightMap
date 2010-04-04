@@ -36,7 +36,7 @@ namespace OpenEngine {
             OE_SCENE_NODE(HeightMapPatchNode, ISceneNode)
 
         public:
-            static const int PATCH_EDGE_SQUARES = 96;
+            static const int PATCH_EDGE_SQUARES = 32;
             static const int PATCH_EDGE_VERTICES = PATCH_EDGE_SQUARES + 1;
             static const int MAX_LODS = 3;
             static const int MAX_DELTA = 4; //pow(2, MAX_LODS-1);
