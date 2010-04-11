@@ -555,10 +555,7 @@ namespace OpenEngine {
             geomorphBuffer = Float3DataBlockPtr(new DataBlock<3, float>(numberOfVertices));
             deltaValues = new char[numberOfVertices];
 
-            float* data = tex->GetData();
-
             // Fill the vertex array
-            int d = tex->GetChannels() - 1;
             //for (int x = 0; x < width; ++x){
             for (int x = width-1; x >= 0; --x){
                 for (int z = 0; z < depth; ++z){
@@ -566,13 +563,11 @@ namespace OpenEngine {
                      
                     vertice[0] = widthScale * x + offset[0];
                     vertice[2] = widthScale * z + offset[2];
-                    if (DIMENSIONS > 3)
-                        vertice[3] = 1;
+                    vertice[3] = 1;
        
                     if (x < texWidth && z < texDepth){
                         // inside the heightmap
-                        float height = data[d];
-                        d += tex->GetChannels();
+                        float height = tex->GetPixel(x, z)[0];
                         vertice[1] = height * heightScale - waterlevel - heightScale / 2 + offset[1];
                     }else{
                         // outside the heightmap, set height to waterlevel
@@ -678,14 +673,6 @@ namespace OpenEngine {
                     indices[i++] = CoordToIndex(x+LOD, 0);
                     indices[i++] = CoordToIndex(x+LOD, width - 1);
                 }
-            }
-
-            if (i < numberOfIndices){
-                logger.info << "Allocated to much memory for the indices, lets get lower" << logger.end;
-                numberOfIndices = i;
-            }else if (i > numberOfIndices){
-                logger.info << "You're about to crash monsiour. Good luck. Allocated " << numberOfIndices << " but used " << i << logger.end;
-                numberOfIndices = i;
             }
         }
 

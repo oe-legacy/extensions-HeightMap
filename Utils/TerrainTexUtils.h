@@ -38,6 +38,7 @@ namespace OpenEngine {
 
             Texture2D<T> temp = Texture2D<T>(width, height, channels);
             temp.Load();
+            temp.SetWrapping(tex->GetWrapping());
 
             for (unsigned int x = 0; x < width; ++x){
                 for (unsigned int y = 0; y < height; ++y){

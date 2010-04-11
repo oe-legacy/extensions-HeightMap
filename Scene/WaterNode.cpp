@@ -169,6 +169,7 @@ namespace OpenEngine {
             glGenRenderbuffersEXT(1, &depth);
             glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depth);
             glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, FBOwidth, FBOheight);
+            glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
             
             glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
                                          GL_RENDERBUFFER_EXT, depth);
@@ -186,7 +187,6 @@ namespace OpenEngine {
                                       GL_COLOR_ATTACHMENT0_EXT,
                                       GL_TEXTURE_2D, reflectionTex->GetID(), 0);
             
-            glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
         }
 
