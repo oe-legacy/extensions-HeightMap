@@ -104,6 +104,8 @@ namespace OpenEngine {
             FloatTexture2DPtr tex;
             IShaderResourcePtr landscapeShader;
 
+            bool isLoaded;
+
         public:
             HeightMapNode() {}
             HeightMapNode(FloatTexture2DPtr tex);

@@ -41,6 +41,8 @@ namespace OpenEngine {
             baseDistance = 1;
             invIncDistance = 1.0f / 100.0f;
 
+            isLoaded = false;
+
             texCoordBuffer.reset();
 
             landscapeShader.reset();
@@ -54,11 +56,14 @@ namespace OpenEngine {
         }
         
         void HeightMapNode::Load() {
+            if (isLoaded)
+                return;
             InitArrays();
             if (USE_PATCHES)
                 SetupPatches();
             else
                 ComputeIndices();
+            isLoaded = true;
         }
 
         void HeightMapNode::CalcLOD(IViewingVolume* view){
@@ -556,9 +561,10 @@ namespace OpenEngine {
             deltaValues = new char[numberOfVertices];
 
             // Fill the vertex array
-            //for (int x = 0; x < width; ++x){
-            for (int x = width-1; x >= 0; --x){
+            for (int x = 0; x < width; ++x){
+                //for (int x = width-1; x >= 0; --x){
                 for (int z = 0; z < depth; ++z){
+                    //for (int z = depth-1; z >= 0; --z){
                     float* vertice = GetVertice(x, z);
                      
                     vertice[0] = widthScale * x + offset[0];
