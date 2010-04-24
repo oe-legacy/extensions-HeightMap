@@ -1,0 +1,4 @@
+# HeightMap dependencies
+
+darcs /extensions/HeightMap			http://openengine.dk/code/extensions/HeightMap
+darcs /extensions/MeshUtils			http://openengine.dk/code/extensions/MeshUtils
