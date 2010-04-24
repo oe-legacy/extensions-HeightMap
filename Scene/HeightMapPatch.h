@@ -1,4 +1,4 @@
-// Heightfield patch node.
+// Heightfield patch.
 // -------------------------------------------------------------------
 // Copyright (C) 2007 OpenEngine.dk (See AUTHORS) 
 // 
@@ -7,10 +7,9 @@
 // See the GNU General Public License for more details (see LICENSE). 
 //--------------------------------------------------------------------
 
-#ifndef _HEIGHTFIELD_PATCH_NODE_H_
-#define _HEIGHTFIELD_PATCH_NODE_H_
+#ifndef _HEIGHTFIELD_PATCH_H_
+#define _HEIGHTFIELD_PATCH_H_
 
-#include <Scene/ISceneNode.h>
 #include <Geometry/Box.h>
 
 using namespace OpenEngine::Geometry;
@@ -32,8 +31,7 @@ namespace OpenEngine {
             unsigned int indiceBufferOffset;
         };
         
-        class HeightMapPatchNode : public ISceneNode {
-            OE_SCENE_NODE(HeightMapPatchNode, ISceneNode)
+        class HeightMapPatch {
 
         public:
             static const int PATCH_EDGE_SQUARES = 32;
@@ -47,28 +45,23 @@ namespace OpenEngine {
         private:
             HeightMapNode* terrain;
 
-            unsigned int LOD;
-            float geomorphingScale;
+            unsigned int LOD, upperLOD, rightLOD;
+            float geomorphingScale, rightGeomorphingScale, upperGeomorphingScale;
             bool visible;
             
             int xStart, zStart, xEnd, zEnd, xEndMinusOne, zEndMinusOne;
             Vector<3, float> patchCenter;
             Geometry::Box boundingBox;
             Vector<3, float> min, max;
+            float edgeLength;
 
             Resources::IndicesPtr indexBuffer;
             LODstruct LODs[MAX_LODS][3][3];
 
-            HeightMapPatchNode* upperNeighbour;
-            int upperLOD;
-            
-            HeightMapPatchNode* rightNeighbour;
-            int rightLOD;
-
         public:            
-            HeightMapPatchNode() {}
-            HeightMapPatchNode(int xStart, int zStart, HeightMapNode* t);
-            ~HeightMapPatchNode();
+            HeightMapPatch() {}
+            HeightMapPatch(int xStart, int zStart, HeightMapNode* t);
+            ~HeightMapPatch();
 
             void UpdateBoundingGeometry();
             void UpdateBoundingGeometry(float height);
@@ -78,13 +71,9 @@ namespace OpenEngine {
             void Render() const;
             void RenderBoundingGeometry() const;
 
-            void VisitSubNodes(ISceneNodeVisitor& visitor) {};
-
             // *** Get/Set methods ***
 
             void SetDataIndices(IndicesPtr i) { indexBuffer = i; }
-            void SetUpperNeighbor(HeightMapPatchNode* u) {upperNeighbour = u; }
-            void SetRightNeighbor(HeightMapPatchNode* r) {rightNeighbour = r; }
             int GetLOD() const { return LOD; }
             inline bool IsVisible() const { return visible; }
             float GetGeomorphingScale() const { return geomorphingScale; }

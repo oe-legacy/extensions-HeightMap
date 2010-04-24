@@ -36,7 +36,7 @@ namespace OpenEngine {
     }
     namespace Scene {
         class SunNode;
-        class HeightMapPatchNode;
+        class HeightMapPatch;
 
         /**
          * A class for creating landscapes through heightmaps
@@ -95,7 +95,7 @@ namespace OpenEngine {
 
             // Patch variables
             int patchGridWidth, patchGridDepth, numberOfPatches;
-            HeightMapPatchNode** patchNodes;
+            HeightMapPatch** patchNodes;
 
             // Distances for changing the LOD
             float baseDistance;
@@ -270,7 +270,7 @@ namespace OpenEngine {
             inline char& GetVerticeDelta(const int x, const int z) const;
             inline char& GetVerticeDelta(const int index) const;
             inline int GetPatchIndex(const int x, const int z) const;
-            inline HeightMapPatchNode* GetPatch(const int x, const int z) const;
+            inline HeightMapPatch* GetPatch(const int x, const int z) const;
         };
     }
 } 

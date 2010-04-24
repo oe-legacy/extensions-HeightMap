@@ -1,4 +1,4 @@
-// Height field patch node.
+// Height field patch.
 // -------------------------------------------------------------------
 // Copyright (C) 2007 OpenEngine.dk (See AUTHORS) 
 // 
@@ -7,7 +7,7 @@
 // See the GNU General Public License for more details (see LICENSE). 
 //--------------------------------------------------------------------
 
-#include <Scene/HeightMapPatchNode.h>
+#include <Scene/HeightMapPatch.h>
 #include <Scene/HeightMapNode.h>
 #include <Meta/OpenGL.h>
 #include <Display/IViewingVolume.h>
@@ -23,25 +23,27 @@ using namespace OpenEngine::Resources;
 namespace OpenEngine {
     namespace Scene {
         
-        HeightMapPatchNode::HeightMapPatchNode(int xStart, int zStart, HeightMapNode* t)
-            : terrain(t), LOD(1), geomorphingScale(1), visible(false), xStart(xStart), zStart(zStart),
-              upperNeighbour(NULL), rightNeighbour(NULL){
+        HeightMapPatch::HeightMapPatch(int xStart, int zStart, HeightMapNode* t)
+            : terrain(t), LOD(1), geomorphingScale(1), visible(false), 
+              xStart(xStart), zStart(zStart) {
 
             xEnd = xStart + PATCH_EDGE_VERTICES;
             zEnd = zStart + PATCH_EDGE_VERTICES;
             xEndMinusOne = xEnd - 1;
             zEndMinusOne = zEnd - 1;
 
+            edgeLength = (xEndMinusOne - xStart) * t->GetWidthScale();
+
             ComputeIndices();
             
             SetupBoundingBox();
         }
 
-        HeightMapPatchNode::~HeightMapPatchNode(){
+        HeightMapPatch::~HeightMapPatch(){
             delete [] LODs;
         }
 
-        void HeightMapPatchNode::UpdateBoundingGeometry(){
+        void HeightMapPatch::UpdateBoundingGeometry(){
             for (int x = xStart; x < xEnd; ++x){
                 for (int z = zStart; z < zEnd; ++z){
                     float y = terrain->GetVertex(x, z)[1];
@@ -53,7 +55,7 @@ namespace OpenEngine {
             UpdateBoundingBox();
         }
 
-        void HeightMapPatchNode::UpdateBoundingGeometry(float h){
+        void HeightMapPatch::UpdateBoundingGeometry(float h){
             if (h > max[1]){
                 // The vertex is above the box and the box should be
                 // updated to the new height.
@@ -93,18 +95,16 @@ namespace OpenEngine {
             UpdateBoundingBox();
         }
         
-        void HeightMapPatchNode::CalcLOD(IViewingVolume* view){
+        void HeightMapPatch::CalcLOD(IViewingVolume* view){
             visible = view->IsVisible(boundingBox);
             if (!visible) return;
 
             Vector<3, float> viewPos = view->GetPosition();
-            
-            float distance = (viewPos - patchCenter).GetLength();
-
             float baseDistance = terrain->GetLODBaseDistance();
-
             float invIncDistance = terrain->GetLODInverseIncDistance();
 
+            // Calculate own LOD
+            float distance = (viewPos - patchCenter).GetLength();
             distance -= baseDistance;
 
             geomorphingScale = distance * invIncDistance;
@@ -115,13 +115,37 @@ namespace OpenEngine {
                 geomorphingScale = MAX_LODS;
 
             LOD = floor(geomorphingScale) - 1;
+
+            // Calculate upper LOD
+            distance = (viewPos - (patchCenter + Vector<3, float>(edgeLength, 0, 0))).GetLength();
+            distance -= baseDistance;
+
+            upperGeomorphingScale = distance * invIncDistance;
+            if (upperGeomorphingScale < 1)
+                upperGeomorphingScale = 1;
+            else if (upperGeomorphingScale > MAX_LODS)
+                upperGeomorphingScale = MAX_LODS;
+
+            upperLOD = floor(upperGeomorphingScale) - 1;
+
+            // Calculate right LOD
+            distance = (viewPos - (patchCenter + Vector<3, float>(0, 0, edgeLength))).GetLength();
+            distance -= baseDistance;
+
+            rightGeomorphingScale = distance * invIncDistance;
+            if (rightGeomorphingScale < 1)
+                rightGeomorphingScale = 1;
+            else if (rightGeomorphingScale > MAX_LODS)
+                rightGeomorphingScale = MAX_LODS;
+
+            rightLOD = floor(rightGeomorphingScale) - 1;
         }
 
-        void HeightMapPatchNode::Render() const{
+        void HeightMapPatch::Render() const{
             if (visible){
-                int rightLODdiff = rightNeighbour != NULL ? rightNeighbour->GetLOD() - LOD + 1 : 1;
-                int upperLODdiff = upperNeighbour != NULL ? upperNeighbour->GetLOD() - LOD + 1 : 1;
-                
+                int rightLODdiff = rightLOD - LOD + 1;
+                int upperLODdiff = upperLOD - LOD + 1;
+
                 unsigned int numberOfIndices = LODs[LOD][rightLODdiff][upperLODdiff].numberOfIndices;
                 unsigned int offset = LODs[LOD][rightLODdiff][upperLODdiff].indiceBufferOffset;
                 if (indexBuffer->GetID() != 0)
@@ -131,7 +155,7 @@ namespace OpenEngine {
             }
         }
 
-        void HeightMapPatchNode::RenderBoundingGeometry() const{
+        void HeightMapPatch::RenderBoundingGeometry() const{
             glBegin(GL_LINES);
             Vector<3, float> center = boundingBox.GetCenter();
             glColor3f(0, 1, 0);
@@ -149,7 +173,7 @@ namespace OpenEngine {
 
         // **** inlined functions ****
 
-        void HeightMapPatchNode::ComputeIndices(){
+        void HeightMapPatch::ComputeIndices(){
 
             for (int i = 0; i < MAX_LODS; ++i){
                 int bodyIndices;
@@ -200,7 +224,7 @@ namespace OpenEngine {
             }
         }
         
-        unsigned int* HeightMapPatchNode::ComputeBodyIndices(int& indices, int LOD){
+        unsigned int* HeightMapPatch::ComputeBodyIndices(int& indices, int LOD){
             int delta = pow(2, LOD);
             
             int xs = PATCH_EDGE_SQUARES / delta - 1;
@@ -224,7 +248,7 @@ namespace OpenEngine {
             return ret;
         }
 
-        unsigned int* HeightMapPatchNode::ComputeRightStichingIndices(int& indices, int LOD, LODrelation rightLOD){
+        unsigned int* HeightMapPatch::ComputeRightStichingIndices(int& indices, int LOD, LODrelation rightLOD){
             int delta = pow(2, LOD);
 
             int i = 0;
@@ -283,7 +307,7 @@ namespace OpenEngine {
             }
         }
 
-        unsigned int* HeightMapPatchNode::ComputeUpperStichingIndices(int& indices, int LOD, LODrelation upperLOD){
+        unsigned int* HeightMapPatch::ComputeUpperStichingIndices(int& indices, int LOD, LODrelation upperLOD){
             int delta = pow(2, LOD);
 
             int i = 0;
@@ -343,7 +367,7 @@ namespace OpenEngine {
             }
         }
 
-        void HeightMapPatchNode::SetupBoundingBox(){
+        void HeightMapPatch::SetupBoundingBox(){
             min = Vector<3, float>(terrain->GetVertex(xStart, zStart));
             max = Vector<3, float>(terrain->GetVertex(xEnd-1, zEnd-1));
 
@@ -358,7 +382,7 @@ namespace OpenEngine {
             UpdateBoundingBox();
         }
 
-        void HeightMapPatchNode::UpdateBoundingBox(){
+        void HeightMapPatch::UpdateBoundingBox(){
             patchCenter = (min + max) / 2;
             boundingBox = Box(patchCenter, max - patchCenter);
             

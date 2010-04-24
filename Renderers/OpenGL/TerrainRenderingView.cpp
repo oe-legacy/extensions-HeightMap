@@ -12,10 +12,12 @@
 #include <Resources/IShaderResource.h>
 #include <Scene/HeightMapNode.h>
 #include <Scene/SunNode.h>
+#include <Scene/SkySphereNode.h>
 #include <Scene/WaterNode.h>
 #include <Math/Vector.h>
-#include <Logging/Logger.h>
 #include <Geometry/GeometrySet.h>
+
+#include <Logging/Logger.h>
 
 using namespace OpenEngine::Geometry;
 
@@ -229,6 +231,18 @@ namespace OpenEngine {
                     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
                 }
             }
+            
+            void TerrainRenderingView::VisitSkySphereNode(SkySphereNode* node){
+                IShaderResourcePtr atm = node->GetAtmostphereShader();
+
+                Vector<3, float> viewPos = viewport.GetViewingVolume()->GetPosition();
+                atm->SetUniform("v3CameraPos", viewPos);
+                atm->SetUniform("fCameraHeight", viewPos.Get(1));
+                atm->SetUniform("v3LightPos", Vector<3, float>(-1,0.3,0).GetNormalize()); // should be normalized
+
+                this->ApplyMesh(node->GetMesh().get());
+            }
+
         }
     }
 }

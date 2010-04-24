@@ -8,7 +8,7 @@
 //--------------------------------------------------------------------
 
 #include <Scene/HeightMapNode.h>
-#include <Scene/HeightMapPatchNode.h>
+#include <Scene/HeightMapPatch.h>
 #include <Resources/IShaderResource.h>
 #include <Math/Math.h>
 #include <Meta/OpenGL.h>
@@ -373,13 +373,13 @@ namespace OpenEngine {
             */
 
             // Update bounding box
-            HeightMapPatchNode* mainNode = GetPatch(x, z);
+            HeightMapPatch* mainNode = GetPatch(x, z);
             mainNode->UpdateBoundingGeometry(value);
-            HeightMapPatchNode* upperNode = GetPatch(x+1, z);
+            HeightMapPatch* upperNode = GetPatch(x+1, z);
             if (upperNode != mainNode) upperNode->UpdateBoundingGeometry(value);
-            HeightMapPatchNode* rightNode = GetPatch(x, z+1);
+            HeightMapPatch* rightNode = GetPatch(x, z+1);
             if (rightNode != mainNode) rightNode->UpdateBoundingGeometry(value);
-            HeightMapPatchNode* upperRightNode = GetPatch(x+1, z+1);
+            HeightMapPatch* upperRightNode = GetPatch(x+1, z+1);
             if (upperRightNode != mainNode) upperRightNode->UpdateBoundingGeometry(value);
 
         }
@@ -415,10 +415,10 @@ namespace OpenEngine {
                 }
 
             // Update the morphing height for all affected vertices
-            int morphLeft = xStart - HeightMapPatchNode::MAX_DELTA < 0 ? 0 : xStart - HeightMapPatchNode::MAX_DELTA;
-            int morphRight = xEnd + HeightMapPatchNode::MAX_DELTA > width ? width : xEnd + HeightMapPatchNode::MAX_DELTA;
-            int morphBelow = zStart - HeightMapPatchNode::MAX_DELTA < 0 ? 0 : zStart - HeightMapPatchNode::MAX_DELTA;;
-            int morphAbove = zEnd + HeightMapPatchNode::MAX_DELTA > depth ? depth : zEnd + HeightMapPatchNode::MAX_DELTA;
+            int morphLeft = xStart - HeightMapPatch::MAX_DELTA < 0 ? 0 : xStart - HeightMapPatch::MAX_DELTA;
+            int morphRight = xEnd + HeightMapPatch::MAX_DELTA > width ? width : xEnd + HeightMapPatch::MAX_DELTA;
+            int morphBelow = zStart - HeightMapPatch::MAX_DELTA < 0 ? 0 : zStart - HeightMapPatch::MAX_DELTA;;
+            int morphAbove = zEnd + HeightMapPatch::MAX_DELTA > depth ? depth : zEnd + HeightMapPatch::MAX_DELTA;
 
             for (int xi = morphLeft; xi < morphRight; ++xi)
                 for (int zi = morphBelow; zi < morphAbove; ++zi){
@@ -459,7 +459,7 @@ namespace OpenEngine {
             */
 
             // Update the bounding geometry
-            int patchSize = HeightMapPatchNode::PATCH_EDGE_SQUARES;
+            int patchSize = HeightMapPatch::PATCH_EDGE_SQUARES;
             int xBoundingStart = (xStart / patchSize) * patchSize;
             int zBoundingStart = (zStart / patchSize) * patchSize;
             for (int xi = xBoundingStart; xi < xEnd; xi += patchSize)
@@ -516,7 +516,7 @@ namespace OpenEngine {
         void HeightMapNode::SetLODSwitchDistance(float base, float dec){
             baseDistance = base;
             
-            float edgeLength = HeightMapPatchNode::PATCH_EDGE_SQUARES * widthScale;
+            float edgeLength = HeightMapPatch::PATCH_EDGE_SQUARES * widthScale;
             if (dec * dec < edgeLength * edgeLength * 2){
                 invIncDistance = 1.0f / sqrt(edgeLength * edgeLength * 2);
                 logger.error << "Incremental LOD distance is too low, setting it to lowest value: " << 1.0f / invIncDistance << logger.end;
@@ -543,7 +543,7 @@ namespace OpenEngine {
             int texDepth = tex->GetWidth();
 
             // if texwidth/depth isn't expressible as n * patchwidth + 1 fix it.
-            int patchWidth = HeightMapPatchNode::PATCH_EDGE_SQUARES;
+            int patchWidth = HeightMapPatch::PATCH_EDGE_SQUARES;
             int widthRest = (texWidth - 1) % patchWidth;
             width = widthRest ? texWidth + patchWidth - widthRest : texWidth;
 
@@ -626,7 +626,7 @@ namespace OpenEngine {
         }
 
         void HeightMapNode::CalcVerticeLOD(){
-            for (int LOD = 1; LOD <= HeightMapPatchNode::MAX_LODS; ++LOD){
+            for (int LOD = 1; LOD <= HeightMapPatch::MAX_LODS; ++LOD){
                 int delta = pow(2, LOD-1);
                 for (int x = 0; x < width; x += delta){
                     for (int z = 0; z < depth; z += delta){
@@ -644,7 +644,7 @@ namespace OpenEngine {
                 short delta = GetVerticeDelta(x, z);
                 
                 int dx, dz;
-                if (delta < HeightMapPatchNode::MAX_DELTA){
+                if (delta < HeightMapPatch::MAX_DELTA){
                     dx = x % (delta * 2);
                     dz = z % (delta * 2);
                 }else{
@@ -684,33 +684,22 @@ namespace OpenEngine {
 
         void HeightMapNode::SetupPatches(){
             // Create the patches
-            int squares = HeightMapPatchNode::PATCH_EDGE_SQUARES;
+            int squares = HeightMapPatch::PATCH_EDGE_SQUARES;
             patchGridWidth = (width-1) / squares;
             patchGridDepth = (depth-1) / squares;
             numberOfPatches = patchGridWidth * patchGridDepth;
-            patchNodes = new HeightMapPatchNode*[numberOfPatches];
+            patchNodes = new HeightMapPatch*[numberOfPatches];
             int entry = 0;
             for (int x = 0; x < width - squares; x +=squares ){
                 for (int z = 0; z < depth - squares; z += squares){
-                    patchNodes[entry++] = new HeightMapPatchNode(x, z, this);
-                }
-            }
-
-            // Link the patches
-            for (int x = 0; x < patchGridWidth; ++x){
-                for (int z = 0; z < patchGridDepth; ++z){
-                    int entry = z + x * patchGridDepth;
-                    if (x + 1 < patchGridWidth)
-                        patchNodes[entry]->SetUpperNeighbor(patchNodes[entry + patchGridDepth]);
-                    if (z + 1 < patchGridDepth) 
-                        patchNodes[entry]->SetRightNeighbor(patchNodes[entry + 1]);
+                    patchNodes[entry++] = new HeightMapPatch(x, z, this);
                 }
             }
 
             // Setup indice buffer
             unsigned int numberOfIndices = 0;
             for (int p = 0; p < numberOfPatches; ++p){
-                for (int l = 0; l < HeightMapPatchNode::MAX_LODS; ++l){
+                for (int l = 0; l < HeightMapPatch::MAX_LODS; ++l){
                     for (int rl = 0; rl < 3; ++rl){
                         for (int ul = 0; ul < 3; ++ul){
                             LODstruct& lod = patchNodes[p]->GetLodStruct(l,rl,ul);
@@ -727,7 +716,7 @@ namespace OpenEngine {
             unsigned int i = 0;
             for (int p = 0; p < numberOfPatches; ++p){
                 patchNodes[p]->SetDataIndices(indexBuffer);
-                for (int l = 0; l < HeightMapPatchNode::MAX_LODS; ++l){
+                for (int l = 0; l < HeightMapPatch::MAX_LODS; ++l){
                     for (int rl = 0; rl < 3; ++rl){
                         for (int ul = 0; ul < 3; ++ul){
                             LODstruct& lod = patchNodes[p]->GetLodStruct(l,rl,ul);
@@ -742,7 +731,7 @@ namespace OpenEngine {
             if (landscapeShader != NULL){
                 for (int x = 0; x < width - 1; ++x){
                     for (int z = 0; z < depth - 1; ++z){
-                        HeightMapPatchNode* patch = GetPatch(x, z);
+                        HeightMapPatch* patch = GetPatch(x, z);
                         float* geomorph = GetGeomorphValues(x, z);
                         geomorph[0] = patch->GetCenter()[0];
                         geomorph[1] = patch->GetCenter()[2];
@@ -807,12 +796,12 @@ namespace OpenEngine {
         }
 
         int HeightMapNode::GetPatchIndex(const int x, const int z) const{
-            int patchX = (x-1) / HeightMapPatchNode::PATCH_EDGE_SQUARES;
-            int patchZ = (z-1) / HeightMapPatchNode::PATCH_EDGE_SQUARES;
+            int patchX = (x-1) / HeightMapPatch::PATCH_EDGE_SQUARES;
+            int patchZ = (z-1) / HeightMapPatch::PATCH_EDGE_SQUARES;
             return patchZ + patchX * patchGridDepth;
         }
 
-        HeightMapPatchNode* HeightMapNode::GetPatch(const int x, const int z) const{
+        HeightMapPatch* HeightMapNode::GetPatch(const int x, const int z) const{
             int index = GetPatchIndex(x, z);
             return patchNodes[index];
         }

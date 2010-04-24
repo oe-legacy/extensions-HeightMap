@@ -26,6 +26,7 @@ using namespace OpenEngine::Renderers;
      void VisitHeightMapNode(HeightMapNode* node);
      void VisitSunNode(SunNode* node);
      void VisitWaterNode(WaterNode* node);
+     void VisitSkySphereNode(SkySphereNode* node);
 
  };
 
