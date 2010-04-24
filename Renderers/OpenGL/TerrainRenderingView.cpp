@@ -59,6 +59,7 @@ namespace OpenEngine {
 
                 if (shader){
                     shader->ReleaseShader();
+                    this->currentShader.reset();
                 }
                 
                 if (bufferSupport) glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -193,6 +194,7 @@ namespace OpenEngine {
                     glDisableClientState(GL_NORMAL_ARRAY);
 
                     shader->ReleaseShader();
+                    this->currentShader.reset();
 
                     glDisable(GL_BLEND);
                     
