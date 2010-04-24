@@ -38,7 +38,6 @@ namespace OpenEngine {
             static const int PATCH_EDGE_VERTICES = PATCH_EDGE_SQUARES + 1;
             static const int MAX_LODS = 3;
             static const int MAX_DELTA = 4; //pow(2, MAX_LODS-1);
-            static const int MIN_LOD = 1;
 
             enum LODrelation { LOWER = 0, SAME = 1, HIGHER = 2 };
             
@@ -57,7 +56,7 @@ namespace OpenEngine {
 
             Resources::IndicesPtr indexBuffer;
             LODstruct LODs[MAX_LODS][3][3];
-
+            
         public:            
             HeightMapPatch() {}
             HeightMapPatch(int xStart, int zStart, HeightMapNode* t);

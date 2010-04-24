@@ -22,8 +22,6 @@
 #include <algorithm>
 #include <cstring>
 
-#define USE_PATCHES true
-
 using namespace OpenEngine::Display;
 
 namespace OpenEngine {
@@ -34,16 +32,12 @@ namespace OpenEngine {
             tex->Load();
             heightScale = 1;
             widthScale = 1;
-            waterlevel = 10;
             offset = Vector<3, float>(0, 0, 0);
             
-            texDetail = 1;
             baseDistance = 1;
             invIncDistance = 1.0f / 100.0f;
 
             isLoaded = false;
-
-            texCoordBuffer.reset();
 
             landscapeShader.reset();
         }
@@ -58,61 +52,52 @@ namespace OpenEngine {
         void HeightMapNode::Load() {
             if (isLoaded)
                 return;
+
             InitArrays();
-            if (USE_PATCHES)
-                SetupPatches();
-            else
-                ComputeIndices();
+            SetupPatches();
+
             isLoaded = true;
         }
 
         void HeightMapNode::CalcLOD(IViewingVolume* view){
-            if (USE_PATCHES)
-                for (int i = 0; i < numberOfPatches; ++i)
-                    patchNodes[i]->CalcLOD(view);
+            for (int i = 0; i < numberOfPatches; ++i)
+                patchNodes[i]->CalcLOD(view);
         }
 
         void HeightMapNode::Render(Viewport view){
             PreRender(view);
 
-            if (USE_PATCHES){
-                // Draw patches front to back.
-                Vector<3, float> dir = view.GetViewingVolume()->GetDirection().RotateVector(Vector<3, float>(0,0,1));
-
-                int xStart, xEnd, xStep, zStart, zEnd, zStep;
-                if (dir[0] < 0){
-                    // If we're looking along the x-axis.
-                    xStart = 0;
-                    xEnd = patchGridWidth;
-                    xStep = 1;
-                }else{
-                    // else iterate form the other side.
-                    xStart = patchGridWidth-1;
+            // Draw patches front to back.
+            Vector<3, float> dir = view.GetViewingVolume()->GetDirection().RotateVector(Vector<3, float>(0,0,1));
+            
+            int xStart, xEnd, xStep, zStart, zEnd, zStep;
+            if (dir[0] < 0){
+                // If we're looking along the x-axis.
+                xStart = 0;
+                xEnd = patchGridWidth;
+                xStep = 1;
+            }else{
+                // else iterate form the other side.
+                xStart = patchGridWidth-1;
                     xEnd = -1;
                     xStep = -1;
-                }
-                if (dir[2] < 0){
-                    // If we're looking along the z-axis.
-                    zStart = 0;
-                    zEnd = patchGridDepth;
-                    zStep = 1;
-                }else{
-                    // else iterate form the other side.
-                    zStart = patchGridDepth-1;
-                    zEnd = -1;
-                    zStep = -1;
-                }
-                
-                for (int x = xStart; x != xEnd ; x += xStep){
-                    for (int z = zStart; z != zEnd; z += zStep){
-                        patchNodes[z + x * patchGridDepth]->Render();
-                    }
-                }
+            }
+            if (dir[2] < 0){
+                // If we're looking along the z-axis.
+                zStart = 0;
+                zEnd = patchGridDepth;
+                zStep = 1;
             }else{
-                if (indexBuffer->GetID() != 0)
-                    glDrawElements(GL_TRIANGLE_STRIP, indexBuffer->GetSize(), GL_UNSIGNED_INT, 0);
-                else
-                    glDrawElements(GL_TRIANGLE_STRIP, indexBuffer->GetSize(), GL_UNSIGNED_INT, indexBuffer->GetVoidDataPtr());
+                // else iterate form the other side.
+                zStart = patchGridDepth-1;
+                zEnd = -1;
+                zStep = -1;
+            }
+            
+            for (int x = xStart; x != xEnd ; x += xStep){
+                for (int z = zStart; z != zEnd; z += zStep){
+                    patchNodes[z + x * patchGridDepth]->Render();
+                }
             }
 
             PostRender(view);
@@ -140,9 +125,8 @@ namespace OpenEngine {
         }
 
         void HeightMapNode::RenderBoundingGeometry(){
-            if (USE_PATCHES)
-                for (int i = 0; i < numberOfPatches; ++i)
-                    patchNodes[i]->RenderBoundingGeometry();
+            for (int i = 0; i < numberOfPatches; ++i)
+                patchNodes[i]->RenderBoundingGeometry();
         }
 
         void HeightMapNode::VisitSubNodes(ISceneNodeVisitor& visitor){
@@ -159,7 +143,6 @@ namespace OpenEngine {
 
             // Create vbos
             arg.renderer.BindDataBlock(vertexBuffer.get());
-            arg.renderer.BindDataBlock(texCoordBuffer.get());
             arg.renderer.BindDataBlock(indexBuffer.get());
 
             if (landscapeShader != NULL) {
@@ -179,7 +162,6 @@ namespace OpenEngine {
                 arg.renderer.BindDataBlock(normalMapCoordBuffer.get());
 
                 IDataBlockList texCoords;
-                texCoords.push_back(texCoordBuffer);
                 texCoords.push_back(normalMapCoordBuffer);
                 geom = GeometrySetPtr(new GeometrySet(vertexBuffer, geomorphBuffer, texCoords));
 
@@ -190,7 +172,6 @@ namespace OpenEngine {
             }else{
                 // Create a non shader geometry set
                 IDataBlockList texCoords;
-                texCoords.push_back(texCoordBuffer);
                 normalBuffer = Float3DataBlockPtr(new DataBlock<3, float>(numberOfVertices, normals));
                 normalBuffer->SetUnloadPolicy(UNLOAD_EXPLICIT);
                 arg.renderer.BindDataBlock(normalBuffer.get());
@@ -530,12 +511,6 @@ namespace OpenEngine {
             }
         }
 
-        void HeightMapNode::SetTextureDetail(const float detail){
-            texDetail = detail;
-            if (texCoordBuffer != NULL)
-                SetupTerrainTexture();
-        }
-
         // **** inline functions ****
 
         void HeightMapNode::InitArrays(){
@@ -555,16 +530,13 @@ namespace OpenEngine {
             vertexBuffer = Float4DataBlockPtr(new DataBlock<4, float>(numberOfVertices));
             vertexBuffer->SetUnloadPolicy(UNLOAD_EXPLICIT);
             normals = new float[numberOfVertices * 3];
-            texCoordBuffer = Float2DataBlockPtr(new DataBlock<2, float>(numberOfVertices));
             normalMapCoordBuffer = Float2DataBlockPtr(new DataBlock<2, float>(numberOfVertices));
             geomorphBuffer = Float3DataBlockPtr(new DataBlock<3, float>(numberOfVertices));
             deltaValues = new char[numberOfVertices];
 
             // Fill the vertex array
             for (int x = 0; x < width; ++x){
-                //for (int x = width-1; x >= 0; --x){
                 for (int z = 0; z < depth; ++z){
-                    //for (int z = depth-1; z >= 0; --z){
                     float* vertice = GetVertice(x, z);
                      
                     vertice[0] = widthScale * x + offset[0];
@@ -574,10 +546,10 @@ namespace OpenEngine {
                     if (x < texWidth && z < texDepth){
                         // inside the heightmap
                         float height = tex->GetPixel(x, z)[0];
-                        vertice[1] = height * heightScale - waterlevel - heightScale / 2 + offset[1];
+                        vertice[1] = height * heightScale + offset[1];
                     }else{
                         // outside the heightmap, set height to waterlevel
-                        vertice[1] = -waterlevel - heightScale / 2 + offset[1];
+                        vertice[1] = offset[1];
                     }
                 }
             }
@@ -586,7 +558,6 @@ namespace OpenEngine {
             tex.reset();
             
             SetupNormalMap();
-            SetupTerrainTexture();
 
             if (landscapeShader != NULL){
                 CalcVerticeLOD();
@@ -609,20 +580,6 @@ namespace OpenEngine {
                     Vector<3, float> normal = GetNormal(x, z);
                     normal.ToArray(GetNormals(x, z));
                 }
-        }
-
-        void HeightMapNode::SetupTerrainTexture(){
-            for (int x = 0; x < width; ++x){
-                for (int z = 0; z < depth; ++z){
-                    CalcTexCoords(x, z);
-                }
-            }
-        }
-
-        void HeightMapNode::CalcTexCoords(int x, int z){
-            float* texCoord = GetTexCoord(x, z);
-            texCoord[1] = x * texDetail;
-            texCoord[0] = z * texDetail;
         }
 
         void HeightMapNode::CalcVerticeLOD(){
@@ -760,11 +717,6 @@ namespace OpenEngine {
 
         float* HeightMapNode::GetNormals(const int index) const{
             return normals + index * 3;
-        }
-
-        float* HeightMapNode::GetTexCoord(const int x, const int z) const{
-            int index = CoordToIndex(x, z);
-            return texCoordBuffer->GetData() + index * texCoordBuffer->GetDimension();
         }
 
         float* HeightMapNode::GetNormalMapCoord(const int x, const int z) const{

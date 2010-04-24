@@ -67,7 +67,6 @@ namespace OpenEngine {
             int numberOfVertices;
 
             Float4DataBlockPtr vertexBuffer;
-            Float2DataBlockPtr texCoordBuffer;
             Float2DataBlockPtr normalMapCoordBuffer;
             Float3DataBlockPtr geomorphBuffer; // {PatchCenterX, PatchCenterZ, LOD}
 
@@ -86,12 +85,9 @@ namespace OpenEngine {
             int entries;
             float widthScale;
             float heightScale;
-            float waterlevel;
             Vector<3, float> offset;
 
             SunNode* sun;
-
-            float texDetail;
 
             // Patch variables
             int patchGridWidth, patchGridDepth, numberOfPatches;
@@ -122,19 +118,17 @@ namespace OpenEngine {
             void Handle(RenderingEventArg arg);
             void Handle(ProcessEventArg arg);
 
-            FloatTexture2DPtr GetTex() {return tex;}
-
             // *** Get/Set methods ***
 
             /**
-             * Takes as argument a 3D vector in worldspace and returns
+             * Takes as argument a 3D vector in localspace and returns
              * the height of the heightmap at that point.
              *
              * @return The height at the given point.
              */
             float GetHeight(Vector<3, float> point) const;
             /**
-             * Takes as argument an x- and z-coord in worldspace and
+             * Takes as argument an x- and z-coord in localspace and
              * returns the height of the heightmap at that point.
              *
              * @return The height at the given point.
@@ -173,10 +167,8 @@ namespace OpenEngine {
 
             IDataBlockPtr GetVertexBuffer() const { return vertexBuffer; }
             IDataBlockPtr GetGeomorphBuffer() const { return geomorphBuffer; }
-            IDataBlockPtr GetTexCoordBuffer() const { return texCoordBuffer; }
             IDataBlockPtr GetNormalMapCoordBuffer() const { return normalMapCoordBuffer; }
             IndicesPtr    GetIndices() const { return indexBuffer; }
-            int GetNumberOfVertices() const { return numberOfVertices; }
             GeometrySetPtr GetGeometrySet() const { return geom; }
 
             int GetIndice(int x, int z);
@@ -203,7 +195,6 @@ namespace OpenEngine {
             SunNode* GetSun() const { return sun; }
             void SetSun(SunNode* s) { sun = s; }
 
-            void SetTextureDetail(const float detail);
             void SetLandscapeShader(IShaderResourcePtr shader) { landscapeShader = shader; }
             IShaderResourcePtr GetLandscapeShader() const { return landscapeShader; }
 
@@ -238,8 +229,6 @@ namespace OpenEngine {
             // Setup methods
             inline void InitArrays();
             inline void SetupNormalMap();
-            inline void SetupTerrainTexture();
-            inline void CalcTexCoords(int x, int z);
             inline void CalcVerticeLOD();
             inline float CalcGeomorphHeight(int x, int z);
             inline void ComputeIndices();
@@ -262,7 +251,6 @@ namespace OpenEngine {
              */
             inline float* GetNormals(const int x, const int z) const;
             inline float* GetNormals(const int index) const;
-            inline float* GetTexCoord(const int x, const int z) const;
             inline float* GetNormalMapCoord(const int x, const int z) const;
             inline float* GetGeomorphValues(const int x, const int z) const;
             inline float& GetVerticeLOD(const int x, const int z) const;
