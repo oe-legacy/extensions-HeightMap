@@ -64,8 +64,6 @@ namespace OpenEngine {
             static const int TEXCOORDS = 2;
 
         protected:
-            int numberOfVertices;
-
             Float4DataBlockPtr vertexBuffer;
             Float2DataBlockPtr normalMapCoordBuffer;
             Float3DataBlockPtr geomorphBuffer; // {PatchCenterX, PatchCenterZ, LOD}
@@ -75,14 +73,12 @@ namespace OpenEngine {
             Float3DataBlockPtr normalBuffer;
 
             GeometrySetPtr geom;
+            IndicesPtr indexBuffer;
 
             char* deltaValues;
 
-            IndicesPtr indexBuffer;
-
             int width;
             int depth;
-            int entries;
             float widthScale;
             float heightScale;
             Vector<3, float> offset;

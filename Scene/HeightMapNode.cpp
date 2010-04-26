@@ -172,6 +172,7 @@ namespace OpenEngine {
             }else{
                 // Create a non shader geometry set
                 IDataBlockList texCoords;
+                unsigned int numberOfVertices = vertexBuffer->GetSize();
                 normalBuffer = Float3DataBlockPtr(new DataBlock<3, float>(numberOfVertices, normals));
                 normalBuffer->SetUnloadPolicy(UNLOAD_EXPLICIT);
                 arg.renderer.BindDataBlock(normalBuffer.get());
@@ -525,7 +526,7 @@ namespace OpenEngine {
             int depthRest = (texDepth - 1) % patchWidth;
             depth = depthRest ? texDepth + patchWidth - depthRest : texDepth;
 
-            numberOfVertices = width * depth;
+            unsigned int numberOfVertices = width * depth;
 
             vertexBuffer = Float4DataBlockPtr(new DataBlock<4, float>(numberOfVertices));
             vertexBuffer->SetUnloadPolicy(UNLOAD_EXPLICIT);
