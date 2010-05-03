@@ -2,3 +2,6 @@
 
 darcs /extensions/HeightMap			http://openengine.dk/code/extensions/HeightMap
 darcs /extensions/MeshUtils			http://openengine.dk/code/extensions/MeshUtils
+
+darcs-dev /extensions/HeightMap			fh.daimi.au.dk:/users/cgd/code/extensions/HeightMap
+darcs-dev /extensions/MeshUtils			fh.daimi.au.dk:/users/cgd/code/extensions/MeshUtils
