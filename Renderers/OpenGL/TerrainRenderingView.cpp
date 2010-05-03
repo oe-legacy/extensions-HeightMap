@@ -10,6 +10,7 @@
 #include "TerrainRenderingView.h"
 
 #include <Resources/IShaderResource.h>
+#include <Scene/GrassNode.h>
 #include <Scene/HeightMapNode.h>
 #include <Scene/SunNode.h>
 #include <Scene/SkySphereNode.h>
@@ -32,6 +33,34 @@ namespace OpenEngine {
                 RenderingView(viewport) {
             }
 
+            void TerrainRenderingView::VisitGrassNode(GrassNode* node) {
+                if (currentRenderState->IsOptionDisabled(RenderStateNode::BACKFACE))
+                    glDisable(GL_CULL_FACE);
+
+                GeometrySetPtr geom = node->GetGrassGeometry();
+                this->ApplyGeometrySet(geom);
+                
+                IShaderResourcePtr shader = node->GetGrassShader();
+                if (this->renderShader && shader){
+                    shader->SetUniform("viewPos", viewport.GetViewingVolume()->GetPosition());
+
+                    shader->ApplyShader();
+                }else
+                    glColor3f(0,1,0);
+                
+                glDrawArrays(GL_QUADS, 0, 12);
+
+                if (shader){
+                    shader->ReleaseShader();
+                    this->currentShader.reset();
+                }
+
+                if (currentRenderState->IsOptionDisabled(RenderStateNode::BACKFACE))
+                    glEnable(GL_CULL_FACE);
+
+                node->VisitSubNodes(*this);
+            }
+            
             void TerrainRenderingView::VisitHeightMapNode(HeightMapNode* node) {
                 bool bufferSupport = renderer->BufferSupport();
                 
