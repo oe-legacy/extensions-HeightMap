@@ -31,6 +31,8 @@ namespace OpenEngine {
             TerrainRenderingView::TerrainRenderingView(Viewport& viewport) : 
                 IRenderingView(viewport), 
                 RenderingView(viewport) {
+
+                lightDir = Vector<3, float>(1,1,1).GetNormalize();
             }
 
             void TerrainRenderingView::VisitGrassNode(GrassNode* node) {
@@ -42,13 +44,15 @@ namespace OpenEngine {
                 
                 IShaderResourcePtr shader = node->GetGrassShader();
                 if (this->renderShader && shader){
+                    shader->SetUniform("lightDir", lightDir);
                     shader->SetUniform("viewPos", viewport.GetViewingVolume()->GetPosition());
+                    shader->SetUniform("time", node->GetElapsedTime() / 1000.0f);
 
                     shader->ApplyShader();
                 }else
                     glColor3f(0,1,0);
                 
-                glDrawArrays(GL_QUADS, 0, 12);
+                glDrawArrays(GL_QUADS, 0, geom->GetVertices()->GetSize());
 
                 if (shader){
                     shader->ReleaseShader();
@@ -70,9 +74,7 @@ namespace OpenEngine {
                 IShaderResourcePtr shader = node->GetLandscapeShader();
                 if (this->renderShader && shader){
                     // Setup uniforms
-                    SunNode* sun = node->GetSun();
-                    if (sun)
-                        shader->SetUniform("lightDir", sun->GetPos().GetNormalize());
+                    shader->SetUniform("lightDir", lightDir);
                     shader->SetUniform("viewPos", viewport.GetViewingVolume()->GetPosition());
 
                     shader->ApplyShader();
@@ -102,6 +104,8 @@ namespace OpenEngine {
             }
 
             void TerrainRenderingView::VisitSunNode(SunNode* node) {
+                lightDir = node->GetPos().GetNormalize();
+
                 float pos[4];
                 pos[3] = 1.0;
                 node->GetPos().ToArray(pos);

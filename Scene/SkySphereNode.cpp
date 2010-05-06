@@ -16,7 +16,7 @@
 using namespace OpenEngine::Geometry;
 using namespace OpenEngine::Resources;
 using namespace OpenEngine::Renderers;
-using namespace OpenEngine::Utils;
+using namespace OpenEngine::Utils::MeshCreator;
 
 namespace OpenEngine {
     namespace Scene {

@@ -19,7 +19,9 @@ namespace OpenGL {
 using namespace OpenEngine::Renderers;
     
  class TerrainRenderingView : public RenderingView {
-
+ protected:
+     Vector<3, float> lightDir;
+     
  public:
      TerrainRenderingView(Viewport& viewport);
      

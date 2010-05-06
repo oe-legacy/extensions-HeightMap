@@ -161,11 +161,12 @@ namespace OpenEngine {
              */
             Vector<3, float> GetReflectedDirection(float x, float z, Vector<3, float> direction) const;
 
-            IDataBlockPtr GetVertexBuffer() const { return vertexBuffer; }
-            IDataBlockPtr GetGeomorphBuffer() const { return geomorphBuffer; }
-            IDataBlockPtr GetNormalMapCoordBuffer() const { return normalMapCoordBuffer; }
-            IndicesPtr    GetIndices() const { return indexBuffer; }
-            GeometrySetPtr GetGeometrySet() const { return geom; }
+            inline IDataBlockPtr GetVertexBuffer() const { return vertexBuffer; }
+            inline IDataBlockPtr GetGeomorphBuffer() const { return geomorphBuffer; }
+            inline IDataBlockPtr GetNormalMapCoordBuffer() const { return normalMapCoordBuffer; }
+            inline IndicesPtr    GetIndices() const { return indexBuffer; }
+            inline GeometrySetPtr GetGeometrySet() const { return geom; }
+            inline ITexture2DPtr GetNormalMap() const { return normalmap; }
 
             int GetIndice(int x, int z);
             float* GetVertex(int x, int z);

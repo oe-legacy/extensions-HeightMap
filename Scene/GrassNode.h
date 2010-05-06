@@ -32,9 +32,12 @@ namespace OpenEngine {
         typedef boost::shared_ptr<IShaderResource> IShaderResourcePtr;
     }
     namespace Scene {
+        class HeightMapNode;
+
 
         class GrassNode : public ISceneNode,
-                          public IListener<RenderingEventArg> {
+                          public IListener<RenderingEventArg>, 
+                          public IListener<ProcessEventArg> {
             OE_SCENE_NODE(GrassNode, ISceneNode);
         private:
             int quadsPrObject;
@@ -42,14 +45,26 @@ namespace OpenEngine {
             Geometry::GeometrySetPtr grassGeom;
             Resources::IShaderResourcePtr grassShader;
 
+            // Heightmap to place the grass one
+            HeightMapNode* heightmap;
+
+            // Grass grid dimensions
+            int gridDim;
+
+            unsigned int elapsedTime;
+
         public:
             GrassNode();
-            GrassNode(const Resources::IShaderResourcePtr shader);
+            GrassNode(HeightMapNode* heightmap, const Resources::IShaderResourcePtr shader);
 
             void Handle(RenderingEventArg arg);
+            void Handle(ProcessEventArg arg);
 
+            inline int GetGridDimension() const { return gridDim; }
+            inline void SetGridDimension(int d) { gridDim = d; }
             inline Resources::IShaderResourcePtr GetGrassShader() const { return grassShader; }
             inline Geometry::GeometrySetPtr GetGrassGeometry() const { return grassGeom; }
+            inline unsigned int GetElapsedTime() const { return elapsedTime; }
             
         private:
             /**
