@@ -15,6 +15,7 @@
 #include <Renderers/IRenderer.h>
 #include <Resources/Texture2D.h>
 #include <Meta/OpenGL.h>
+#include <Core/EngineEvents.h>
 
 namespace OpenEngine {
     namespace Resources {
@@ -23,6 +24,7 @@ namespace OpenEngine {
     }
 }
 
+using namespace OpenEngine;
 using namespace OpenEngine::Resources;
 using namespace OpenEngine::Core;
 using namespace OpenEngine::Renderers;
@@ -33,8 +35,8 @@ namespace OpenEngine {
         class SunNode;
 
         class WaterNode : public ISceneNode, 
-                          public IListener<RenderingEventArg>, 
-                          public IListener<ProcessEventArg> {
+            public IListener<RenderingEventArg>, 
+            public IListener<Core::ProcessEventArg> {
             OE_SCENE_NODE(WaterNode, ISceneNode)
 
         private:
@@ -79,7 +81,7 @@ namespace OpenEngine {
             void VisitSubNode(ISceneNodeVisitor& visitor) {}
 
             void Handle(RenderingEventArg arg);
-            void Handle(ProcessEventArg arg);
+            void Handle(Core::ProcessEventArg arg);
 
             Vector<3, float> GetCenter() const { return center; }
             float GetDiameter() const { return diameter; }

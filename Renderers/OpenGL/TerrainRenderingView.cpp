@@ -28,9 +28,9 @@ namespace OpenEngine {
             
             using namespace OpenEngine::Scene;
             
-            TerrainRenderingView::TerrainRenderingView(Viewport& viewport) : 
-                IRenderingView(viewport), 
-                RenderingView(viewport) {
+            TerrainRenderingView::TerrainRenderingView
+            (Display::Viewport& viewport)
+                : RenderingView() {
 
                 lightDir = Vector<3, float>(1,1,1).GetNormalize();
             }
@@ -45,7 +45,7 @@ namespace OpenEngine {
                 IShaderResourcePtr shader = node->GetGrassShader();
                 if (this->renderShader && shader){
                     shader->SetUniform("lightDir", lightDir);
-                    shader->SetUniform("viewPos", viewport.GetViewingVolume()->GetPosition());
+                    shader->SetUniform("viewPos", arg->canvas.GetViewingVolume()->GetPosition());
                     shader->SetUniform("time", node->GetElapsedTime() / 1000.0f);
 
                     shader->ApplyShader();
@@ -66,7 +66,7 @@ namespace OpenEngine {
             }
             
             void TerrainRenderingView::VisitHeightMapNode(HeightMapNode* node) {
-                bool bufferSupport = renderer->BufferSupport();
+                bool bufferSupport = arg->renderer.BufferSupport();
                 
                 GeometrySetPtr geom = node->GetGeometrySet();
                 this->ApplyGeometrySet(geom);
@@ -75,18 +75,18 @@ namespace OpenEngine {
                 if (this->renderShader && shader){
                     // Setup uniforms
                     shader->SetUniform("lightDir", lightDir);
-                    shader->SetUniform("viewPos", viewport.GetViewingVolume()->GetPosition());
+                    shader->SetUniform("viewPos", arg->canvas.GetViewingVolume()->GetPosition());
 
                     shader->ApplyShader();
                 }
 
-                node->CalcLOD(viewport.GetViewingVolume());
+                node->CalcLOD(arg->canvas.GetViewingVolume());
                 
                 IndicesPtr indices = node->GetIndices();
                 if (bufferSupport) glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices->GetID());
 
                 // Replace with a patch iterator
-                node->Render(viewport);
+                node->Render(*arg);
 
                 ApplyGeometrySet(GeometrySetPtr());
 
@@ -184,7 +184,8 @@ namespace OpenEngine {
                         glDisable(GL_CLIP_PLANE0);
                         
                         // Reset viewport
-                        Vector<4, int> viewDims = this->renderer->GetViewport().GetDimension();
+                        Vector<4, int> viewDims(0,0, arg->canvas.GetWidth(),
+                                                arg->canvas.GetHeight());
                         glViewport(viewDims[0], viewDims[1], viewDims[2], viewDims[3]);
 
                         // Render reflection
@@ -207,7 +208,7 @@ namespace OpenEngine {
                     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
                     // set shader uniforms
-                    Vector<3, float> viewPos = viewport.GetViewingVolume()->GetPosition();
+                    Vector<3, float> viewPos = arg->canvas.GetViewingVolume()->GetPosition();
                     shader->SetUniform("viewpos", viewPos);
                     float time = (float)node->GetElapsedTime();
                     shader->SetUniform("time", time / 8000000000.0f);
@@ -268,7 +269,7 @@ namespace OpenEngine {
             void TerrainRenderingView::VisitSkySphereNode(SkySphereNode* node){
                 IShaderResourcePtr atm = node->GetAtmostphereShader();
 
-                Vector<3, float> viewPos = viewport.GetViewingVolume()->GetPosition();
+                Vector<3, float> viewPos = arg->canvas.GetViewingVolume()->GetPosition();
                 atm->SetUniform("v3CameraPos", viewPos);
                 atm->SetUniform("fCameraHeight", viewPos.Get(1));
                 atm->SetUniform("v3LightPos", Vector<3, float>(-1,0.3,0).GetNormalize()); // should be normalized

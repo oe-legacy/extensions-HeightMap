@@ -64,11 +64,11 @@ namespace OpenEngine {
                 patchNodes[i]->CalcLOD(view);
         }
 
-        void HeightMapNode::Render(Viewport view){
-            PreRender(view);
+        void HeightMapNode::Render(Renderers::RenderingEventArg arg){
+            PreRender(arg);
 
             // Draw patches front to back.
-            Vector<3, float> dir = view.GetViewingVolume()->GetDirection().RotateVector(Vector<3, float>(0,0,1));
+            Vector<3, float> dir = arg.canvas.GetViewingVolume()->GetDirection().RotateVector(Vector<3, float>(0,0,1));
             
             int xStart, xEnd, xStep, zStart, zEnd, zStep;
             if (dir[0] < 0){
@@ -100,7 +100,7 @@ namespace OpenEngine {
                 }
             }
 
-            PostRender(view);
+            PostRender(arg);
 
             /*
             landscapeShader->ReleaseShader();
@@ -182,7 +182,7 @@ namespace OpenEngine {
             SetLODSwitchDistance(baseDistance, 1 / invIncDistance);
         }
 
-        void HeightMapNode::Handle(ProcessEventArg arg){
+        void HeightMapNode::Handle(Core::ProcessEventArg arg){
             Process(arg);
         }
         

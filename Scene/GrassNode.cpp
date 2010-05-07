@@ -65,7 +65,7 @@ namespace OpenEngine {
             }
         }
 
-        void GrassNode::Handle(ProcessEventArg arg){
+        void GrassNode::Handle(Core::ProcessEventArg arg){
             elapsedTime +=  arg.approx;
         }
 

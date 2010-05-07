@@ -11,6 +11,13 @@
 #define _TERRAIN_RENDERING_VIEW_H_
 
 #include <Renderers/OpenGL/RenderingView.h>
+#include <Display/Viewport.h>
+
+#include <Scene/GrassNode.h>
+#include <Scene/WaterNode.h>
+#include <Scene/HeightMapNode.h>
+#include <Scene/SunNode.h>
+#include <Scene/SkySphereNode.h>
 
 namespace OpenEngine {
 namespace Renderers {
@@ -23,7 +30,7 @@ using namespace OpenEngine::Renderers;
      Vector<3, float> lightDir;
      
  public:
-     TerrainRenderingView(Viewport& viewport);
+     TerrainRenderingView(Display::Viewport& viewport);
      
      void VisitGrassNode(GrassNode* node);
      void VisitHeightMapNode(HeightMapNode* node);

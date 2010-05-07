@@ -12,10 +12,12 @@
 
 #include <Scene/ISceneNode.h>
 
+#include <Core/EngineEvents.h>
 #include <Core/IListener.h>
 #include <Math/Vector.h>
 #include <Renderers/IRenderer.h>
 
+using namespace OpenEngine;
 using namespace OpenEngine::Core;
 using namespace OpenEngine::Math;
 using namespace OpenEngine::Renderers;
@@ -36,8 +38,8 @@ namespace OpenEngine {
 
 
         class GrassNode : public ISceneNode,
-                          public IListener<RenderingEventArg>, 
-                          public IListener<ProcessEventArg> {
+            public IListener<RenderingEventArg>, 
+            public IListener<Core::ProcessEventArg> {
             OE_SCENE_NODE(GrassNode, ISceneNode);
         private:
             int quadsPrObject;
@@ -58,7 +60,7 @@ namespace OpenEngine {
             GrassNode(HeightMapNode* heightmap, const Resources::IShaderResourcePtr shader);
 
             void Handle(RenderingEventArg arg);
-            void Handle(ProcessEventArg arg);
+            void Handle(Core::ProcessEventArg arg);
 
             inline int GetGridDimension() const { return gridDim; }
             inline void SetGridDimension(int d) { gridDim = d; }

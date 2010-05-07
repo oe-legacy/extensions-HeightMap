@@ -58,7 +58,7 @@ namespace OpenEngine {
                 arg.renderer.LoadTexture(surface);
         }
 
-        void WaterNode::Handle(ProcessEventArg arg){
+        void WaterNode::Handle(Core::ProcessEventArg arg){
             elapsedTime += arg.approx;
         }
 

@@ -13,14 +13,16 @@
 #include <Scene/ISceneNode.h>
 #include <Core/IListener.h>
 #include <Renderers/IRenderer.h>
+#include <Core/EngineEvents.h>
 
+using namespace OpenEngine;
 using namespace OpenEngine::Core;
 using namespace OpenEngine::Renderers;
 
 namespace OpenEngine {
     namespace Scene {
         
-        class SunNode : public ISceneNode, public IListener<ProcessEventArg> {
+        class SunNode : public ISceneNode, public IListener<Core::ProcessEventArg> {
             OE_SCENE_NODE(sunNode, ISceneNode)
             
         private:
@@ -60,7 +62,7 @@ namespace OpenEngine {
 
             void VisitSubNodes(ISceneNodeVisitor& visitor);
 
-            void Handle(ProcessEventArg arg);
+            void Handle(Core::ProcessEventArg arg);
 
             void SetRenderGeometry(bool g) { geometry = g; }
             bool renderGeometry() { return geometry;}

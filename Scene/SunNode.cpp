@@ -70,7 +70,7 @@ namespace OpenEngine {
             }
         }
 
-        void SunNode::Handle(ProcessEventArg arg){
+        void SunNode::Handle(Core::ProcessEventArg arg){
             Move(arg.approx);
         }
         

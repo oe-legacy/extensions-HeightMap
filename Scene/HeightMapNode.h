@@ -17,6 +17,7 @@
 #include <Display/Viewport.h>
 #include <Resources/DataBlock.h>
 
+using namespace OpenEngine;
 using namespace OpenEngine::Core;
 using namespace OpenEngine::Renderers;
 using namespace OpenEngine::Resources;
@@ -55,8 +56,8 @@ namespace OpenEngine {
          *    WIDTH
          */
         class HeightMapNode : public ISceneNode, 
-                              public IListener<RenderingEventArg>, 
-                              public IListener<ProcessEventArg> {
+            public IListener<RenderingEventArg>, 
+            public IListener<Core::ProcessEventArg> {
             OE_SCENE_NODE(HeightMapNode, ISceneNode)
 
         public:
@@ -106,13 +107,13 @@ namespace OpenEngine {
             void Load();
 
             void CalcLOD(Display::IViewingVolume* view);
-            void Render(Display::Viewport view);
+            void Render(Renderers::RenderingEventArg arg);
             void RenderBoundingGeometry();
 
             void VisitSubNodes(ISceneNodeVisitor& visitor);
 
             void Handle(RenderingEventArg arg);
-            void Handle(ProcessEventArg arg);
+            void Handle(Core::ProcessEventArg arg);
 
             // *** Get/Set methods ***
 
@@ -210,18 +211,18 @@ namespace OpenEngine {
              *
              * Can be used to update specialization variables, fx time.
              */
-            virtual void Process(ProcessEventArg arg) {}
+            virtual void Process(Core::ProcessEventArg arg) {}
             /**
              * PreRender is called just before Render.  
              * At this point the shader is applied and can be updated.
              */
-            virtual void PreRender(Display::Viewport view) {}
+            virtual void PreRender(Renderers::RenderingEventArg arg) {}
             /**
              * PostRender is called just after Render.  
              * Should mostly be used for cleaning up after PreRender
              * is necessary.
              */
-            virtual void PostRender(Display::Viewport view) {}
+            virtual void PostRender(Renderers::RenderingEventArg arg) {}
 
             // Setup methods
             inline void InitArrays();
