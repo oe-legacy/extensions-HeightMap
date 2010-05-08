@@ -28,8 +28,7 @@ namespace OpenEngine {
             
             using namespace OpenEngine::Scene;
             
-            TerrainRenderingView::TerrainRenderingView
-            (Display::Viewport& viewport)
+            TerrainRenderingView::TerrainRenderingView()
                 : RenderingView() {
 
                 lightDir = Vector<3, float>(1,1,1).GetNormalize();

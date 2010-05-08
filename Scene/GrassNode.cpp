@@ -31,11 +31,11 @@ namespace OpenEngine {
 
         GrassNode::GrassNode() {
             quadsPrObject = 3;
-            grassGeom = CreateGrassObject();
             grassShader.reset();
             heightmap = NULL;
             gridDim = 0;
             elapsedTime = 0;
+            grassGeom = CreateGrassObject();
         }
 
         GrassNode::GrassNode(HeightMapNode* heightmap, IShaderResourcePtr shader) 
@@ -49,8 +49,6 @@ namespace OpenEngine {
         }
         
         void GrassNode::Handle(RenderingEventArg arg){
-            grassGeom = CreateGrassObject();
-            
             if (grassShader){
                 ITexture2DPtr tex;
                 grassShader->GetTexture("heightmap", tex);
@@ -133,6 +131,7 @@ namespace OpenEngine {
             IDataBlockList tcs;
             tcs.push_back(texCoords);
             //tcs.push_back(noise);
+
             GeometrySet* geom = new GeometrySet(vertices, center, tcs);
 
             return GeometrySetPtr(geom);

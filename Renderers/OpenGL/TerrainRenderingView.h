@@ -30,7 +30,7 @@ using namespace OpenEngine::Renderers;
      Vector<3, float> lightDir;
      
  public:
-     TerrainRenderingView(Display::Viewport& viewport);
+     TerrainRenderingView();
      
      void VisitGrassNode(GrassNode* node);
      void VisitHeightMapNode(HeightMapNode* node);
