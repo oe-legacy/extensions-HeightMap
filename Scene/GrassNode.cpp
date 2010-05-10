@@ -83,11 +83,11 @@ namespace OpenEngine {
             rand.SeedWithTime();
 
             float radsPrQuad = PI / quadsPrObject;
-            float rotationOffset = PI / (quadsPrObject * 4);
-            int halfDim = gridDim / 2;
 
             const float WIDTH = 3;
             const float HEIGHT = 3;
+
+            const int texsPrQuad = 1;
 
             unsigned int blockSize = 4 * quadsPrObject * gridDim * gridDim;
 
@@ -101,13 +101,16 @@ namespace OpenEngine {
                 for (int z = 0; z < gridDim; ++z)
                     // Create geometry for the quads
                     for (int i = 0; i < quadsPrObject; ++i){
-                        Vector<3, float> position = Vector<3, float>(x - halfDim, 0, z - halfDim);
+                        float rotationOffset = rand.UniformFloat(0, 2 * PI);
+                        
+                        Vector<3, float> position = Vector<3, float>(rand.UniformFloat(0, gridDim), 0, 
+                                                                     rand.UniformFloat(0, gridDim));
 
                         Vector<3, float> direction = Vector<3, float>(cos(i * radsPrQuad + rotationOffset),
                                                                       0, sin(i * radsPrQuad + rotationOffset));
                         
                         // lower left
-                        vertices->SetElement(index, position + direction * WIDTH / 2);
+                        vertices->SetElement(index, position + direction * WIDTH / 2 * texsPrQuad);
                         center->SetElement(index, position);
                         texCoords->SetElement(index, Vector<2, float>(0, 0));
                         noise->SetElement(index, Vector<2, float>(rand.UniformFloat(-0.5, 0.5),
@@ -115,25 +118,25 @@ namespace OpenEngine {
                         ++index;
                         
                         // upper left
-                        vertices->SetElement(index, position + direction * WIDTH / 2 + Vector<3, float>(0, HEIGHT, 0));
+                        vertices->SetElement(index, position + direction * WIDTH / 2 * texsPrQuad + Vector<3, float>(0, HEIGHT, 0));
                         center->SetElement(index, position);
-                        texCoords->SetElement(index, Vector<2, float>(0, 1));
+                        texCoords->SetElement(index, Vector<2, float>(0, 1 * texsPrQuad));
                         noise->SetElement(index, Vector<2, float>(rand.UniformFloat(-0.5, 0.5),
                                                                   rand.UniformFloat(-0.5, 0.5)));
                         ++index;
                         
                         // upper right
-                        vertices->SetElement(index, position + direction * WIDTH / -2 + Vector<3, float>(0, HEIGHT, 0));
+                        vertices->SetElement(index, position + direction * WIDTH / -2 * texsPrQuad + Vector<3, float>(0, HEIGHT, 0));
                         center->SetElement(index, position);
-                        texCoords->SetElement(index, Vector<2, float>(1, 1));
+                        texCoords->SetElement(index, Vector<2, float>(1, 1) * texsPrQuad);
                         noise->SetElement(index, Vector<2, float>(rand.UniformFloat(-0.5, 0.5),
                                                                   rand.UniformFloat(-0.5, 0.5)));
                         ++index;
                         
                         // lower right
-                        vertices->SetElement(index, position + direction * WIDTH / -2);
+                        vertices->SetElement(index, position + direction * WIDTH / -2 * texsPrQuad);
                         center->SetElement(index, position);
-                        texCoords->SetElement(index, Vector<2, float>(1, 0));
+                        texCoords->SetElement(index, Vector<2, float>(1 * texsPrQuad, 0));
                         noise->SetElement(index, Vector<2, float>(rand.UniformFloat(-0.5, 0.5),
                                                                   rand.UniformFloat(-0.5, 0.5)));
                         ++index;
