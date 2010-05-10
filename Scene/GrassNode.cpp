@@ -42,7 +42,7 @@ namespace OpenEngine {
             : heightmap(heightmap) {
             quadsPrObject = 3;
             grassShader = shader;
-            gridDim = 128;
+            gridDim = 1280;
             straws = 12000;
             elapsedTime = 0;
 
@@ -76,7 +76,7 @@ namespace OpenEngine {
         }
 
         void GrassNode::Handle(Core::ProcessEventArg arg){
-            elapsedTime +=  arg.approx;
+            elapsedTime += arg.approx;
         }
 
         GeometrySetPtr GrassNode::CreateGrassObject() {
@@ -90,7 +90,7 @@ namespace OpenEngine {
 
             const int texsPrQuad = 1;
 
-            unsigned int blockSize = 4 * quadsPrObject * gridDim * gridDim;
+            unsigned int blockSize = 4 * quadsPrObject * straws;
 
             Float3DataBlockPtr vertices = Float3DataBlockPtr(new DataBlock<3, float>(blockSize));
             Float3DataBlockPtr center = Float3DataBlockPtr(new DataBlock<3, float>(blockSize));
