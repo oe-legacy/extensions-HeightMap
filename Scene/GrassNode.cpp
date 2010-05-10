@@ -33,7 +33,7 @@ namespace OpenEngine {
             quadsPrObject = 3;
             grassShader.reset();
             heightmap = NULL;
-            gridDim = 0;
+            gridDim = straws = 0;
             elapsedTime = 0;
             grassGeom = CreateGrassObject();
         }
@@ -43,6 +43,7 @@ namespace OpenEngine {
             quadsPrObject = 3;
             grassShader = shader;
             gridDim = 128;
+            straws = 12000;
             elapsedTime = 0;
 
             grassGeom = CreateGrassObject();
@@ -97,54 +98,44 @@ namespace OpenEngine {
             Float2DataBlockPtr noise = Float2DataBlockPtr(new DataBlock<2, float>(blockSize));
 
             int index = 0;
-            for (int x = 0; x < gridDim; ++x)
-                for (int z = 0; z < gridDim; ++z)
-                    // Create geometry for the quads
-                    for (int i = 0; i < quadsPrObject; ++i){
-                        float rotationOffset = rand.UniformFloat(0, 2 * PI);
+            for (int j = 0; j < straws; ++j){
+                // Create geometry for the quads
+                Vector<3, float> position = Vector<3, float>(rand.UniformFloat(0, gridDim), 0, 
+                                                             rand.UniformFloat(0, gridDim));
+                float rotationOffset = rand.UniformFloat(0, 2 * PI);
+            
+                for (int i = 0; i < quadsPrObject; ++i){
+                    Vector<3, float> direction = Vector<3, float>(cos(i * radsPrQuad + rotationOffset),
+                                                                  0, sin(i * radsPrQuad + rotationOffset));
+                    
+                    // lower left
+                    vertices->SetElement(index, position + direction * WIDTH / 2 * texsPrQuad);
+                    center->SetElement(index, position);
+                    texCoords->SetElement(index, Vector<2, float>(0, 0));
+                    ++index;
                         
-                        Vector<3, float> position = Vector<3, float>(rand.UniformFloat(0, gridDim), 0, 
-                                                                     rand.UniformFloat(0, gridDim));
-
-                        Vector<3, float> direction = Vector<3, float>(cos(i * radsPrQuad + rotationOffset),
-                                                                      0, sin(i * radsPrQuad + rotationOffset));
+                    // upper left
+                    vertices->SetElement(index, position + direction * WIDTH / 2 * texsPrQuad + Vector<3, float>(0, HEIGHT, 0));
+                    center->SetElement(index, position);
+                    texCoords->SetElement(index, Vector<2, float>(0, 1));
+                    ++index;
                         
-                        // lower left
-                        vertices->SetElement(index, position + direction * WIDTH / 2 * texsPrQuad);
-                        center->SetElement(index, position);
-                        texCoords->SetElement(index, Vector<2, float>(0, 0));
-                        noise->SetElement(index, Vector<2, float>(rand.UniformFloat(-0.5, 0.5),
-                                                                  rand.UniformFloat(-0.5, 0.5)));
-                        ++index;
+                    // upper right
+                    vertices->SetElement(index, position + direction * WIDTH / -2 * texsPrQuad + Vector<3, float>(0, HEIGHT, 0));
+                    center->SetElement(index, position);
+                    texCoords->SetElement(index, Vector<2, float>(1 * texsPrQuad, 1));
+                    ++index;
                         
-                        // upper left
-                        vertices->SetElement(index, position + direction * WIDTH / 2 * texsPrQuad + Vector<3, float>(0, HEIGHT, 0));
-                        center->SetElement(index, position);
-                        texCoords->SetElement(index, Vector<2, float>(0, 1 * texsPrQuad));
-                        noise->SetElement(index, Vector<2, float>(rand.UniformFloat(-0.5, 0.5),
-                                                                  rand.UniformFloat(-0.5, 0.5)));
-                        ++index;
-                        
-                        // upper right
-                        vertices->SetElement(index, position + direction * WIDTH / -2 * texsPrQuad + Vector<3, float>(0, HEIGHT, 0));
-                        center->SetElement(index, position);
-                        texCoords->SetElement(index, Vector<2, float>(1, 1) * texsPrQuad);
-                        noise->SetElement(index, Vector<2, float>(rand.UniformFloat(-0.5, 0.5),
-                                                                  rand.UniformFloat(-0.5, 0.5)));
-                        ++index;
-                        
-                        // lower right
-                        vertices->SetElement(index, position + direction * WIDTH / -2 * texsPrQuad);
-                        center->SetElement(index, position);
-                        texCoords->SetElement(index, Vector<2, float>(1 * texsPrQuad, 0));
-                        noise->SetElement(index, Vector<2, float>(rand.UniformFloat(-0.5, 0.5),
-                                                                  rand.UniformFloat(-0.5, 0.5)));
-                        ++index;
-                    }
+                    // lower right
+                    vertices->SetElement(index, position + direction * WIDTH / -2 * texsPrQuad);
+                    center->SetElement(index, position);
+                    texCoords->SetElement(index, Vector<2, float>(1 * texsPrQuad, 0));
+                    ++index;
+                }
+            }
 
             IDataBlockList tcs;
             tcs.push_back(texCoords);
-            //tcs.push_back(noise);
 
             GeometrySet* geom = new GeometrySet(vertices, center, tcs);
 

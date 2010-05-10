@@ -52,6 +52,7 @@ namespace OpenEngine {
 
             // Grass grid dimensions
             int gridDim;
+            int straws;
 
             unsigned int elapsedTime;
 
