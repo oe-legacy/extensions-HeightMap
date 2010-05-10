@@ -42,7 +42,7 @@ namespace OpenEngine {
             : heightmap(heightmap) {
             quadsPrObject = 3;
             grassShader = shader;
-            gridDim = 64;
+            gridDim = 128;
             elapsedTime = 0;
 
             grassGeom = CreateGrassObject();
@@ -53,8 +53,19 @@ namespace OpenEngine {
                 ITexture2DPtr tex;
                 grassShader->GetTexture("heightmap", tex);
                 arg.renderer.LoadTexture(tex);
+
+                Vector<2, float> heightmapDims(tex->GetWidth(),
+                                               tex->GetHeight());
+                grassShader->SetUniform("heightmapDims", heightmapDims);
+
                 grassShader->SetTexture("normalmap", heightmap->GetNormalMap());
                 arg.renderer.LoadTexture(tex);
+
+                Vector<2, float> normalmapDims(heightmap->GetNormalMap()->GetWidth(),
+                                               heightmap->GetNormalMap()->GetHeight());
+                grassShader->SetUniform("normalmapDims", normalmapDims);
+
+                grassShader->SetUniform("offset", heightmap->GetOffset());
 
                 grassShader->Load();
 
@@ -71,7 +82,7 @@ namespace OpenEngine {
             RandomGenerator rand;
             rand.SeedWithTime();
 
-            float radsPrQuad = 2 * PI / quadsPrObject;
+            float radsPrQuad = PI / quadsPrObject;
             float rotationOffset = PI / (quadsPrObject * 4);
             int halfDim = gridDim / 2;
 
