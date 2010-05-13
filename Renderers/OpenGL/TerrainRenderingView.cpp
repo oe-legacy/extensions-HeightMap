@@ -44,8 +44,17 @@ namespace OpenEngine {
                 IShaderResourcePtr shader = node->GetGrassShader();
                 if (this->renderShader && shader){
                     shader->SetUniform("lightDir", lightDir);
-                    shader->SetUniform("viewPos", arg->canvas.GetViewingVolume()->GetPosition());
                     shader->SetUniform("time", node->GetElapsedTime() / 1000.0f);
+
+                    // Move the view position by the grid dimension
+                    // relative to the eye direction.
+                    Vector<3, float> eyeDir = arg->canvas.GetViewingVolume()->GetDirection().RotateVector(Vector<3, float>(0,0,1));
+                    Vector<3, float> viewPos = arg->canvas.GetViewingVolume()->GetPosition();
+                    Vector<2, float> eyePos(viewPos.Get(0), viewPos.Get(2));
+                    int halfDim = node->GetGridDimension() / 2;
+                    eyePos[0] -= eyeDir.Get(0) * halfDim;
+                    eyePos[1] -= eyeDir.Get(2) * halfDim;
+                    shader->SetUniform("viewPos", eyePos);
 
                     shader->ApplyShader();
                 }else

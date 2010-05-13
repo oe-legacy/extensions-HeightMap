@@ -42,7 +42,7 @@ namespace OpenEngine {
             : heightmap(heightmap) {
             quadsPrObject = 3;
             grassShader = shader;
-            gridDim = 1280;
+            gridDim = 128;
             straws = 12000;
             elapsedTime = 0;
 
@@ -57,16 +57,19 @@ namespace OpenEngine {
 
                 Vector<2, float> heightmapDims(tex->GetWidth(),
                                                tex->GetHeight());
-                grassShader->SetUniform("heightmapDims", heightmapDims);
+                grassShader->SetUniform("hmapDims", heightmapDims);
 
                 grassShader->SetTexture("normalmap", heightmap->GetNormalMap());
                 arg.renderer.LoadTexture(tex);
 
                 Vector<2, float> normalmapDims(heightmap->GetNormalMap()->GetWidth(),
                                                heightmap->GetNormalMap()->GetHeight());
-                grassShader->SetUniform("normalmapDims", normalmapDims);
+                grassShader->SetUniform("nmapDims", normalmapDims);
 
-                grassShader->SetUniform("offset", heightmap->GetOffset());
+                grassShader->SetUniform("hmapOffset", heightmap->GetOffset());
+                
+                grassShader->SetUniform("gridDim", float(gridDim));
+                grassShader->SetUniform("invGridDim", 1.0f / float(gridDim));
 
                 grassShader->Load();
 
