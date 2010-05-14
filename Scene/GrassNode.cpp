@@ -43,6 +43,7 @@ namespace OpenEngine {
             quadsPrObject = 3;
             grassShader = shader;
             gridDim = 128;
+            //gridDim = 196;
             straws = 12000;
             elapsedTime = 0;
 
@@ -51,22 +52,25 @@ namespace OpenEngine {
         
         void GrassNode::Handle(RenderingEventArg arg){
             if (grassShader){
+                float widthScale = heightmap->GetWidthScale();
+
                 ITexture2DPtr tex;
                 grassShader->GetTexture("heightmap", tex);
                 arg.renderer.LoadTexture(tex);
 
                 Vector<2, float> heightmapDims(tex->GetWidth(),
                                                tex->GetHeight());
-                grassShader->SetUniform("hmapDims", heightmapDims);
+                grassShader->SetUniform("invHmapDimsScale", 1.0f / (heightmapDims * widthScale));
 
                 grassShader->SetTexture("normalmap", heightmap->GetNormalMap());
                 arg.renderer.LoadTexture(tex);
 
                 Vector<2, float> normalmapDims(heightmap->GetNormalMap()->GetWidth(),
                                                heightmap->GetNormalMap()->GetHeight());
-                grassShader->SetUniform("nmapDims", normalmapDims);
+                grassShader->SetUniform("invNmapDimsScale", 1.0f / (normalmapDims * widthScale));
 
-                grassShader->SetUniform("hmapOffset", heightmap->GetOffset());
+                Vector<3, float> offset = heightmap->GetOffset();
+                grassShader->SetUniform("hmapOffset", Vector<2, float>(offset.Get(0), offset.Get(2)));
                 
                 grassShader->SetUniform("gridDim", float(gridDim));
                 grassShader->SetUniform("invGridDim", 1.0f / float(gridDim));

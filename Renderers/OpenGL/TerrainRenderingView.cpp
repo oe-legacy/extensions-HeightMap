@@ -44,7 +44,7 @@ namespace OpenEngine {
                 IShaderResourcePtr shader = node->GetGrassShader();
                 if (this->renderShader && shader){
                     shader->SetUniform("lightDir", lightDir);
-                    shader->SetUniform("time", node->GetElapsedTime() / 1000.0f);
+                    shader->SetUniform("time", node->GetElapsedTime() / 1000000.0f);
 
                     // Move the view position by the grid dimension
                     // relative to the eye direction.
