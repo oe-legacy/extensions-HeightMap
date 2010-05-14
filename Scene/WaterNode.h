@@ -71,7 +71,6 @@ namespace OpenEngine {
 
             IShaderResourcePtr waterShader;
             unsigned int elapsedTime;
-            SunNode* sun;
 
         public:
             WaterNode() {}
@@ -86,9 +85,6 @@ namespace OpenEngine {
             Vector<3, float> GetCenter() const { return center; }
             float GetDiameter() const { return diameter; }
             
-            SunNode* GetSun() const { return sun; }
-            void SetSun(SunNode* s) { sun = s; }
-
             int GetNumberOfVertices() { return SLICES+2; }
             float* GetWaterVerticeArray() { return waterVertices; }
             float* GetWaterNormalArray() { return waterNormals; }

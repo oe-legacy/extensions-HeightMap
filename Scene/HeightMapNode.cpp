@@ -546,8 +546,9 @@ namespace OpenEngine {
        
                     if (x < texWidth && z < texDepth){
                         // inside the heightmap
+                        tex->GetPixel(x, z)[0] = tex->GetPixel(x, z)[0] * heightScale + offset[1];
                         float height = tex->GetPixel(x, z)[0];
-                        vertice[1] = height * heightScale + offset[1];
+                        vertice[1] = height;// * heightScale + offset[1];
                     }else{
                         // outside the heightmap, set height to waterlevel
                         vertice[1] = offset[1];
