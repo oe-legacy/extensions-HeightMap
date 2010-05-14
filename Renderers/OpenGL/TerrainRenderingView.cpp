@@ -202,10 +202,6 @@ namespace OpenEngine {
 
                     ApplyGeometrySet(GeometrySetPtr());
 
-                    float pos[3];
-                    node->GetSun()->GetPos().ToArray(pos);
-                    glLightfv(GL_LIGHT0, GL_POSITION, pos);
-
                     glEnableClientState(GL_VERTEX_ARRAY);
                     glVertexPointer(3, GL_FLOAT, 0, node->GetBottomVerticeArray());
                     
@@ -221,7 +217,7 @@ namespace OpenEngine {
                     float time = (float)node->GetElapsedTime();
                     shader->SetUniform("time", time / 8000000000.0f);
                     shader->SetUniform("time2", time / 4000000.0f);
-                    shader->SetUniform("lightDir", node->GetSun()->GetPos().GetNormalize());
+                    shader->SetUniform("lightDir", lightDir);
                     shader->ApplyShader();
 
                     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
