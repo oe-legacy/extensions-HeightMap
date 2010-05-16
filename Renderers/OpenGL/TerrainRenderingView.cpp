@@ -96,8 +96,6 @@ namespace OpenEngine {
                 // Replace with a patch iterator
                 node->Render(*arg);
 
-                ApplyGeometrySet(GeometrySetPtr());
-
                 if (shader){
                     shader->ReleaseShader();
                     this->currentShader.reset();
