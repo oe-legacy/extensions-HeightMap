@@ -59,8 +59,6 @@ namespace OpenEngine {
             float diameter;
             float planetDiameter;
 
-            ISceneNode* reflection;
-
             int FBOheight;
             int FBOwidth;
             GLuint reflectionFboID;
@@ -102,8 +100,6 @@ namespace OpenEngine {
             ITexture2DPtr GetRefractionDepthMap() const { return depthbufferTex; }
             unsigned int GetElapsedTime() { return elapsedTime; }
 
-            void SetReflectionScene(ISceneNode* r) { reflection = r; }
-            ISceneNode* GetReflectionScene() const { return reflection; }
             void SetNormalDudvMap(UCharTexture2DPtr normal, UCharTexture2DPtr dudv);
             void SetSurfaceTexture(ITexture2DPtr tex, float pixelsPrEdge);
             ITextureResourcePtr GetSurfaceTexture() { return surface; }

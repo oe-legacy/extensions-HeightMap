@@ -20,7 +20,7 @@ namespace OpenEngine {
     namespace Scene {
 
         WaterNode::WaterNode(Vector<3, float> c, float d)
-            : center(c), diameter(d), planetDiameter(1000), reflection(NULL), 
+            : center(c), diameter(d), planetDiameter(1000),
               waterShader(IShaderResourcePtr()), elapsedTime(0) {
             SetupArrays();
         }
@@ -31,20 +31,18 @@ namespace OpenEngine {
 
         void WaterNode::Handle(RenderingEventArg arg){
             if (waterShader != NULL){
-                if (reflection){
-                    // Check if framebuffering is supported
-                    const std::string fboExt = "GL_EXT_framebuffer_object";
-                    if (glewGetExtension(fboExt.c_str()) != GL_TRUE )
-                        throw Exception(fboExt + " not supported");
-                    
-                    FBOwidth = 800;
-                    FBOheight = 600;
-                    
-                    SetupReflectionFBO(arg.renderer);
-                    //SetupRefractionFBO(arg.renderer);
-
-                    waterShader->SetTexture("reflection", (ITexture2DPtr)reflectionTex);
-                }
+                // Check if framebuffering is supported
+                const std::string fboExt = "GL_EXT_framebuffer_object";
+                if (glewGetExtension(fboExt.c_str()) != GL_TRUE )
+                    throw Exception(fboExt + " not supported");
+                
+                FBOwidth = 800;
+                FBOheight = 600;
+                
+                SetupReflectionFBO(arg.renderer);
+                //SetupRefractionFBO(arg.renderer);
+                
+                waterShader->SetTexture("reflection", (ITexture2DPtr)reflectionTex);
 
                 if (normaldudvmap != NULL)
                     waterShader->SetTexture("normaldudvmap", (ITexture2DPtr)normaldudvmap);

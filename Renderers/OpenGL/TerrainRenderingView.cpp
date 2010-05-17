@@ -155,51 +155,53 @@ namespace OpenEngine {
 
             void TerrainRenderingView::VisitWaterNode(WaterNode* node) {
                 IShaderResourcePtr shader = node->GetWaterShader();
-                ISceneNode* reflection = node->GetReflectionScene();
                 if (shader != NULL){
-                    if (reflection){
-                        
-                        // setup water clipping plane
-                        double plane[4] = {0.0, -1.0, 0.0, 0.0}; //water at y~~0
-                        glEnable(GL_CLIP_PLANE0);
-                        glClipPlane(GL_CLIP_PLANE0, plane);
+                    // setup water clipping plane
+                    double plane[4] = {0.0, -1.0, 0.0, 0.0}; //water at y~~0
+                    glEnable(GL_CLIP_PLANE0);
+                    glClipPlane(GL_CLIP_PLANE0, plane);
+                    
+                    glViewport(0, 0, node->GetFBOWidth(), node->GetFBOHeight());
 
-                        glViewport(0, 0, node->GetFBOWidth(), node->GetFBOHeight());
+                    // store previous frame buffer
+                    GLint prevFbo;
+                    glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &prevFbo);
+                    
+                    // Render reflection
+                    
+                    // Enable frame buffer
+                    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, node->GetReflectionFboID());
+                    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                    
+                    glCullFace(GL_FRONT);
+                    
+                    glPushMatrix();
 
-                        // Render reflection
+                    glScalef(1, -1, 1);
+                    glTranslatef(0, -2, 0);
+                    
+                    // Render scene
+                    node->VisitSubNodes(*this);
+                    
+                    glPopMatrix();
+                    glCullFace(GL_BACK);
 
-                        // Enable frame buffer
-                        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, node->GetReflectionFboID());
-                        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                        
-                        glCullFace(GL_FRONT);
-
-                        glPushMatrix();
-
-                        glScalef(1, -1, 1);
-                        glTranslatef(0, -2, 0);
-                        
-                        // Render scene
-                        reflection->Accept(*this);
-                        
-                        glPopMatrix();
-                        glCullFace(GL_BACK);
-
-                        // Disable frame buffer
-                        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-                        glDisable(GL_CLIP_PLANE0);
-                        
-                        // Reset viewport
-                        Vector<4, int> viewDims(0,0, arg->canvas.GetWidth(),
-                                                arg->canvas.GetHeight());
-                        glViewport(viewDims[0], viewDims[1], viewDims[2], viewDims[3]);
-
-                        // Render reflection
-                        reflection->Accept(*this);
-                    }
+                    // Restore the previous frame buffer
+                    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, prevFbo);
+                    glDisable(GL_CLIP_PLANE0);
+                    
+                    // Reset viewport
+                    Vector<4, int> viewDims(0,0, arg->canvas.GetWidth(),
+                                            arg->canvas.GetHeight());
+                    glViewport(viewDims[0], viewDims[1], viewDims[2], viewDims[3]);
+                    
+                    // Render reflection
+                    node->VisitSubNodes(*this);
 
                     ApplyGeometrySet(GeometrySetPtr());
 
+                    glDisable(GL_TEXTURE_2D);
+                    glUseProgram(0);
                     glEnableClientState(GL_VERTEX_ARRAY);
                     glVertexPointer(3, GL_FLOAT, 0, node->GetBottomVerticeArray());
                     
@@ -237,10 +239,7 @@ namespace OpenEngine {
                     glDisable(GL_BLEND);
                     
                 }else{
-                    if (reflection){
-                        // Render refraction
-                        reflection->Accept(*this);
-                    }
+                    node->VisitSubNodes(*this);
                     
                     glEnableClientState(GL_VERTEX_ARRAY);
                     glVertexPointer(3, GL_FLOAT, 0, node->GetBottomVerticeArray());
