@@ -84,8 +84,13 @@ namespace OpenEngine {
                 
                 for (unsigned int x = 0; x < width; ++x)
                     for (unsigned int z = 0; z < height; ++z){
-                        normaldudvmap->GetPixel(x,z)[0] = normal->GetPixel(x,z)[0];
-                        normaldudvmap->GetPixel(x,z)[1] = normal->GetPixel(x,z)[1];
+                        if (normal->GetColorFormat() == BGR){
+                            normaldudvmap->GetPixel(x,z)[0] = normal->GetPixel(x,z)[2];
+                            normaldudvmap->GetPixel(x,z)[1] = normal->GetPixel(x,z)[1];
+                        }else{
+                            normaldudvmap->GetPixel(x,z)[0] = normal->GetPixel(x,z)[0];
+                            normaldudvmap->GetPixel(x,z)[1] = normal->GetPixel(x,z)[1];
+                        }
                         normaldudvmap->GetPixel(x,z)[2] = dudv->GetPixel(x,z)[0];
                         normaldudvmap->GetPixel(x,z)[3] = dudv->GetPixel(x,z)[1];
                     }
