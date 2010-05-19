@@ -36,7 +36,6 @@ namespace OpenEngine {
         class IViewingVolume;
     }
     namespace Scene {
-        class SunNode;
         class HeightMapPatch;
 
         /**
@@ -83,8 +82,6 @@ namespace OpenEngine {
             float widthScale;
             float heightScale;
             Vector<3, float> offset;
-
-            SunNode* sun;
 
             // Patch variables
             int patchGridWidth, patchGridDepth, numberOfPatches;
@@ -189,9 +186,6 @@ namespace OpenEngine {
             float GetLODBaseDistance() const { return baseDistance; }
             float GetLODIncDistance() const { return 1.0f / invIncDistance; }
             float GetLODInverseIncDistance() const { return invIncDistance; }
-
-            SunNode* GetSun() const { return sun; }
-            void SetSun(SunNode* s) { sun = s; }
 
             void SetLandscapeShader(IShaderResourcePtr shader) { landscapeShader = shader; }
             IShaderResourcePtr GetLandscapeShader() const { return landscapeShader; }
