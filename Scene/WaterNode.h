@@ -59,13 +59,7 @@ namespace OpenEngine {
             float diameter;
             float planetDiameter;
 
-            int FBOheight;
-            int FBOwidth;
-            GLuint reflectionFboID;
-            GLuint refractionFboID;
-            ITexture2DPtr depthbufferTex;
-            ITexture2DPtr reflectionTex;
-            ITexture2DPtr refractionTex;
+            FrameBuffer* reflectionFbo;
 
             IShaderResourcePtr waterShader;
             unsigned int elapsedTime;
@@ -91,13 +85,7 @@ namespace OpenEngine {
             float* GetFloorColor() { return floorColor; }
             float* GetTextureCoordArray() const { return texCoords; }
 
-            int GetFBOHeight() const { return FBOheight; }
-            int GetFBOWidth() const { return FBOwidth; }
-            GLuint GetReflectionFboID() const { return reflectionFboID; }
-            ITexture2DPtr GetReflectionTex() const { return reflectionTex; }
-            GLuint GetRefractionFboID() const { return refractionFboID; }
-            ITexture2DPtr GetRefractionTex() const { return refractionTex; }
-            ITexture2DPtr GetRefractionDepthMap() const { return depthbufferTex; }
+            FrameBuffer* GetReflectionFbo() const { return reflectionFbo; }
             unsigned int GetElapsedTime() { return elapsedTime; }
 
             void SetNormalDudvMap(UCharTexture2DPtr normal, UCharTexture2DPtr dudv);
@@ -109,8 +97,6 @@ namespace OpenEngine {
         private:
             inline void SetupArrays();
             inline void SetupTexCoords();
-            inline void SetupReflectionFBO(IRenderer& r);
-            inline void SetupRefractionFBO(IRenderer& r);
         };
 
     }

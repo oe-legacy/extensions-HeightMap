@@ -10,6 +10,7 @@
 #include <Scene/WaterNode.h>
 
 #include <Resources/IShaderResource.h>
+#include <Resources/FrameBuffer.h>
 #include <Utils/TerrainTexUtils.h>
 #include <Logging/Logger.h>
 #include <string.h>
@@ -31,18 +32,11 @@ namespace OpenEngine {
 
         void WaterNode::Handle(RenderingEventArg arg){
             if (waterShader != NULL){
-                // Check if framebuffering is supported
-                const std::string fboExt = "GL_EXT_framebuffer_object";
-                if (glewGetExtension(fboExt.c_str()) != GL_TRUE )
-                    throw Exception(fboExt + " not supported");
+                Vector<2, int> dim(200,150);
+                reflectionFbo = new FrameBuffer(dim, 1, false);
+                arg.renderer.BindFrameBuffer(reflectionFbo);
                 
-                FBOwidth = 800;
-                FBOheight = 600;
-                
-                SetupReflectionFBO(arg.renderer);
-                //SetupRefractionFBO(arg.renderer);
-                
-                waterShader->SetTexture("reflection", (ITexture2DPtr)reflectionTex);
+                waterShader->SetTexture("reflection", reflectionFbo->GetTexAttachment(0));
 
                 if (normaldudvmap != NULL)
                     waterShader->SetTexture("normaldudvmap", (ITexture2DPtr)normaldudvmap);
@@ -162,71 +156,6 @@ namespace OpenEngine {
                 texCoords[i * 2] = waterVertices[i * DIMENSIONS] / texDetail;
                 texCoords[i * 2 + 1] = waterVertices[i * DIMENSIONS + 2] / texDetail;
             }
-        }
-
-        void WaterNode::SetupReflectionFBO(IRenderer& r){
-            // setup frame buffer object for reflection
-            glGenFramebuffersEXT(1, &reflectionFboID);
-            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, reflectionFboID);
-            
-            // attach the depth buffer to the frame buffer
-            GLuint depth;
-            glGenRenderbuffersEXT(1, &depth);
-            glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depth);
-            glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, FBOwidth, FBOheight);
-            glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
-            
-            glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
-                                         GL_RENDERBUFFER_EXT, depth);
-                        
-            // Setup texture to render reflection to
-            reflectionTex = UCharTexture2DPtr(new Texture2D<unsigned char>(FBOwidth, FBOheight, 3));
-            reflectionTex->SetColorFormat(RGB);
-            reflectionTex->SetMipmapping(false);
-            reflectionTex->SetCompression(false);
-            reflectionTex->SetWrapping(CLAMP_TO_EDGE);
-            r.LoadTexture(reflectionTex.get());
-
-            // attach the texture to FBO color attachment point
-            glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, 
-                                      GL_COLOR_ATTACHMENT0_EXT,
-                                      GL_TEXTURE_2D, reflectionTex->GetID(), 0);
-            
-            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-        }
-
-        void WaterNode::SetupRefractionFBO(IRenderer& r){
-            // setup frame buffer object for refraction
-            glGenFramebuffersEXT(1, &refractionFboID);
-            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, refractionFboID);                        
-                        
-            // Setup texture to render refraction to
-            refractionTex = UCharTexture2DPtr(new Texture2D<unsigned char>(FBOwidth, FBOheight, 3));
-            refractionTex->SetColorFormat(RGB);
-            refractionTex->SetMipmapping(false);
-            refractionTex->SetCompression(false);
-            refractionTex->SetWrapping(CLAMP_TO_EDGE);
-            r.LoadTexture(refractionTex.get());
-
-            // attach the texture to FBO color attachment point
-            glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, 
-                                      GL_COLOR_ATTACHMENT0_EXT,
-                                      GL_TEXTURE_2D, refractionTex->GetID(), 0);
-
-            // attach the depth buffer to the frame buffer
-            depthbufferTex = UCharTexture2DPtr(new Texture2D<unsigned char>(FBOwidth, FBOheight, 1));
-            depthbufferTex->SetColorFormat(DEPTH);
-            depthbufferTex->SetMipmapping(false);
-            depthbufferTex->SetCompression(false);
-            depthbufferTex->SetWrapping(CLAMP_TO_EDGE);
-            r.LoadTexture(depthbufferTex.get());
-
-            glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, 
-                                      GL_DEPTH_ATTACHMENT_EXT,
-                                      GL_TEXTURE_2D, depthbufferTex->GetID(), 0);
-
-            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-            glBindTexture(GL_TEXTURE_2D, 0);
         }
         
     }

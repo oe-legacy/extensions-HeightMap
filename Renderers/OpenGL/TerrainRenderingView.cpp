@@ -10,6 +10,7 @@
 #include "TerrainRenderingView.h"
 
 #include <Resources/IShaderResource.h>
+#include <Resources/FrameBuffer.h>
 #include <Scene/GrassNode.h>
 #include <Scene/HeightMapNode.h>
 #include <Scene/SunNode.h>
@@ -156,12 +157,15 @@ namespace OpenEngine {
             void TerrainRenderingView::VisitWaterNode(WaterNode* node) {
                 IShaderResourcePtr shader = node->GetWaterShader();
                 if (shader != NULL){
+                    FrameBuffer* reflection = node->GetReflectionFbo();
+                    Vector<2, int> refDim = reflection->GetDimension();
+
                     // setup water clipping plane
                     double plane[4] = {0.0, -1.0, 0.0, 0.0}; //water at y~~0
                     glEnable(GL_CLIP_PLANE0);
                     glClipPlane(GL_CLIP_PLANE0, plane);
                     
-                    glViewport(0, 0, node->GetFBOWidth(), node->GetFBOHeight());
+                    glViewport(0, 0, refDim[0], refDim[1]);
 
                     // store previous frame buffer
                     GLint prevFbo;
@@ -170,7 +174,7 @@ namespace OpenEngine {
                     // Render reflection
                     
                     // Enable frame buffer
-                    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, node->GetReflectionFboID());
+                    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, reflection->GetID());
                     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                     
                     glCullFace(GL_FRONT);
@@ -191,9 +195,7 @@ namespace OpenEngine {
                     glDisable(GL_CLIP_PLANE0);
                     
                     // Reset viewport
-                    Vector<4, int> viewDims(0,0, arg->canvas.GetWidth(),
-                                            arg->canvas.GetHeight());
-                    glViewport(viewDims[0], viewDims[1], viewDims[2], viewDims[3]);
+                    glViewport(0, 0, arg->canvas.GetWidth(), arg->canvas.GetHeight());
                     
                     // Render reflection
                     node->VisitSubNodes(*this);
