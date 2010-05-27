@@ -40,11 +40,10 @@ namespace OpenEngine {
 
         GrassNode::GrassNode(HeightMapNode* heightmap, IShaderResourcePtr shader) 
             : heightmap(heightmap) {
-            quadsPrObject = 3;
+            quadsPrObject = 1;
             grassShader = shader;
             gridDim = 128;
-            //gridDim = 196;
-            straws = 12000;
+            straws = 36000;
             elapsedTime = 0;
 
             grassGeom = CreateGrassObject();
