@@ -42,8 +42,6 @@ namespace OpenEngine {
             public IListener<Core::ProcessEventArg> {
             OE_SCENE_NODE(GrassNode, ISceneNode);
         private:
-            int quadsPrObject;
-
             Geometry::GeometrySetPtr grassGeom;
             Resources::IShaderResourcePtr grassShader;
 
@@ -53,18 +51,19 @@ namespace OpenEngine {
             // Grass grid dimensions
             int gridDim;
             int straws;
+            int quadsPrObject;
 
             unsigned int elapsedTime;
 
         public:
             GrassNode();
-            GrassNode(HeightMapNode* heightmap, const Resources::IShaderResourcePtr shader);
+            GrassNode(HeightMapNode* heightmap, const Resources::IShaderResourcePtr shader, 
+                      int straws = 4000, int gridDimension = 64, int quadsPrObject = 3);
 
             void Handle(RenderingEventArg arg);
             void Handle(Core::ProcessEventArg arg);
 
             inline int GetGridDimension() const { return gridDim; }
-            inline void SetGridDimension(int d) { gridDim = d; }
             inline Resources::IShaderResourcePtr GetGrassShader() const { return grassShader; }
             inline Geometry::GeometrySetPtr GetGrassGeometry() const { return grassGeom; }
             inline unsigned int GetElapsedTime() const { return elapsedTime; }

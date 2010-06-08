@@ -38,13 +38,13 @@ namespace OpenEngine {
             grassGeom = CreateGrassObject();
         }
 
-        GrassNode::GrassNode(HeightMapNode* heightmap, IShaderResourcePtr shader) 
-            : heightmap(heightmap) {
-            quadsPrObject = 1;
-            grassShader = shader;
-            gridDim = 128;
-            straws = 36000;
-            elapsedTime = 0;
+        GrassNode::GrassNode(HeightMapNode* heightmap, IShaderResourcePtr shader, 
+                             int straws, int gridDimension, int quadsPrObject) 
+            : grassShader(shader),
+              heightmap(heightmap),
+              gridDim(gridDimension),
+              straws(straws),
+              quadsPrObject(quadsPrObject) {
 
             grassGeom = CreateGrassObject();
         }
