@@ -36,8 +36,8 @@ namespace OpenEngine {
             Vector<4, float> specular;
             Vector<4, float> baseSpecular;
 
-            unsigned int time;
-            float timeModifier;
+            float time;
+            float dayLength; // length of day in miliseconds
             
             bool geometry;
 
@@ -49,7 +49,9 @@ namespace OpenEngine {
             Vector<3, float> GetPos() { return coords; }
 
             void SetTime(unsigned int time) { this->time = time; }
-            void SetTimeModifier(float timeMod) { timeModifier = timeMod; }
+            void SetDayLength(float dayLength) { this->dayLength = dayLength; }
+            void SetTimeOfDay(const float time);
+            float GetTimeOfDay() const;
             
             void SetAmbient(Vector<4, float> a) { ambient = a; }
             void SetDiffuse(Vector<4, float> d) { baseDiffuse = d; }

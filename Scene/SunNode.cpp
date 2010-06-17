@@ -33,34 +33,43 @@ namespace OpenEngine {
             direction = dir;
             origo = o;
             time = 0;
-            timeModifier = 50000000;
+            dayLength = 5000000;
             Move(time);
         }
 
+        void SunNode::SetTimeOfDay(const float t){
+            time = t-6;
+        }
+        
+        float SunNode::GetTimeOfDay() const {
+            return time + 6.0;
+        }
+
         void SunNode::Move(unsigned int dt){
-            time += dt;
-
-            float cosine = cos(time/timeModifier);
-            float sinus = sin(time/timeModifier);
-
-            // move the sun
-            coords[0] = origo[0] + direction[0] * cosine;
-            coords[1] = origo[1] + direction[1] * sinus;
-            coords[2] = origo[2] + direction[2] * cosine;
-
-            // set the diffuse strength
-            if (sinus <= -0.1)
-                diffuse = Vector<4, float>((float)0);
-            else if (sinus < 0.15)
-                diffuse = baseDiffuse * (sinus + 0.1) * 4;
-            else 
-                diffuse = baseDiffuse;
-
-            // set the specular strength
-            if (sinus <= -0.05)
-                specular = Vector<4, float>(0.0);
-            else
-                specular = baseSpecular;
+            time += float(dt) / dayLength;
+            if (dayLength != 0){
+                float cosine = cos(time / 12.0f * Math::PI);
+                float sinus = sin(time / 12.0f * Math::PI);
+                
+                // move the sun
+                coords[0] = origo[0] + direction[0] * cosine;
+                coords[1] = origo[1] + direction[1] * sinus;
+                coords[2] = origo[2] + direction[2] * cosine;
+                
+                // set the diffuse strength
+                if (sinus <= -0.1)
+                    diffuse = Vector<4, float>((float)0);
+                else if (sinus < 0.15)
+                    diffuse = baseDiffuse * (sinus + 0.1) * 4;
+                else 
+                    diffuse = baseDiffuse;
+                
+                // set the specular strength
+                if (sinus <= -0.05)
+                    specular = Vector<4, float>(0.0);
+                else
+                    specular = baseSpecular;
+            }
         }
 
         void SunNode::VisitSubNodes(ISceneNodeVisitor& visitor){
