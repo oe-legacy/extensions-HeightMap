@@ -63,17 +63,17 @@ namespace OpenEngine {
             diffuse = baseDiffuse;
 
             // set the diffuse strength
-            if (sinus <= -0.15)
+            if (sinus <= -0.25)
                 diffuse[0] = 0.0f;
-            else if (sinus < 0.10)
-                diffuse[0] = baseDiffuse[0] * (sinus + 0.15) * 4;
+            else if (sinus < 0.0)
+                diffuse[0] = baseDiffuse[0] * (sinus + 0.25) * 4;
             else
                 diffuse[0] = baseDiffuse[0];
 
-            if (sinus <= -0.1)
+            if (sinus <= -0.15)
                 diffuse[1] = 0.0f;
-            else if (sinus < 0.15)
-                diffuse[1] = baseDiffuse[1] * (sinus + 0.1) * 4;
+            else if (sinus < 0.1)
+                diffuse[1] = baseDiffuse[1] * (sinus + 0.15) * 4;
             else
                 diffuse[1] = baseDiffuse[1];
                 
