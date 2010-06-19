@@ -50,9 +50,10 @@ namespace OpenEngine {
 
             void SetTime(unsigned int time) { this->time = time; }
             void SetDayLength(float dayLength) { this->dayLength = dayLength; }
-            void SetTimeOfDay(const float time);
-            float GetTimeOfDay() const;
-            
+            void SetTimeOfDay(float time);
+            float GetTimeOfDay();
+            float GetTimeofDayRatio();
+
             void SetAmbient(Vector<4, float> a) { ambient = a; }
             void SetDiffuse(Vector<4, float> d) { baseDiffuse = d; }
             void SetSpecular(Vector<4, float> s) { baseSpecular = s; }

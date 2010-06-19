@@ -25,7 +25,7 @@ namespace OpenEngine {
         }
 
         void SunNode::Init(Vector<3, float> dir, Vector<3, float> o){
-            geometry = false;
+            geometry = true;
             baseDiffuse = Vector<4, float>(1.0);
             baseSpecular = Vector<4, float>(1.0, 1.0, 0.7, 1);
             ambient = Vector<4, float>(0.2, 0.2, 0.2, 0.0);
@@ -36,15 +36,19 @@ namespace OpenEngine {
             Move(time);
         }
 
-        void SunNode::SetTimeOfDay(const float t){
+        void SunNode::SetTimeOfDay(float t){
             time = (t-6) / 12.0f;
         }
         
-        float SunNode::GetTimeOfDay() const {
+        float SunNode::GetTimeOfDay() {
             return fmod(time * 12.0f + 6.0f, 24.0f);
         }
 
-        void SunNode::Move(unsigned int dt){
+        float SunNode::GetTimeofDayRatio() {
+            return (GetTimeOfDay() - 6.0f) / 24.0f;
+        }
+
+        void SunNode::Move(unsigned int dt) {
             if (dayLength != 0){
                 time += float(dt) / dayLength;
             }
