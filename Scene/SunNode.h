@@ -49,7 +49,8 @@ namespace OpenEngine {
             Vector<3, float> GetPos() { return coords; }
 
             void SetTime(unsigned int time) { this->time = time; }
-            void SetDayLength(float dayLength) { this->dayLength = dayLength; }
+            void SetDayLength(float dayLength) { this->dayLength = dayLength * 1000000; }
+            float GetDayLength() { return dayLength / 1000000; }
             void SetTimeOfDay(float time);
             float GetTimeOfDay();
             float GetTimeofDayRatio();

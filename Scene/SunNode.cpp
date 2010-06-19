@@ -32,7 +32,7 @@ namespace OpenEngine {
             direction = dir;
             origo = o;
             time = 0;
-            dayLength = 50000000;
+            dayLength = 50 * 1000000;
             Move(time);
         }
 
