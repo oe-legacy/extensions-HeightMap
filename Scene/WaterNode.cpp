@@ -32,7 +32,7 @@ namespace OpenEngine {
 
         void WaterNode::Handle(RenderingEventArg arg){
             if (waterShader != NULL){
-                Vector<2, int> dim(200,150);
+                Vector<2, int> dim(400,300);
                 reflectionFbo = new FrameBuffer(dim, 1, false);
                 arg.renderer.BindFrameBuffer(reflectionFbo);
                 
