@@ -45,7 +45,7 @@ namespace OpenEngine {
         }
 
         float SunNode::GetTimeofDayRatio() {
-            return (GetTimeOfDay() - 6.0f) / 24.0f;
+            return fabs((GetTimeOfDay() - 12.0f) / 12.0f);
         }
 
         void SunNode::Move(unsigned int dt) {
@@ -60,14 +60,30 @@ namespace OpenEngine {
             coords[1] = origo[1] + direction[1] * sinus;
             coords[2] = origo[2] + direction[2] * cosine;
                 
+            diffuse = baseDiffuse;
+
             // set the diffuse strength
+            if (sinus <= -0.15)
+                diffuse[0] = 0.0f;
+            else if (sinus < 0.10)
+                diffuse[0] = baseDiffuse[0] * (sinus + 0.15) * 4;
+            else
+                diffuse[0] = baseDiffuse[0];
+
             if (sinus <= -0.1)
-                diffuse = Vector<4, float>((float)0);
+                diffuse[1] = 0.0f;
             else if (sinus < 0.15)
-                diffuse = baseDiffuse * (sinus + 0.1) * 4;
-            else 
-                diffuse = baseDiffuse;
+                diffuse[1] = baseDiffuse[1] * (sinus + 0.1) * 4;
+            else
+                diffuse[1] = baseDiffuse[1];
                 
+            if (sinus <= 0.0f)
+                diffuse[2] = 0.0f;
+            else if (sinus < 0.25)
+                diffuse[2] = baseDiffuse[2] * sinus * 4;
+            else
+                diffuse[2] = baseDiffuse[2];
+
             // set the specular strength
             if (sinus <= -0.05)
                 specular = Vector<4, float>(0.0);
