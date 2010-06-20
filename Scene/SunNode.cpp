@@ -26,7 +26,7 @@ namespace OpenEngine {
 
         void SunNode::Init(Vector<3, float> dir, Vector<3, float> o){
             geometry = true;
-            baseDiffuse = Vector<4, float>(1.0);
+            baseDiffuse = Vector<4, float>(1.0, 1.0, 0.9, 1);
             baseSpecular = Vector<4, float>(1.0, 1.0, 0.7, 1);
             ambient = Vector<4, float>(0.2, 0.2, 0.2, 0.0);
             direction = dir;
@@ -60,35 +60,25 @@ namespace OpenEngine {
             coords[1] = origo[1] + direction[1] * sinus;
             coords[2] = origo[2] + direction[2] * cosine;
                 
-            diffuse = baseDiffuse;
+            diffuse[3] = 1.0f;
 
             // set the diffuse strength
-            if (sinus <= -0.25)
-                diffuse[0] = 0.0f;
-            else if (sinus < 0.0)
-                diffuse[0] = baseDiffuse[0] * (sinus + 0.25) * 4;
-            else
-                diffuse[0] = baseDiffuse[0];
+            float intensity = (sinus + 0.25) * 4;
+            intensity = std::min(std::max(0.0f, intensity), 1.0f);
+            diffuse[0] = intensity * baseDiffuse[0];
 
-            if (sinus <= -0.15)
-                diffuse[1] = 0.0f;
-            else if (sinus < 0.1)
-                diffuse[1] = baseDiffuse[1] * (sinus + 0.15) * 4;
-            else
-                diffuse[1] = baseDiffuse[1];
-                
-            if (sinus <= 0.0f)
-                diffuse[2] = 0.0f;
-            else if (sinus < 0.25)
-                diffuse[2] = baseDiffuse[2] * sinus * 4;
-            else
-                diffuse[2] = baseDiffuse[2];
+            intensity = (sinus + 0.15) * 4;
+            intensity = std::min(std::max(0.0f, intensity), 1.0f);
+            diffuse[1] = intensity * baseDiffuse[1];
+
+            intensity = sinus * 4;
+            intensity = std::min(std::max(0.0f, intensity), 1.0f);
+            diffuse[2] = intensity * baseDiffuse[2];
 
             // set the specular strength
-            if (sinus <= -0.05)
-                specular = Vector<4, float>(0.0);
-            else
-                specular = baseSpecular;
+            intensity = (sinus + 0.15) * 4;
+            intensity = std::min(std::max(0.0f, intensity), 1.0f);
+            specular = intensity * baseSpecular;
         }
 
         void SunNode::VisitSubNodes(ISceneNodeVisitor& visitor){
