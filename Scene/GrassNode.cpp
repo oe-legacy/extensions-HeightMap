@@ -77,7 +77,22 @@ namespace OpenEngine {
                 grassShader->Load();
 
                 grassShader->GetTexture("grassTex", tex);
+                tex->Load();
+                
+                Texture2D<unsigned char>* grass = (Texture2D<unsigned char>*)tex.get();
+                // set the translucent pixels to green
+                for (unsigned int u = 0; u < grass->GetWidth(); ++u)
+                    for (unsigned int v = 0; v < grass->GetHeight(); ++v){
+                        unsigned char* pixel = grass->GetPixel(u,v);
+                        if (pixel[3] == 0){
+                            pixel[0] = 50;
+                            pixel[1] = 94;
+                            pixel[2] = 87;
+                        }
+                    }
+
                 arg.renderer.LoadTexture(tex);
+                tex->Unload();
             }
         }
 
