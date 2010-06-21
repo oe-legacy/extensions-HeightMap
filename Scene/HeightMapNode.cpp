@@ -528,6 +528,23 @@ namespace OpenEngine {
 
             unsigned int numberOfVertices = width * depth;
 
+            Texture2D<float>* newTex = new Texture2D<float>(width, depth, LUMINANCE32F);
+            newTex->SetWrapping(CLAMP_TO_EDGE);
+            newTex->Load();
+            for (int x = 0; x < width; ++x){
+                for (int z = 0; z < depth; ++z){
+                    if (x < texWidth && z < texDepth){
+                        // inside the heightmap
+                        newTex->GetPixel(x, z)[0] = tex->GetPixel(x, z)[0] * heightScale + offset[1];
+                    }else{
+                        // outside the heightmap, set height to waterlevel
+                        newTex->GetPixel(x, z)[0] = offset[1];
+                    }
+                }
+            }
+
+            tex = FloatTexture2DPtr(newTex);
+
             vertexBuffer = Float4DataBlockPtr(new DataBlock<4, float>(numberOfVertices));
             vertexBuffer->SetUnloadPolicy(UNLOAD_EXPLICIT);
             normals = new float[numberOfVertices * 3];
@@ -541,24 +558,12 @@ namespace OpenEngine {
                     float* vertice = GetVertice(x, z);
                      
                     vertice[0] = widthScale * x + offset[0];
+                    vertice[1] = newTex->GetPixel(x, z)[0];
                     vertice[2] = widthScale * z + offset[2];
                     vertice[3] = 1;
-       
-                    if (x < texWidth && z < texDepth){
-                        // inside the heightmap
-                        tex->GetPixel(x, z)[0] = tex->GetPixel(x, z)[0] * heightScale + offset[1];
-                        float height = tex->GetPixel(x, z)[0];
-                        vertice[1] = height;// * heightScale + offset[1];
-                    }else{
-                        // outside the heightmap, set height to waterlevel
-                        vertice[1] = offset[1];
-                    }
                 }
             }
 
-            // Release the heightmap.
-            tex.reset();
-            
             SetupNormalMap();
 
             if (landscapeShader != NULL){

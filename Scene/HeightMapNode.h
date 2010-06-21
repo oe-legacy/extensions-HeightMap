@@ -164,6 +164,7 @@ namespace OpenEngine {
             inline IDataBlockPtr GetNormalMapCoordBuffer() const { return normalMapCoordBuffer; }
             inline IndicesPtr    GetIndices() const { return indexBuffer; }
             inline GeometrySetPtr GetGeometrySet() const { return geom; }
+            inline FloatTexture2DPtr GetHeightMap() const { return tex; }
             inline ITexture2DPtr GetNormalMap() const { return normalmap; }
 
             int GetIndice(int x, int z);

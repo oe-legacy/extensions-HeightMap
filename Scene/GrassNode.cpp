@@ -53,8 +53,8 @@ namespace OpenEngine {
             if (grassShader){
                 float widthScale = heightmap->GetWidthScale();
 
-                ITexture2DPtr tex;
-                grassShader->GetTexture("heightmap", tex);
+                ITexture2DPtr tex = heightmap->GetHeightMap();
+                grassShader->SetTexture("heightmap", tex);
                 arg.renderer.LoadTexture(tex);
 
                 Vector<2, float> heightmapDims(tex->GetWidth(),
@@ -63,10 +63,6 @@ namespace OpenEngine {
 
                 grassShader->SetTexture("normalmap", heightmap->GetNormalMap());
                 arg.renderer.LoadTexture(tex);
-
-                Vector<2, float> normalmapDims(heightmap->GetNormalMap()->GetWidth(),
-                                               heightmap->GetNormalMap()->GetHeight());
-                grassShader->SetUniform("invNmapDimsScale", 1.0f / (normalmapDims * widthScale));
 
                 Vector<3, float> offset = heightmap->GetOffset();
                 grassShader->SetUniform("hmapOffset", Vector<2, float>(offset.Get(0), offset.Get(2)));
