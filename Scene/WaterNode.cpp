@@ -143,9 +143,9 @@ namespace OpenEngine {
             bottomVertices[1] = center[1] - 100;
 
             floorColor = new float[4];
-            floorColor[0] = 0.18f;
-            floorColor[1] = 0.24;
-            floorColor[2] = 0.45;
+            floorColor[0] = 0.09f;
+            floorColor[1] = 0.12;
+            floorColor[2] = 0.225;
             floorColor[3] = 1;
 
             texCoords = new float[entries * 2];
