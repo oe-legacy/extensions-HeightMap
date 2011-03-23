@@ -52,10 +52,11 @@ namespace OpenEngine {
                     Vector<3, float> eyeDir = arg->canvas.GetViewingVolume()->GetDirection().RotateVector(Vector<3, float>(0,0,1));
                     Vector<3, float> viewPos = arg->canvas.GetViewingVolume()->GetPosition();
                     Vector<2, float> eyePos(viewPos.Get(0), viewPos.Get(2));
+                    shader->SetUniform("viewPos", eyePos);
                     int halfDim = node->GetGridDimension() / 2;
                     eyePos[0] -= eyeDir.Get(0) * halfDim;
                     eyePos[1] -= eyeDir.Get(2) * halfDim;
-                    shader->SetUniform("viewPos", eyePos);
+                    shader->SetUniform("patchCenter", eyePos);
 
                     shader->ApplyShader();
                 }else
