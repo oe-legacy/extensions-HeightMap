@@ -40,7 +40,7 @@ namespace OpenEngine {
         }
 
         HeightMapPatch::~HeightMapPatch(){
-            delete [] LODs;
+            //delete [] LODs;
         }
 
         void HeightMapPatch::UpdateBoundingGeometry(){
