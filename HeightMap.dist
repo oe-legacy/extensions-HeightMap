@@ -1,7 +1,5 @@
+git /extensions/HeightMap			git://github.com/oe-legacy/extensions-HeightMap.git
+git-dev /extensions/HeightMap			git@github.com:oe-legacy/extensions-HeightMap.git
+
 # HeightMap dependencies
-
-darcs /extensions/HeightMap			http://openengine.dk/code/extensions/HeightMap
-darcs /extensions/MeshUtils			http://openengine.dk/code/extensions/MeshUtils
-
-darcs-dev /extensions/HeightMap			fh.daimi.au.dk:/users/cgd/code/extensions/HeightMap
-darcs-dev /extensions/MeshUtils			fh.daimi.au.dk:/users/cgd/code/extensions/MeshUtils
+dist /extensions/MeshUtils/MeshUtils.dist       https://raw.github.com/oe-legacy/extensions-MeshUtils/master/MeshUtils.dist
